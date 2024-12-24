@@ -1,9 +1,30 @@
-export type * from "@/types/session.type";
-export type * from "@/types/user.type";
-export type * from "@/types/activity.type";
-export type * from "@/types/spot.type";
-export type * from "@/types/customerSession.type";
-export type * from "@/types/sessionWithDetails.type";
-export type * from "@/types/callback.action.type";
-export type * from "@/types/emailTemplate.type";
-export type * from "@/types/Calendar.type";
+export type { ISession } from "@/types/session.type";
+export type { IUser } from "@/types/user.type";
+export type { IActivity } from "@/types/activity.type";
+export type { ISpot } from "@/types/spot.type";
+export type { ICustomerSession } from "@/types/customerSession.type";
+export type { ISessionWithDetails } from "@/types/sessionWithDetails.type";
+export type {
+  ICallback,
+  ICallbackForSessions,
+  ICallbackForSession,
+  ICallbackForSessionWithDetails,
+  ICallbackForActivities,
+  ICallbackForActivity,
+  ICallbackForSpot,
+  ICallbackForSpots,
+  ICallbackForCustomerSessions,
+  ICallbackForCustomerSession,
+  ICallbackForSessionWithDetailsArray,
+  ICallbackForEmailTemplate,
+  ICallbackForEmailTemplates,
+  ICallbackForUser,
+  ICallbackForCredentials,
+} from "@/types/callback.action.type";
+export type { IEmailTemplate } from "@/types/emailTemplate.type";
+export type {
+  ICalendarTokenInfo,
+  ICalendarEvent,
+  IEventModel,
+  ICredentials,
+} from "@/types/calendar.type";
