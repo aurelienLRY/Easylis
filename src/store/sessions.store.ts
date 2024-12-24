@@ -56,7 +56,7 @@ export const useSessions = create<TuseSessions>()(
         set(
           produce((state: { sessions: ISession[] }) => {
             state.sessions = state.sessions.filter(
-              (s) => s._id !== deletedSession._id
+              (s: ISession) => s._id !== deletedSession._id
             );
           }),
           false,

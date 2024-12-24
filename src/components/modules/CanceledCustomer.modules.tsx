@@ -21,6 +21,15 @@ type Props = {
   data: ISessionWithDetails;
 };
 
+type CustomerStatus = "Validated" | "Canceled" | "Waiting";
+
+type StatusDisplay = {
+  [key in CustomerStatus]: {
+    icon: string;
+    name: string;
+  };
+};
+
 /**
  * Ce composant représente la fenêtre d'annulation des clients.
  * @param {object} props - Les propriétés du composant.
@@ -35,13 +44,15 @@ export const CanceledCustomerSession = ({ isOpen, onClose, data }: Props) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Panneau d'annulation">
       <div className="flex flex-col gap-2 mt-4">
-        {data.customerSessions.map((customer) => (
-          <CustomerCanceled
-            key={customer._id}
-            customer={customer}
-            onClose={onClose}
-          />
-        ))}
+        {data.customerSessions.map(
+          (customer: ICustomerSession, index: number) => (
+            <CustomerCanceled
+              key={index}
+              customer={customer}
+              onClose={onClose}
+            />
+          )
+        )}
       </div>
     </Modal>
   );
@@ -54,12 +65,13 @@ export const CanceledCustomerSession = ({ isOpen, onClose, data }: Props) => {
  */
 export const CustomerCanceled = ({
   customer,
+  onClose,
 }: {
   customer: ICustomerSession;
   onClose: () => void;
 }) => {
   const { CancelCustomer, isSubmitting } = useCustomer();
-  const displayStatus = {
+  const displayStatus: StatusDisplay = {
     Validated: { icon: "👍", name: "Validé" },
     Canceled: { icon: "🙄", name: "Annulé" },
     Waiting: { icon: "🕒", name: "En attente" },
@@ -74,10 +86,10 @@ export const CustomerCanceled = ({
       {customer.status === "Canceled" && (
         <div className="absolute top-2/3 right-1/2 transform translate-x-1/2 -translate-y-1/2">
           <p className="text-2xl text-center">
-            {displayStatus[customer.status].icon}
+            {displayStatus[customer.status as CustomerStatus].icon}
           </p>
           <p className="text-4xl text-center">
-            {displayStatus[customer.status].name}
+            {displayStatus[customer.status as CustomerStatus].name}
           </p>
         </div>
       )}

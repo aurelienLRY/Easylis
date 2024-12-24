@@ -27,5 +27,5 @@
       return false; // Aucune correspondance trouvée, renvoyer faux
     }
   
-    return objet.filter((obj) => searchIn(obj)); // Filtrer les sessions où une correspondance est trouvée
+    return objet.filter((obj : object) => searchIn(obj)); // Filtrer les sessions où une correspondance est trouvée
   }

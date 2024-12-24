@@ -12,7 +12,7 @@ import { Spot } from "@/libs/database/models";
 import { spotSchema } from "@/libs/yup";
 
 /* Types */
-import { ISpot, ICallbackForSpot, ICallbackForSpots } from "@/types";
+import { ISpot, ICallbackForSpot, ICallbackForSpots, ISessionWithDetails } from "@/types";
 
 /* Actions */
 import { GET_SERVER_SESSIONS_WITH_DETAILS } from "@/libs/ServerAction";
@@ -40,7 +40,7 @@ export const xssSpot = async (spot: ISpot): Promise<ISpot> => {
       name: xss(spot.name),
       description: xss(spot.description),
       gpsCoordinates: xss(spot.gpsCoordinates),
-      practicedActivities: spot.practicedActivities.map((activity) => ({
+      practicedActivities: spot.practicedActivities.map((activity: { activityId: string; activityName: string ;  _id: string }) => ({
         ...activity,
         activityId: xss(activity.activityId),
         activityName: xss(activity.activityName),
@@ -234,7 +234,7 @@ export const DELETE_SPOT = async (
     await connectDB();
     const sessionsWithDetails = await GET_SERVER_SESSIONS_WITH_DETAILS();
     const sessionsWithDetailsBySpot = sessionsWithDetails.filter(
-      (session) => session.spot._id === spotId
+      (session: ISessionWithDetails) => session.spot._id === spotId
     );
     if (sessionsWithDetailsBySpot.length > 0) {
       return {

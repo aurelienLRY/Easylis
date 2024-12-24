@@ -64,7 +64,8 @@ export const useSessionWithDetails = create<TuseSessionWithDetails>()(
         set(
           produce((state: { SessionWithDetails: ISessionWithDetails[] }) => {
             state.SessionWithDetails = state.SessionWithDetails.filter(
-              (s) => s._id !== deletedSessionWithDetails._id
+              (s: ISessionWithDetails) =>
+                s._id !== deletedSessionWithDetails._id
             );
           }),
           false,

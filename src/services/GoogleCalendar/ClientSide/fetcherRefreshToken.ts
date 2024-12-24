@@ -1,7 +1,10 @@
 "use client";
 import { ICallback, IUser, ICredentials } from "@/types";
 
-interface TCallback extends ICallback {
+interface TCallback {
+  success: boolean;
+  error: string | null;
+  feedback: string[] | null;
   data: {
     credentials: ICredentials | null;
     profile: IUser | null;

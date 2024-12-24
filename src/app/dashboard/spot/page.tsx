@@ -92,7 +92,7 @@ function SpotPage({}: Props) {
         </div>
 
         <div className=" grid grid-cols-1 xl:grid-cols-2 justify-items-center  gap-4">
-          {filteredSpots.map((spot) => (
+          {filteredSpots.map((spot: ISpot) => (
             <SpotCard
               key={spot._id}
               spot={spot}
@@ -124,9 +124,9 @@ export default SpotPage;
 function filterSpotsByActivities(spots: ISpot[], activityId: string) {
   if (!activityId) return spots;
   if (activityId === "all") return spots;
-  return spots.filter((spot) => {
+  return spots.filter((spot: ISpot) => {
     return spot.practicedActivities.some(
-      (activity) => activity.activityId === activityId
+      (activity: any) => activity.activityId === activityId
     );
   });
 }

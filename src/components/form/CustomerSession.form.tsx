@@ -71,6 +71,13 @@ type Props = {
   onClose: () => void;
 };
 
+interface PriceStructure {
+  standard: number;
+  reduced: number;
+  ACM: number;
+  [key: string]: number;
+}
+
 export function CustomerSessionForm({ session, data, isOpen, onClose }: Props) {
   const { addCustomer, updateCustomer } = useCustomer();
   /* Form */
@@ -146,35 +153,24 @@ export function CustomerSessionForm({ session, data, isOpen, onClose }: Props) {
    * Option Tarif
    */
   const optionTarif = () => {
-    if (session.type_formule === "half_day") {
-      return Object.entries(session.activity.price_half_day)
-        .filter(([key, value]) => value > 0)
-        .map(([key, value]) => ({
-          id: key,
-          name:
-            key == "standard"
-              ? "Tarif normal"
-              : key == "acm"
-              ? "Tarif acm"
-              : key == "reduced"
-              ? "Tarif réduit"
-              : key,
-        }));
-    } else {
-      return Object.entries(session.activity.price_full_day)
-        .filter(([key, value]) => value > 0)
-        .map(([key, value]) => ({
-          id: key,
-          name:
-            key == "standard"
-              ? "Tarif normal"
-              : key == "acm"
-              ? "Tarif acm"
-              : key == "reduced"
-              ? "Tarif réduit"
-              : key,
-        }));
-    }
+    const prices =
+      session.type_formule === "half_day"
+        ? (session.activity.price_half_day as PriceStructure)
+        : (session.activity.price_full_day as PriceStructure);
+
+    return Object.entries(prices)
+      .filter(([_, value]: [string, number]) => value > 0)
+      .map(([key]) => ({
+        id: key,
+        name:
+          key === "standard"
+            ? "Tarif normal"
+            : key === "ACM"
+            ? "Tarif acm"
+            : key === "reduced"
+            ? "Tarif réduit"
+            : key,
+      }));
   };
 
   /*
@@ -204,7 +200,7 @@ export function CustomerSessionForm({ session, data, isOpen, onClose }: Props) {
 
   useEffect(() => {
     if (watch.tarification === "reduced") {
-      watch.people_list?.forEach((person, index) => {
+      watch.people_list?.forEach((_: any, index: number) => {
         const price = getPriceApplicable(
           true,
           session.type_formule,
@@ -213,17 +209,27 @@ export function CustomerSessionForm({ session, data, isOpen, onClose }: Props) {
         methods.setValue(`people_list.${index}.price_applicable`, price);
       });
     } else {
-      watch.people_list?.forEach((person, index) => {
-        if (person.isReduced === undefined) {
-          return;
+      watch.people_list?.forEach(
+        (
+          person: {
+            price_applicable?: number | undefined;
+            isReduced?: boolean | undefined;
+            size: string;
+            weight: string;
+          },
+          index: number
+        ) => {
+          if (person.isReduced === undefined) {
+            return;
+          }
+          const price = getPriceApplicable(
+            person.isReduced,
+            session.type_formule,
+            session.activity
+          );
+          methods.setValue(`people_list.${index}.price_applicable`, price);
         }
-        const price = getPriceApplicable(
-          person.isReduced,
-          session.type_formule,
-          session.activity
-        );
-        methods.setValue(`people_list.${index}.price_applicable`, price);
-      });
+      );
     }
   }, [
     watch.tarification,

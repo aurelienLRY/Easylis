@@ -254,7 +254,7 @@ const SessionsList = ({ sessions, modals }: SessionsListProps) => (
   <>
     {DisplayHeaderMessage(sessions.length)}
     <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 justify-items-center">
-      {sessions.map((session) => (
+      {sessions.map((session: ISessionWithDetails) => (
         <SessionCard
           key={session._id}
           sessionWithDetails={session}

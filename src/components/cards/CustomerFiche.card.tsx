@@ -57,8 +57,8 @@ export const CustomerFiche = ({
       let people_list = [...customer.people_list];
 
       try {
-        setIsSubmitting((prev) =>
-          prev.map((value, i) => (i === index ? true : value))
+        setIsSubmitting((prev: boolean[]) =>
+          prev.map((value: boolean, i: number) => (i === index ? true : value))
         );
 
         people_list.splice(index, 1);
@@ -107,7 +107,7 @@ export const CustomerFiche = ({
 
         <ItemCardInner className="flex flex-col gap-4  w-full p-4 ">
           <p className="text-center text-2xl">Détails du groupe</p>
-          {customer.people_list.map((person, index) => (
+          {customer.people_list.map((person: any, index: number) => (
             <div
               key={index}
               className={`flex items-center gap-2 justify-center rounded-md border border-gray-200 p-2  transition-all duration-300 ${

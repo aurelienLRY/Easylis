@@ -51,7 +51,7 @@ export const useSpots = create<TuseSpots>()(
       deleteSpots: (deletedSpot: ISpot) =>
         set(
           produce((state: { Spots: ISpot[] }) => {
-            state.Spots = state.Spots.filter((s) => s._id !== deletedSpot._id);
+            state.Spots = state.Spots.filter((s : ISpot) => s._id !== deletedSpot._id);
           })
         ),
       addSpots: (newSpot: ISpot) =>
