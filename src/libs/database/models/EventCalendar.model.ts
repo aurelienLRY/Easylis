@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 /* Types */
-import { IEventModel } from "@/types/Calendar.type";
+import { IEventModel } from "@/types";
 
 const EventCalendarSchema = new Schema<IEventModel>({
   eventId: {
