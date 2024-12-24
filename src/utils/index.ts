@@ -16,6 +16,7 @@ export {
   getMonthString,
   getMonthValue,
   getYearString,
+  formatDateToLocaleDateString,
 } from "@/utils/date.utils";
 
 export {
@@ -38,3 +39,5 @@ export {
 export { capitalizeFirstLetter } from "@/utils/typo.utils";
 
 export { checkAvatarExists, uploadAvatarAction } from "@/utils/avatar.utils";
+
+export { getMockData } from "@/utils/mock.utils";

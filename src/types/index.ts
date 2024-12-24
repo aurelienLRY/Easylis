@@ -20,6 +20,7 @@ export type {
   ICallbackForEmailTemplates,
   ICallbackForUser,
   ICallbackForCredentials,
+  ICallbackForEvent,
 } from "@/types/callback.action.type";
 export type { IEmailTemplate } from "@/types/emailTemplate.type";
 export type {

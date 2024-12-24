@@ -26,11 +26,16 @@ export const GET_SERVER_SESSION_WITH_DETAILS = async (
     sessionId: session._id,
   })) as ICustomerSession[];
 
+  // trier les customer par status mettre en premier les customer qui ont un status "validé"
+  const customerSessionFiltered = customerSession.sort((a, b) => {
+    return a.status === "Validated" ? -1 : 1;
+  });
+
   const sessionWithDetails = {
     ...(session as any).toObject(),
     activity: activity && activity,
     spot: spot && spot,
-    customerSessions: customerSession && customerSession,
+    customerSessions: customerSessionFiltered && customerSessionFiltered,
   } as ISessionWithDetails;
   return sessionWithDetails;
 };

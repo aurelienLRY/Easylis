@@ -13,14 +13,14 @@ import {
 } from "@/components";
 
 /*Hook*/
-import { useModal, useCustomer } from "@/hooks";
+import { useModal, useCustomer, useMailer } from "@/hooks";
 
 /* types */
 import { ICustomerSession, ISessionWithDetails } from "@/types";
 
 /* utils */
 import { getMonthValue, SearchInObject } from "@/utils";
-import { cn } from "@/utils/cn";
+
 /* icons */
 import { FaChevronCircleLeft, FaChevronCircleRight } from "react-icons/fa";
 
@@ -32,6 +32,7 @@ type SortedSessions = {
 };
 
 const BookingPage = () => {
+  const mailer = useMailer();
   const { SessionWithDetails: sessionWithDetails } = useSessionWithDetails();
   const [filteredSession, setFilteredSession] = useState<SortedSessions>({});
   const [search, setSearch] = useState<string>("");
@@ -40,7 +41,7 @@ const BookingPage = () => {
     { year: number; month: number }[]
   >([]);
   const [periodFilter, setPeriodFilter] = useState<string>("all");
-  const ITEMS_PER_PAGE = 2; // Nombre de mois à afficher par page
+  const ITEMS_PER_PAGE = 3; // Nombre de mois à afficher par page
 
   // Fonction de tri des sessions par mois et année
   function getSortedSessionByMonthAndYear(
@@ -68,7 +69,6 @@ const BookingPage = () => {
       const now = new Date();
       const currentYear = now.getFullYear();
       const currentMonth = now.getMonth();
-
       return sessions.filter((session) => {
         const sessionDate = new Date(session.date);
         const sessionMonth = sessionDate.getMonth();
@@ -153,7 +153,6 @@ const BookingPage = () => {
   };
   const editCustomer = useModal<TEditData>();
   const detailCustomerModal = useModal<ICustomerSession>();
-  const { CancelCustomer, isSubmitting } = useCustomer();
 
   const getButtonClassName = (isActive: boolean) => {
     const baseClass = "px-3 py-1 rounded-md transition-all";
@@ -163,9 +162,13 @@ const BookingPage = () => {
     return `${baseClass} ${isActive ? activeClass : inactiveClass}`;
   };
 
+  mailer.onClose = () => {
+    detailCustomerModal.closeModal();
+  };
+
   return (
     <>
-      <ItemContainer>
+      <ItemContainer className="">
         <div className="w-full flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
           {/* Filtre par période */}
           <div className="flex flex-col items-start w-full md:w-auto">
@@ -206,16 +209,16 @@ const BookingPage = () => {
           </div>
         </div>
 
-        <div className="flex  items-center justify-center">
+        <div className="flex  items-center justify-center md:min-h-[700px]">
           {totalPages > 1 && (
-          <Tooltip title="Mois précédents">
-            <button
-              className="max-w-1/6 flex justify-end  text-white hover:text-orange-600 rounded disabled:text-gray-300"
-              onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
-              disabled={currentPage === 0}
-            >
-              <FaChevronCircleLeft className="text-4xl h-10 w-10" />
-            </button>
+            <Tooltip title="Mois précédents">
+              <button
+                className="max-w-1/6 flex justify-end  text-white hover:text-orange-600 rounded disabled:text-gray-300"
+                onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
+                disabled={currentPage === 0}
+              >
+                <FaChevronCircleLeft className="text-4xl h-10 w-10" />
+              </button>
             </Tooltip>
           )}
           {/* Affichage des données paginées */}
@@ -244,8 +247,6 @@ const BookingPage = () => {
                             data={sessionWithDetails}
                             customerFiche={detailCustomerModal.openModal}
                             editCustomer={editCustomer.openModal}
-                            deleteCustomer={(e) => CancelCustomer(e)}
-                            isSubmitting={isSubmitting}
                           />
                         )
                     )}
@@ -258,13 +259,13 @@ const BookingPage = () => {
             <Tooltip title="Mois suivants">
               <button
                 className="max-w-1/6 flex justify-end text-white hover:text-orange-600 rounded disabled:text-gray-300"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
-              }
-              disabled={currentPage >= totalPages - 1}
-            >
-              <FaChevronCircleRight className="text-4xl h-10 w-10 " />
-            </button>
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
+                }
+                disabled={currentPage >= totalPages - 1}
+              >
+                <FaChevronCircleRight className="text-4xl h-10 w-10 " />
+              </button>
             </Tooltip>
           )}
         </div>
@@ -273,17 +274,17 @@ const BookingPage = () => {
             {Array.from({ length: totalPages }).map((_, index) => (
               <Tooltip title={`Aller à la page ${index + 1}`} key={index}>
                 <button
-                onClick={() => setCurrentPage(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-200 border-2 ${
-                  currentPage === index
-                    ? "bg-orange-600 border-orange-600 " // Dot actif
-                    : " border-white hover:border-orange-600" // Dot inactif
-                }`}
-                aria-label={`Aller à la page ${index + 1}`}
-              >
-                <span className="sr-only">Page {index + 1}</span>
-              </button>
-            </Tooltip>
+                  onClick={() => setCurrentPage(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-200 border-2 ${
+                    currentPage === index
+                      ? "bg-orange-600 border-orange-600 " // Dot actif
+                      : " border-white hover:border-orange-600" // Dot inactif
+                  }`}
+                  aria-label={`Aller à la page ${index + 1}`}
+                >
+                  <span className="sr-only">Page {index + 1}</span>
+                </button>
+              </Tooltip>
             ))}
           </div>
         )}

@@ -1,4 +1,4 @@
-# Projet de Gestion de Réservation d’Activités
+# Easylis 
 
 ![Occitanie Évasion](https://github.com/user-attachments/assets/b3cd8efd-ddd6-4bd3-a2c4-060fd405b335)
 
@@ -15,8 +15,16 @@
 
 ## 1. À propos
 
-Ce projet est une **application de gestion de réservation d'activités** développée pour faciliter les réservations clients dans une entreprise de loisirs. Elle permet de gérer les créneaux horaires, les clients et les disponibilités des activités en temps réel.
+Easylis est une application conçue pour simplifier la gestion des activités et des réservations. Elle s'adapte aux besoins variés des entreprises de loisirs.
 
+Avec Easylis, les gestionnaires peuvent planifier, suivre et optimiser leurs événements.
+
+** Caractéristiques principales : ** 
+
+Gestion des créneaux horaires : Configurez et organisez facilement les disponibilités des activités en fonction des capacités et des ressources.
+Réservations en temps réel : Permettez aux clients de réserver directement via une interface conviviale, avec des mises à jour instantanées des disponibilités.
+Suivi des performances : Analysez les données des activités pour identifier les tendances et maximiser l’efficacité.
+Notifications automatisées : Envoyez des rappels aux clients ou des alertes aux gestionnaires en quelques clics.
 ---
 
 ## 2. Stack Technique
@@ -101,6 +109,12 @@ SMTP_PORT=465
 SMTP_SECURE=true
 SMTP_EMAIL="email"
 SMTP_PASSWORD=""
+
+#API CALENDAR
+GOOGLE_CLIENT_ID= string
+GOOGLE_CLIENT_SECRET= string
+GOOGLE_REDIRECT_URI= string
+NEXT_PUBLIC_GOOGLE_API_KEY= string
 
 
 ```

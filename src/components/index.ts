@@ -1,71 +1,61 @@
-/* UI */
-export { default as ActivityCard } from "@/components/ui/ActivityCard";
+/{} UI Components {}/
 
-export {
-  Badge,
-  CustomerPriceBadge,
-  GlobalPriceBadge,
-  StatusBadge,
-} from "@/components/ui/badge";
-export {
-  DeleteButton,
-  DetailButton,
-  EditButton,
-  IconButton,
-  PrimaryButton,
-  SecondaryButton,
-  RefreshButton,
-} from "@/components/ui/Button";
+// Buttons
+export {DeleteButton , DetailButton,EditButton,IconButton , PrimaryButton, RefreshButton, SecondaryButton } from "@/components/buttons/Buttons";
+export {HeaderBtn} from "@/components/buttons/NaviationAvatar.button";
+export {ThemeToggle} from "@/components/buttons/ThemeToggle.button";
 
-export { CustomerBookingTable } from "@/components/ui/CustomerBookingTable";
-export { CustomerCard } from "@/components/ui/CustomerCard";
-export { CustomerFiche } from "@/components/ui/CustomerFiche";
-export { DashboardNav } from "@/components/ui/DashboardNav";
-export { EmailTemplateEditor } from "@/components/ui/EmailTemplateEditor";
-export { default as Header } from "@/components/ui/Header";
-export { InfoTooltips } from "@/components/ui/InfoTooltips";
-export {
-  CheckboxInput,
-  Input,
-  SelectInput,
-  SimpleCheckboxInput,
-  Textarea,
-  InputPhone,
-} from "@/components/ui/Inputs";
-export {
-  ItemCard,
-  ItemCardInner,
-  ItemCardHeader,
-  ItemContainer,
-} from "@/components/ui/ItemCard";
-//export { default as MapCustomer } from "@/components/ui/MapCustomer";
-export { Modal } from "@/components/ui/Modal";
-export { HeaderBtn } from "@/components/ui/HeaderBtn";
+// Cards
+export {ActivityCard} from "@/components/cards/Activity.Card";
+export {CustomerCard} from "@/components/cards/Customer.Card";
+export {CustomerFiche} from "@/components/cards/CustomerFiche.card";
+export {SessionDetailCard} from "@/components/cards/DetailSession.Card";
+export {ItemCard, ItemCardHeader,ItemCardInner,ItemContainer} from "@/components/cards/Items.Card";
+export {SessionCard} from "@/components/cards/Session.Card";
+export {SpotCard} from "@/components/cards/Spot.Card";
+export {CustomerTables_Session} from "@/components/cards/CustomerTables_Session.card";
+// Data Display
+export {ItemDisplay} from "@/components/DataDisplay/Item.display";
+export {DateDisplay} from "@/components/DataDisplay/Date.display";
+export {TimeDisplay} from "@/components/DataDisplay/Time.display";
+export {LocationDisplay} from "@/components/DataDisplay/Location.display";
+export {RemainingBookingsDisplay} from "@/components/DataDisplay/RemainingBookings.display";
+export {PlanDisplay} from "@/components/DataDisplay/Plan.display";
+export {EmailDisplay} from "@/components/DataDisplay/Email.display";
+export {PhoneDisplay} from "@/components/DataDisplay/Phone.display";
+export {BookingDateDisplay} from "@/components/DataDisplay/BookingDate.display";
+export {PricesDisplay,TotalPriceDisplay} from "@/components/DataDisplay/Prices.display";
+// Feedback
+export {Badge,CustomerPriceBadge ,GlobalPriceBadge,StatusBadge} from "@/components/feedback/Badge.feedback";
+export {InfoTooltips} from "@/components/feedback/InfoTooltips.feedback";
+export {LoadingSpinner} from "@/components/feedback/LoadingSpinner.feedback";
+export {ToasterAction} from "@/components/feedback/ToasterAction.feedback";
 
-export { default as EmailCard } from "@/components/ui/EmailCard";
-export { default as SingOutBtn } from "@/components/ui/singOut";
-export { default as ThemeToggle } from "@/components/ui/ThemeToggle";
-export { default as ToasterAction } from "@/components/ui/ToasterAction";
-export { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+// Forms
+export {ActivityForm } from "@/components/form/Activity.form";
+export {CustomerSessionForm} from "@/components/form/CustomerSession.form";
+export {SessionForm} from "@/components/form/Session.form";
+export {SpotForm} from "@/components/form/Spot.form";
+export {LoginForm  } from "@/components/form/Login.form";
+export {ProfilForm} from "@/components/form/Profil.form";
+export {ChangePassword} from "@/components/form/ChangePassword.form";
 
-/*  UI Forms */
-export { ActivityForm } from "@/components/ui/activity.form";
-export { CustomerSessionForm } from "@/components/ui/customerSession.form";
-export { LoginForm } from "@/components/ui/login.form";
-export { SessionForm } from "@/components/ui/session.form";
-export { SpotForm } from "@/components/ui/spot.form";
-export { ProfilForm } from "@/components/ui/profil.form";
-export { ChangePassword } from "@/components/ui/ChangePassword.form";
+// Inputs
+export {CheckboxInput,Input,InputPhone,SelectInput,SimpleCheckboxInput,Textarea} from "@/components/input/Inputs";
 
-/* Modules */
-export { Dashboard } from "@/components/modules/Dashboard";
-export {
-  CanceledCustomerSession,
-  CustomerCanceled,
-} from "@/components/modules/CanceledCustomerSession";
-export { SessionCard } from "@/components/modules/SessionCard";
-export { default as SpotCard } from "@/components/modules/SpotCard";
-export { default as SessionDetailCard } from "@/components/modules/SessionDetailCard";
-export { default as AllSessionsCard } from "@/components/modules/AllSessionsCard";
-export { AvatarSystem } from "@/components/modules/AvatarSystem";
-export { CalendarCard } from "@/components/modules/CalendarCard";
+// Layout
+export { Dashboard } from "@/components/layout/Dashboard.layout";
+export {Header} from "@/components/layout/Header.layout";
+export {Modal} from "@/components/layout/Modal.layout";
+export {DashboardNav} from "@/components/layout/Navigation.layout";
+export {SingOutBtn} from "@/components/layout/SingOut.layout";
+
+/{} Module Components {}/
+
+// Session
+export {AvatarSystem,checkAvatarExists} from "@/components/modules/AvatarSystem";
+export {CalendarCard} from "@/components/modules/Calendar.modules";
+export {CanceledCustomerSession,CustomerCanceled} from "@/components/modules/CanceledCustomer.modules";
+export {CustomerBookingTable} from "@/components/modules/CustomerBookingTable.modules";
+export {AllSessionsCard} from "@/components/modules/DisplaySessions.modules";
+export {EmailTemplateEditor} from "@/components/modules/MailerEditor.modules";

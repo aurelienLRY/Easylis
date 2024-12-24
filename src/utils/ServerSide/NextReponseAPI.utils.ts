@@ -11,20 +11,20 @@ type CallbackResponse = {
  * Crée un objet de réponse formaté
  * @template T - Type de callback (ICallback ou ICallbackForUser etc.)
  */
-export const createResponse = <T extends CallbackResponse>(
+export const createResponse = <CallbackResponse>(
   success: boolean,
-  data: T["data"] = null,
-  feedback: T["feedback"] = null,
+  data: any = null,
+  feedback: string[] | null = null,
   error: string | null = null,
   status: number
-): NextResponse<T> => {
+): NextResponse<CallbackResponse> => {
   return NextResponse.json(
     {
       success,
       data,
       feedback,
       error,
-    } as T,
+    } as CallbackResponse,
     { status }
   );
 };

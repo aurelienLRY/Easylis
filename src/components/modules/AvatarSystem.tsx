@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { useProfile } from "@/store";
 /* icons */
 import { FaCloudUploadAlt } from "react-icons/fa";
+
 /**
  * Ce composant gère le système d'avatar pour les utilisateurs.
  * Il permet aux utilisateurs de télécharger une nouvelle image d'avatar,
@@ -31,7 +32,6 @@ export const AvatarSystem = () => {
   );
   const [isUploaded, setIsUploaded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { data: session, update } = useSession();
 
   /**
    * Handle image change
@@ -61,7 +61,6 @@ export const AvatarSystem = () => {
     });
     // Récupère le résultat de l'envoie de l'image
     const result = await fetchAvatar.json();
-    console.log("result", result);
     if (result.success) {
       setIsUploaded(true);
 

@@ -19,6 +19,7 @@ const nodemailerTransporter = nodemailer.createTransport(
     subject: "Occitanie Evasion - Participer à notre prochaine évasion !",
   }
 );
+
 /**
  * Envoi un email avec nodemailer
  * @param email - L'email du destinataire
@@ -31,22 +32,26 @@ export const nodeMailerSender = async (
   subject: string,
   html: string
 ): Promise<boolean> => {
-  const isVerified = await nodemailerTransporter.verify();
-  if (!isVerified) {
+  try {
+    const isVerified = await nodemailerTransporter.verify();
+    if (!isVerified) {
+      throw new Error("Le serveur SMTP n'est pas disponible");
+    }
+
+    const mailOptions = {
+      from: `Occitanie Evasion <${process.env.SMTP_EMAIL}>`,
+      to: email,
+      subject: subject,
+      html: html,
+    };
+
+    const info = await nodemailerTransporter.sendMail(mailOptions);
+    if (!info.messageId) {
+      throw new Error("L'email n'a pas été envoyé");
+    }
+    return true;
+  } catch (error) {
+    console.log("Erreur lors de l'envoi de l'email", error);
     return false;
   }
-
-  const mailOptions = {
-    from: process.env.SMTP_EMAIL,
-    to: email,
-    subject: subject,
-    html: html,
-  };
-
-  const info = await nodemailerTransporter.sendMail(mailOptions);
-  if (info.messageId) {
-    return true;
-  }
-  console.log("Erreur lors de l'envoi de l'email");
-  return false;
 };

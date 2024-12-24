@@ -80,3 +80,17 @@ export const formatDateTime = (
   const d = new Date(date);
   return `${formatDate(d)}T${hours}:00${timeZone}`;
 };
+
+
+/**
+ * Format the date to the locale date string
+ * @param date - The date to format
+ * @returns The formatted date
+ */
+export const formatDateToLocaleDateString = (date: string | Date) => {
+  return new Date(date).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};

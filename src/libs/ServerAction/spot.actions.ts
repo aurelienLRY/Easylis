@@ -33,7 +33,7 @@ export const validateSpot = async (spot: ISpot) => {
  * @param spot - The spot to xss
  * @returns The xss result
  */
-export const xssSpot = async (spot: ISpot): Promise<ISpot | object> => {
+export const xssSpot = async (spot: ISpot): Promise<ISpot> => {
   try {
     const xssData: ISpot = {
       ...spot,
@@ -49,9 +49,13 @@ export const xssSpot = async (spot: ISpot): Promise<ISpot | object> => {
       meetingPoint: {
         half_day: spot.meetingPoint.half_day
           ? xss(spot.meetingPoint.half_day)
+          : spot.gpsCoordinates
+          ? spot.gpsCoordinates
           : null,
         full_day: spot.meetingPoint.full_day
           ? xss(spot.meetingPoint.full_day)
+          : spot.gpsCoordinates
+          ? spot.gpsCoordinates
           : null,
       },
     };
@@ -72,6 +76,10 @@ export async function CREATE_SPOT(spot: ISpot): Promise<ICallbackForSpot> {
     /* validation & cleaning */
     const YupValidation = await validateSpot(spot);
     const cleanSpot = await xssSpot(YupValidation as ISpot);
+
+    if (!cleanSpot.meetingPoint.half_day && !cleanSpot.meetingPoint.full_day) {
+      throw new Error("Au moins un point de rendez-vous est requis");
+    }
 
     await connectDB();
     const newSpot = new Spot(cleanSpot);
@@ -175,6 +183,10 @@ export async function UPDATE_SPOT(
     /* validation & cleaning */
     const YupValidation = await validateSpot(spot);
     const cleanSpot = await xssSpot(YupValidation as ISpot);
+
+    if (!cleanSpot.meetingPoint.half_day && !cleanSpot.meetingPoint.full_day) {
+      throw new Error("Au moins un point de rendez-vous est requis");
+    }
 
     await connectDB();
 

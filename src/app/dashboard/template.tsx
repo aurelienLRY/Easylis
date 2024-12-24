@@ -3,19 +3,19 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/hooks";
 import { Spin } from "antd";
-
+import { toast } from "sonner";
 /* components */
-import { SingOutBtn, Dashboard } from "@/components";
+import { SingOutBtn, Dashboard, EmailTemplateEditor } from "@/components";
 
 /* Store */
 import {
   useSessionWithDetails,
   useSpots,
   useActivities,
-  useCustomerSessions,
   useProfile,
   useCalendar,
 } from "@/store";
+import { useMailer } from "@/hooks/useMailer";
 
 /**
  * Template Component
@@ -33,7 +33,6 @@ export default function Template({ children }: { children: React.ReactNode }) {
           useSessionWithDetails.getState().fetchSessionWithDetails(),
           useSpots.getState().fetchSpots(),
           useActivities.getState().fetchActivities(),
-          useCustomerSessions.getState().fetchCustomerSessions(),
         ]);
         useCalendar.getState().initialize();
       } catch (error) {
@@ -49,6 +48,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
 
   // Get the user status
   const { status } = useAuth();
+  const mailer = useMailer();
 
   const sessionsWithDetails = useSessionWithDetails(
     (state) => state.SessionWithDetails
@@ -67,7 +67,31 @@ export default function Template({ children }: { children: React.ReactNode }) {
   return (
     <Dashboard sessionsWithDetails={sessionsWithDetails}>
       {children}
+
+      {/* SingOutBtn */}
       <SingOutBtn />
+
+      {/* Email Template Editor */}
+      <EmailTemplateEditor
+        isSubmitting={mailer.isSubmitting}
+        isOpen={mailer.isEditorOpen}
+        Mail={mailer.initialEmailContent}
+        EmailContent={mailer.handleEmailContent}
+        onSend={async () => {
+          await mailer.sendEmail();
+          if (mailer.queuedEmails.length > 0) {
+            const nextEmail = mailer.processNextEmail();
+            if (nextEmail) {
+              toast.success(
+                "Email envoyé avec succès. Préparation du prochain email..."
+              );
+            } else {
+              toast.success("Tous les emails ont été envoyés avec succès");
+            }
+          }
+        }}
+        onClose={mailer.closeEditor}
+      />
     </Dashboard>
   );
 }
