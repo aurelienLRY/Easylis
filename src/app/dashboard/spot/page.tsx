@@ -126,7 +126,7 @@ function filterSpotsByActivities(spots: ISpot[], activityId: string) {
   if (activityId === "all") return spots;
   return spots.filter((spot) => {
     return spot.practicedActivities.some(
-      (activity) => activity.activityId === activityId
+      (activity: any) => activity.activityId === activityId
     );
   });
 }
