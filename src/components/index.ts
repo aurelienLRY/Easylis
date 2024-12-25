@@ -49,8 +49,9 @@ export {Header} from "@/components/layout/Header.layout";
 export {Modal} from "@/components/layout/Modal.layout";
 export {DashboardNav} from "@/components/layout/Navigation.layout";
 export {SingOutBtn} from "@/components/layout/SingOut.layout";
+export {Footer} from "@/components/layout/Footer.layout"
 
-/{} Module Components {}/
+/* Module Components */
 
 // Session
 export {AvatarSystem,checkAvatarExists} from "@/components/modules/AvatarSystem";

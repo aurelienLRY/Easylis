@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spin } from "antd";
 
+import { PrimaryButton} from "@/components"
+
 export type LoginFormData = {
   email: string;
   password: string;
@@ -50,15 +52,17 @@ export const LoginForm = () => {
   return (
     <div
       className="min-h-[500px]  max-h-[700px] min-w-[350px] max-w-[400px]
-     bg-sky-400 bg-opacity-5 backdrop-blur-sm flex flex-col justify-center items-center
-      absolute top-1/2 right-1/2  translate-x-1/2 -translate-y-1/2  md:right-1/3  rounded-md"
-    >
+     bg-black bg-opacity-30 backdrop-blur-sm flex flex-col gap-8 justify-center items-center
+      absolute top-1/2 left-1/4  -translate-x-1/2 -translate-y-1/2  md:left-1/4  rounded-md"
+    >    
+    <h1 className="text-4xl font-bold">Connection</h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-2 items-center justify-center h-full"
+        className="flex flex-col gap-4 items-center justify-center h-full"
       >
-        <h1 className="text-2xl font-bold">Se connecter</h1>
-        <div className="flex flex-col gap-2">
+
+        <div className="flex flex-col gap-1">
+       <div className="flex flex-col ">
           <label htmlFor="email" className="sr-only">
             Email
           </label>
@@ -79,7 +83,7 @@ export const LoginForm = () => {
             {errors.email?.message}
           </span>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col ">
           <label htmlFor="password" className="sr-only">
             Mot de passe
           </label>
@@ -100,13 +104,16 @@ export const LoginForm = () => {
             {errors.password?.message}
           </span>
         </div>
-        <button
+        </div>
+    
+ 
+        <PrimaryButton
           type="submit"
           className="bg-sky-500 text-white px-4 py-1 rounded-md min-w-20 min-h-10"
           disabled={isSubmitting}
         >
           {isSubmitting ? <Spin /> : "Se connecter"}
-        </button>
+        </PrimaryButton>
       </form>
     </div>
   );

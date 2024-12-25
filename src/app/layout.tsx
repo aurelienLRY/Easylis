@@ -23,7 +23,7 @@ export default async function RootLayout({
   return (
     <html lang="fr" className="scroll-smooth dark">
       <body
-        className={`${inter.className} w-screen dark:bg-gray-900 dark:text-white`}
+        className={`${inter.className}  dark:bg-gray-900 dark:text-white`}
       >
         <ConfigProvider
           theme={{
