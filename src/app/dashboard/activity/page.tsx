@@ -54,7 +54,7 @@ function ActivityPage({}: Props) {
           </div>
         </div>
         <div className=" grid grid-cols-1 lg:grid-cols-2 justify-center items-center gap-4">
-          {filteredActivities.map((activity) => (
+          {filteredActivities.map((activity: IActivity) => (
             <ActivityCard
               key={activity._id}
               activity={activity}

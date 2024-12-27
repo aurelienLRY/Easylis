@@ -16,6 +16,7 @@ import {
   IActivity,
   ICallbackForActivity,
   ICallbackForActivities,
+  ISessionWithDetails,
 } from "@/types";
 
 /* Actions */
@@ -217,7 +218,7 @@ export const DELETE_ACTIVITY = async (
     await connectDB();
     const sessionsWithDetails = await GET_SERVER_SESSIONS_WITH_DETAILS();
     const sessionsWithDetailsByActivity = sessionsWithDetails.filter(
-      (session) => session.activity._id === activityId
+      (session: ISessionWithDetails) => session.activity._id === activityId
     );
     if (sessionsWithDetailsByActivity.length > 0) {
       return {

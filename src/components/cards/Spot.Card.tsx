@@ -8,7 +8,7 @@ import Image from "next/image";
 import { Skeleton } from "@nextui-org/react";
 
 /* Types */
-import { ISpot } from "@/types";
+import { ISessionWithDetails, ISpot } from "@/types";
 
 /* Actions */
 import { DELETE_SPOT } from "@/libs/ServerAction";
@@ -39,7 +39,7 @@ export function SpotCard({
 
   //get all sessions with this spot
   const sessionsWithSpot = SessionWithDetails.filter(
-    (session) => session.spot._id === spot._id
+    (session: ISessionWithDetails) => session.spot._id === spot._id
   );
 
   const handleDelete = async () => {
@@ -111,9 +111,11 @@ export function SpotCard({
             <ItemCardInner className="flex gap-3 w-full items-center ">
               <h3 className=" font-bold text-center">Activités pratiquées:</h3>
               <div className={`grid grid-cols-1 gap-2  w-full`}>
-                {spot.practicedActivities.map((activity) => (
-                  <p key={activity.activityId}>{activity.activityName}</p>
-                ))}
+                {spot.practicedActivities.map(
+                  (activity: { activityName: string; activityId: string }) => (
+                    <p key={activity.activityId}>{activity.activityName}</p>
+                  )
+                )}
               </div>
             </ItemCardInner>
           </div>

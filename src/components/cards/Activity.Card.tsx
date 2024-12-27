@@ -234,7 +234,7 @@ export function ActivityCard({ activity, updateActivityModal }: Props) {
                 value: activity.max_OfPeople,
                 icon: <IoPeople />,
               },
-            ].map((item, index) => (
+            ].map((item: { label: string; value: string | number; icon?: React.ReactNode }, index: number) => (
               <div
                 key={index}
                 className="flex flex-col justify-around items-center gap-1 bg-orange-500 rounded-md p-2 text-center"

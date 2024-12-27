@@ -20,7 +20,7 @@ import { spotSchema } from "@/libs/yup";
 import { useSpots, useActivities } from "@/store";
 
 /* types */
-import { ISpot } from "@/types";
+import { ISpot, IActivity, ICustomerSession } from "@/types";
 
 /* components */
 import {
@@ -194,7 +194,7 @@ export function SpotForm({
               </p>
             )}
             <div className="grid grid-cols-2 gap-4 justify-around">
-              {activities.map((activity) => (
+              {activities.map((activity: IActivity) => (
                 <CheckboxInput
                   key={activity._id}
                   name={`practicedActivities.${activity._id}`}

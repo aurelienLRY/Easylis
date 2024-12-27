@@ -69,7 +69,7 @@ const BookingPage = () => {
       const now = new Date();
       const currentYear = now.getFullYear();
       const currentMonth = now.getMonth();
-      return sessions.filter((session) => {
+      return sessions.filter((session: ISessionWithDetails) => {
         const sessionDate = new Date(session.date);
         const sessionMonth = sessionDate.getMonth();
         const sessionYear = sessionDate.getFullYear();

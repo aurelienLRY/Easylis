@@ -290,7 +290,7 @@ function PricingColumn({ title, prefix, disabled }: PricingColumnProps) {
       }`}
     >
       <div className="font-semibold text-center py-4">{title}</div>
-      {PRICE_TYPES.map(({ name, label }) => (
+      {PRICE_TYPES.map(({ name, label }: { name: string; label: string }) => (
         <Input
           key={name}
           name={`${prefix}.${name}`}

@@ -50,7 +50,7 @@ export const xssCustomerSession = async (customerSession: ICustomerSession) => {
       phone: xss(customerSession.phone),
       typeOfReservation: xss(customerSession.typeOfReservation),
       number_of_people: customerSession.number_of_people,
-      people_list: customerSession.people_list.map((person) => ({
+      people_list: customerSession.people_list.map((person: { size: string; weight: string; price_applicable: number; isReduced: boolean }) => ({
         size: xss(person.size),
         weight: xss(person.weight),
         price_applicable: person.price_applicable,

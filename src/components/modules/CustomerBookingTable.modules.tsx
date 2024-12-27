@@ -118,9 +118,10 @@ export const CustomerBookingTable = ({
                 </tr>
               </thead>
               <tbody className="text-sm text-center rounded-md">
-                {data.customerSessions.map((customerSession, index) => (
-                  <tr
-                    key={index}
+                {data.customerSessions.map(
+                  (customerSession: ICustomerSession, index: number) => (
+                    <tr
+                      key={index}
                     className="h-16 border-b rounded-md border-slate-300 dark:border-sky-700 hover:bg-slate-200 dark:hover:bg-orange-500 transition-all duration-300"
                   >
                     <td className="text-center px-2">

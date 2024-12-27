@@ -55,7 +55,7 @@ export const useCustomerSessions = create<TuseCustomerSessions>()(
         set(
           produce((state: { CustomerSessions: ICustomerSession[] }) => {
             state.CustomerSessions = state.CustomerSessions.filter(
-              (s) => s._id !== deletedCustomerSession._id
+              (s: ICustomerSession) => s._id !== deletedCustomerSession._id
             );
           }),
           false,
@@ -82,9 +82,11 @@ export const useCustomerSessions = create<TuseCustomerSessions>()(
         ) {
           const response = await GET_CUSTOMER_SESSIONS();
           if (response.success && response.data) {
-            const customerSessions = response.data.sort((a, b) => {
-              return a.status === "Validated" ? -1 : 1;
-            });
+            const customerSessions = response.data.sort(
+              (a: ICustomerSession, b: ICustomerSession) => {
+                return a.status === "Validated" ? -1 : 1;
+              }
+            );
             set(
               { CustomerSessions: customerSessions, lastFetch: currentTime },
               false,

@@ -45,7 +45,9 @@ export const GET_SERVER_SESSIONS_WITH_DETAILS = async (): Promise<
 > => {
   const sessions = (await Session.find()) as ISession[];
   const sessionsWithDetails = await Promise.all(
-    sessions.map((session) => GET_SERVER_SESSION_WITH_DETAILS(session._id))
+    sessions.map((session: ISession) =>
+      GET_SERVER_SESSION_WITH_DETAILS(session._id)
+    )
   );
   return sessionsWithDetails;
 };

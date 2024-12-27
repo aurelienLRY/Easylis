@@ -1,4 +1,4 @@
-import { ICalendarEvent, ISessionWithDetails } from "@/types";
+import { ICalendarEvent, ISessionWithDetails, ICustomerSession } from "@/types";
 import { formatDateTime } from "@/utils";
 
 export const generateEvent = (session: ISessionWithDetails): ICalendarEvent => {
@@ -47,15 +47,17 @@ const ThisDescription = (session: ISessionWithDetails) => {
   let group: string[] = [];
   if (session.customerSessions) {
     const filteredCustomerSessions = session.customerSessions.filter(
-      (customerSession) => customerSession.status !== "Canceled"
+      (customerSession: ICustomerSession) => customerSession.status !== "Canceled"
     );
-    group = filteredCustomerSessions?.map((customerSession, index) => {
-      return `<p>${index + 1} - ${customerSession.last_name} ${
-        customerSession.first_names
-      } - 📞 ${customerSession.phone} - Nombre de personnes : ${
-        customerSession.number_of_people
-      } - soit ${customerSession.price_total}€ </p>`;
-    });
+    group = filteredCustomerSessions?.map(
+      (customerSession: ICustomerSession, index: number) => {
+        return `<p>${index + 1} - ${customerSession.last_name} ${
+          customerSession.first_names
+        } - 📞 ${customerSession.phone} - Nombre de personnes : ${
+          customerSession.number_of_people
+        } - soit ${customerSession.price_total}€ </p>`;
+      }
+    );
   }
 
   return `

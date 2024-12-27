@@ -57,8 +57,8 @@ export const CustomerFiche = ({
       let people_list = [...customer.people_list];
 
       try {
-        setIsSubmitting((prev) =>
-          prev.map((value, i) => (i === index ? true : value))
+        setIsSubmitting((prev: boolean[]) =>
+          prev.map((value: boolean, i: number) => (i === index ? true : value))
         );
 
         people_list.splice(index, 1);

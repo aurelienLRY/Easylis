@@ -55,7 +55,7 @@ export const useActivities = create<TuseActivities>()(
         set(
           produce((state: { Activities: IActivity[] }) => {
             state.Activities = state.Activities.filter(
-              (a) => a._id !== deletedActivity._id
+              (a: IActivity) => a._id !== deletedActivity._id
             );
           }),
           false,

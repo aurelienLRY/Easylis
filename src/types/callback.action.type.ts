@@ -1,14 +1,11 @@
-import {
-  ISessionWithDetails,
-  ISession,
-  IActivity,
-  ISpot,
-  ICustomerSession,
-  IEmailTemplate,
-  IUser,
-  IEventModel,
-  ICredentials,
-} from "@/types";
+import { ISession } from "./Session.type";
+import { IActivity } from "./Activity.type";
+import { ISpot } from "./Spot.type";
+import { ICustomerSession } from "./CustomerSession.type";
+import { IEmailTemplate } from "./EmailTemplate.type";
+import { IUser } from "./User.type";
+import { IEventModel, ICredentials } from "./Calendar.type";
+import { ISessionWithDetails } from "./SessionWithDetails.type";
 
 /**
  * Interface for a callback

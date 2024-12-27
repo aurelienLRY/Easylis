@@ -18,7 +18,7 @@ import {
 import { getSessionByStatus } from "@/utils";
 import { SearchInObject } from "@/utils/search.utils";
 import { cn } from "@/utils/cn";
-import { ISessionWithDetails } from "@/types";
+import { ISessionWithDetails, ICustomerSession } from "@/types";
 
 /* hooks */
 import { useModal } from "@/hooks";
@@ -260,10 +260,10 @@ export function AllSessionsCard({
           )}
 
           <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4 justify-items-center">
-            {currentSessions.map((customerSession) => (
+            {currentSessions.map((session: ISessionWithDetails) => (
               <SessionCard
-                sessionWithDetails={customerSession}
-                key={customerSession._id}
+                sessionWithDetails={session}
+                key={session._id}
                 detailsModal={detailsModal.openModal}
                 updateSessionModal={updateSessionModal.openModal}
                 addCustomerModal={customerModal.openModal}
@@ -375,7 +375,7 @@ function filterSessions(
   endOfWeek.setDate(startOfWeek.getDate() + 6);
   endOfWeek.setHours(23, 59, 59, 999);
 
-  return sessions.filter((session) => {
+  return sessions.filter((session: ISessionWithDetails) => {
     const sessionDate = new Date(session.date);
 
     // Filtrer par statut si spécifié
