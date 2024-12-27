@@ -1,9 +1,9 @@
-export type { ISession } from "@/types/session.type";
-export type { IUser } from "@/types/user.type";
-export type { IActivity } from "@/types/activity.type";
-export type { ISpot } from "@/types/spot.type";
-export type { ICustomerSession } from "@/types/customerSession.type";
-export type { ISessionWithDetails } from "@/types/sessionWithDetails.type";
+export type { ISession } from "@/types/Session.type";
+export type { IUser } from "@/types/User.type";
+export type { IActivity } from "@/types/Activity.type";
+export type { ISpot } from "@/types/Spot.type";
+export type { ICustomerSession } from "@/types/CustomerSession.type";
+export type { ISessionWithDetails } from "@/types/SessionWithDetails.type";
 export type {
   ICallback,
   ICallbackForSessions,
@@ -21,11 +21,11 @@ export type {
   ICallbackForUser,
   ICallbackForCredentials,
   ICallbackForEvent,
-} from "@/types/callback.action.type";
-export type { IEmailTemplate } from "@/types/emailTemplate.type";
+} from "@/types/Callback.action.type";
+export type { IEmailTemplate } from "@/types/EmailTemplate.type";
 export type {
   ICalendarTokenInfo,
   ICalendarEvent,
   IEventModel,
   ICredentials,
-} from "@/types/calendar.type";
+} from "@/types/Calendar.type";
