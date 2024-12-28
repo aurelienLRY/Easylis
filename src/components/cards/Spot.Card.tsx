@@ -21,11 +21,17 @@ import {
   ItemCardHeader,
   EditButton,
   DeleteButton,
-  MapCustomer,
 } from "@/components";
 
 /* store */
 import { useSpots, useSessionWithDetails } from "@/store";
+
+const MapCustomer = dynamic(
+  () => import("@/components/modules/MapCustomer.modules"),
+  {
+    ssr: false,
+  }
+);
 
 export function SpotCard({
   spot,
@@ -65,12 +71,6 @@ export function SpotCard({
     }
   };
 
-  const MapCustomer = dynamic(
-    () => import("@/components/modules/MapCustomer.modules"),
-    {
-      ssr: false,
-    }
-  );
   return (
     <ItemCard className="h-full px-0 pt-0  text-white flex flex-col md:flex-row gap-6 justify-between w-full max-w-[950px] relative">
       {isDelete && (
