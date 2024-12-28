@@ -2,7 +2,6 @@
 
 /* librairie react */
 import { useEffect, useRef } from "react";
-
 /* librairie leaflet */
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -19,7 +18,7 @@ interface MapCustomerProps {
  * Component to display a map with markers for each spot.
  * @param spots - The spots to be displayed on the map.
  */
-export default function MapCustomer({ spot }: MapCustomerProps) {
+function MapCustomer({ spot }: MapCustomerProps) {
   const mapRef = useRef<any>(null);
   useEffect(() => {
     if (mapRef.current) {
@@ -34,6 +33,7 @@ export default function MapCustomer({ spot }: MapCustomerProps) {
   const coordinatesMeetingFull_day = spot.meetingPoint?.full_day
     ? convertGpsCoordinates(spot.meetingPoint.full_day)
     : null;
+
   return (
     <MapContainer
       center={coordinatesWeb}
@@ -92,3 +92,5 @@ const IconMeetingFullDay = icon({
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
+
+export default MapCustomer;
