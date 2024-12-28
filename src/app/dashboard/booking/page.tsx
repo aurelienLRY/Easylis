@@ -14,7 +14,7 @@ import {
 } from "@/components";
 
 /*Hook*/
-import { useModal, useCustomer, useMailer } from "@/hooks";
+import { useModal, useMailer } from "@/hooks";
 
 /* types */
 import { ICustomerSession, ISessionWithDetails } from "@/types";
@@ -30,6 +30,25 @@ type SortedSessions = {
   [year: number]: {
     [month: number]: ISessionWithDetails[];
   };
+};
+
+const getQuarterDates = (date: Date) => {
+  const currentQuarter = Math.floor(date.getMonth() / 3);
+  const quarters = [];
+
+  for (let i = 0; i < 4; i++) {
+    const startMonth = ((currentQuarter + i) % 4) * 3;
+    const year = date.getFullYear() + Math.floor((currentQuarter + i) / 4);
+    quarters.push({
+      label: `${getMonthValue(startMonth).substring(0, 3)}-${getMonthValue(
+        startMonth + 2
+      ).substring(0, 3)} ${year}`,
+      startMonth,
+      endMonth: startMonth + 2,
+      year,
+    });
+  }
+  return quarters;
 };
 
 const BookingPage = () => {
@@ -69,43 +88,31 @@ const BookingPage = () => {
   const filterByPeriod = useCallback(
     (sessions: ISessionWithDetails[]): ISessionWithDetails[] => {
       const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = now.getMonth();
+      const quarters = getQuarterDates(now);
+
       return sessions.filter((session) => {
         const sessionDate = new Date(session.date);
         const sessionMonth = sessionDate.getMonth();
         const sessionYear = sessionDate.getFullYear();
 
-        switch (periodFilter) {
-          case "Q1":
-            return (
-              sessionMonth >= 0 &&
-              sessionMonth <= 2 &&
-              sessionYear === currentYear
-            );
-          case "Q2":
-            return (
-              sessionMonth >= 3 &&
-              sessionMonth <= 5 &&
-              sessionYear === currentYear
-            );
-          case "Q3":
-            return (
-              sessionMonth >= 6 &&
-              sessionMonth <= 8 &&
-              sessionYear === currentYear
-            );
-          case "Q4":
-            return (
-              sessionMonth >= 9 &&
-              sessionMonth <= 11 &&
-              sessionYear === currentYear
-            );
-          case "thisMonth":
-            return sessionMonth === currentMonth && sessionYear === currentYear;
-          default:
-            return true;
+        if (periodFilter === "all") return true;
+        if (periodFilter === "thisMonth") {
+          return (
+            sessionMonth === now.getMonth() && sessionYear === now.getFullYear()
+          );
         }
+
+        // Trouve le trimestre correspondant au filtre
+        const selectedQuarter = quarters.find((q) => q.label === periodFilter);
+        if (selectedQuarter) {
+          return (
+            sessionYear === selectedQuarter.year &&
+            sessionMonth >= selectedQuarter.startMonth &&
+            sessionMonth <= selectedQuarter.endMonth
+          );
+        }
+
+        return true;
       });
     },
     [periodFilter]
@@ -178,6 +185,8 @@ const BookingPage = () => {
     setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
   };
 
+  const quarters = getQuarterDates(new Date());
+
   return (
     <>
       <ItemContainer className="">
@@ -198,13 +207,13 @@ const BookingPage = () => {
               >
                 Ce mois
               </button>
-              {["Q1", "Q2", "Q3", "Q4"].map((quarter) => (
+              {quarters.map((quarter) => (
                 <button
-                  key={quarter}
-                  className={getButtonClassName(periodFilter === quarter)}
-                  onClick={() => setPeriodFilter(quarter)}
+                  key={quarter.label}
+                  className={getButtonClassName(periodFilter === quarter.label)}
+                  onClick={() => setPeriodFilter(quarter.label)}
                 >
-                  {quarter}
+                  {quarter.label}
                 </button>
               ))}
             </div>
