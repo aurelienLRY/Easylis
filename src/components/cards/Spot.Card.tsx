@@ -21,6 +21,7 @@ import {
   ItemCardHeader,
   EditButton,
   DeleteButton,
+  MapCustomer,
 } from "@/components";
 
 /* store */
