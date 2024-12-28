@@ -266,13 +266,15 @@ export function SessionForm({
           className="flex flex-col w-full justify-center items-center gap-6 text-white  py-4"
         >
           {/* FORM */}
-          <div className="flex flex-col gap-3 items-center md:justify-evenly border-2 rounded-md border-sky-500 w-full p-2">
+          <div className="flex flex-col gap-3 items-center  border-2 rounded-md border-sky-500 w-full p-2">
             <p className="text-sky-500 text-xl font-bold flex items-center gap-2">
               Activité & Lieu
               <InfoTooltips title="Sélectionnez l'activité et le lieu de la session." />
             </p>
-            <div className="flex flex-col md:flex-row gap-2 justify-around w-full">
+            <div className="w-full flex flex-col md:flex-row gap-2 items-center justify-center ">
               <SelectInput
+                className="flex items-start md:items-center justify-center"
+                wIsRaw={true}
                 name="spot"
                 options={spots.map((spot) => ({
                   id: spot._id,
@@ -281,6 +283,7 @@ export function SessionForm({
                 label="Lieu"
               />
               <SelectInput
+                className="flex  items-start md:items-center justify-center"
                 name="activity"
                 options={filteredActivities.map((activity) => ({
                   id: activity._id || "", // Ajout de '|| ""' pour s'assurer que 'id' est une chaîne de caractères
