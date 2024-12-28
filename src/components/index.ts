@@ -92,4 +92,3 @@ export { AllSessionsCard } from "@/components/modules/DisplaySessions.modules";
 export { EmailTemplateEditor } from "@/components/modules/MailerEditor.modules";
 
 // spot
-export { MapCustomer } from "@/components/modules/MapCustomer.modules";
