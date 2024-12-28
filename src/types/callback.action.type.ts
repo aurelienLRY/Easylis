@@ -1,5 +1,14 @@
-import { ISessionWithDetails, ISession, IActivity , ISpot , ICustomerSession , IEmailTemplate } from "@/types"
-
+import {
+  ISessionWithDetails,
+  ISession,
+  IActivity,
+  ISpot,
+  ICustomerSession,
+  IEmailTemplate,
+  IUser,
+  IEventModel,
+  ICredentials,
+} from "@/types";
 
 /**
  * Interface for a callback
@@ -9,10 +18,10 @@ import { ISessionWithDetails, ISession, IActivity , ISpot , ICustomerSession , I
  * @property {string[] | string | null} feedback - The feedback of the callback
  */
 export interface ICallback {
-    success: boolean,
-    error: string | null,
-    data: object | null,
-    feedback: string[]  | null
+  success: boolean;
+  error: string | null;
+  data: object | null;
+  feedback: string[] | null;
 }
 
 /**
@@ -21,7 +30,7 @@ export interface ICallback {
  * @property {ISessionWithDetails} data - The session with details
  */
 export interface ICallbackForSessionWithDetails extends ICallback {
-    data: ISessionWithDetails | null
+  data: ISessionWithDetails | null;
 }
 
 /*
@@ -30,9 +39,8 @@ export interface ICallbackForSessionWithDetails extends ICallback {
  * @property {ISessionWithDetails[]} data - The session with details array
  */
 export interface ICallbackForSessionWithDetailsArray extends ICallback {
-    data: ISessionWithDetails[] | null
+  data: ISessionWithDetails[] | null;
 }
-
 
 /*
  * Interface for a callback for a session
@@ -40,7 +48,7 @@ export interface ICallbackForSessionWithDetailsArray extends ICallback {
  * @property {ISession} data - The session
  */
 export interface ICallbackForSessions extends ICallback {
-    data: ISession[] | null
+  data: ISession[] | null;
 }
 
 /*
@@ -49,7 +57,7 @@ export interface ICallbackForSessions extends ICallback {
  * @property {ISession} data - The session
  */
 export interface ICallbackForSession extends ICallback {
-    data: ISession | null
+  data: ISession | null;
 }
 
 /*
@@ -58,9 +66,8 @@ export interface ICallbackForSession extends ICallback {
  * @property {IActivity} data - The activity
  */
 export interface ICallbackForActivity extends ICallback {
-    data: IActivity | null
+  data: IActivity | null;
 }
-
 
 /*
  * Interface for a callback for activities
@@ -68,7 +75,7 @@ export interface ICallbackForActivity extends ICallback {
  * @property {IActivity[]} data - The activities
  */
 export interface ICallbackForActivities extends ICallback {
-    data: IActivity[] | null
+  data: IActivity[] | null;
 }
 
 /*
@@ -77,7 +84,7 @@ export interface ICallbackForActivities extends ICallback {
  * @property {ISpot} data - The spot
  */
 export interface ICallbackForSpot extends ICallback {
-    data: ISpot | null
+  data: ISpot | null;
 }
 
 /*
@@ -86,7 +93,7 @@ export interface ICallbackForSpot extends ICallback {
  * @property {ISpot[]} data - The spots
  */
 export interface ICallbackForSpots extends ICallback {
-    data: ISpot[] | null
+  data: ISpot[] | null;
 }
 
 /*
@@ -95,7 +102,7 @@ export interface ICallbackForSpots extends ICallback {
  * @property {ICustomerSession} data - The customerSession
  */
 export interface ICallbackForCustomerSession extends ICallback {
-    data: ICustomerSession | null
+  data: ICustomerSession | null;
 }
 
 /*
@@ -104,9 +111,8 @@ export interface ICallbackForCustomerSession extends ICallback {
  * @property {ICustomerSession[]} data - The customerSessions
  */
 export interface ICallbackForCustomerSessions extends ICallback {
-    data: ICustomerSession[] | null
+  data: ICustomerSession[] | null;
 }
-
 
 /*
  * Interface for a callback for an emailTemplate
@@ -114,5 +120,33 @@ export interface ICallbackForCustomerSessions extends ICallback {
  * @property {IEmailTemplate} data - The emailTemplate
  */
 export interface ICallbackForEmailTemplate extends ICallback {
-    data: IEmailTemplate | null
+  data: IEmailTemplate | null;
+}
+
+/*
+ * Interface for a callback for emailTemplates
+ * @extends ICallback
+ * @property {IEmailTemplate[]} data - The emailTemplates
+ */
+export interface ICallbackForEmailTemplates extends ICallback {
+  data: IEmailTemplate[] | null;
+}
+
+/** Interface for a callback for a user
+ * @extends ICallback
+ * @property {IUser} data - The user
+ */
+export interface ICallbackForUser extends ICallback {
+  data: IUser | null;
+}
+
+/** @extends ICallback
+ * @property {IEventModel} data - The event
+ */
+export interface ICallbackForEvent extends ICallback {
+  data: IEventModel | null;
+}
+
+export interface ICallbackForCredentials extends ICallback {
+  data: ICredentials | null;
 }

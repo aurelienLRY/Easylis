@@ -1,7 +1,8 @@
 import * as yup from "yup";
 
-/*
- * Spot schema
+/**
+ * Spot Schema
+ * @returns Spot Schema
  */
 export const spotSchema = yup.object().shape({
   name: yup.string().required("Le champ name est requis"),
@@ -15,7 +16,7 @@ export const spotSchema = yup.object().shape({
   ),
   photo: yup.string(),
   meetingPoint: yup.object().shape({
-    half_day: yup.string(),
-    full_day: yup.string(),
+    half_day: yup.string().default(null),
+    full_day: yup.string().default(null),
   }),
 });

@@ -1,5 +1,3 @@
-
-
 /**
  * Interface for a spot
  * @property {string} _id - The id of the spot
@@ -13,19 +11,19 @@
  * @property {number} max_OfPeople - The maximum number of people for the spot
  */
 export interface ISpot {
+  _id: string;
+  name: string;
+  description: string;
+  gpsCoordinates: string;
+  practicedActivities: {
+    activityId: string;
+    activityName: string;
     _id: string;
-    name: string;
-    description: string;
-    gpsCoordinates: string;
-    practicedActivities: {
-      activityId: string;
-      activityName: string;
-      _id: string;
-    }[];
-    photo: string;
-    meetingPoint: {
-      half_day: string;
-      full_day: string;
-    };
-    estimatedDuration: string;
+  }[];
+  photo: string;
+  meetingPoint: {
+    half_day: string | null;
+    full_day: string | null;
+  };
+  estimatedDuration: string;
 }

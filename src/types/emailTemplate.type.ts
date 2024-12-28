@@ -1,5 +1,5 @@
 export interface IEmailTemplate {
-  _id: string;
+  _id?: string;
   scenario: string;
   subject: string;
   body: string;

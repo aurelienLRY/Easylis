@@ -1,8 +1,16 @@
 {
-    "accessibility.voice.speechLanguage": "fr-FR",
-    "cSpell.words": [
-        "antd",
-        "hookform",
-        "tiptap"
-    ]
+  "accessibility.voice.speechLanguage": "fr-FR",
+  "cSpell.words": [
+    "antd",
+    "Authelia",
+    "csrf",
+    "extralight",
+    "hookform",
+    "jsmith",
+    "NEXTAUTH",
+    "tiptap",
+    "Tuse",
+    "webp",
+    "Xmark"
+  ]
 }

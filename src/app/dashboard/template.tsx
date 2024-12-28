@@ -1,29 +1,21 @@
 "use client";
 /* Libs */
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@/utils/useAuth";
+import { useAuth } from "@/hooks";
 import { Spin } from "antd";
-
-/* Actions */
-import {
-  GET_SESSIONS_WITH_DETAILS,
-  GET_SPOTS,
-  GET_ACTIVITIES,
-  GET_CUSTOMER_SESSIONS,
-} from "@/libs/actions";
-
-/* Components */
-import SingOutBtn from "@/components/singOut";
-import Dashboard from "@/components/Dashboard";
-import ToasterAction from "@/components/ToasterAction";
+import { toast } from "sonner";
+/* components */
+import { SingOutBtn, Dashboard, EmailTemplateEditor } from "@/components";
 
 /* Store */
 import {
   useSessionWithDetails,
   useSpots,
   useActivities,
-  useCustomerSessions,
-} from "@/context/store";
+  useProfile,
+  useCalendar,
+} from "@/store";
+import { useMailer } from "@/hooks/useMailer";
 
 /**
  * Template Component
@@ -36,45 +28,17 @@ export default function Template({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [sessionWithDetails, spots, activities, customerSessions] = await Promise.all([
-          GET_SESSIONS_WITH_DETAILS(),
-          GET_SPOTS(),
-          GET_ACTIVITIES(),
-          GET_CUSTOMER_SESSIONS(),
+        await Promise.all([
+          useProfile.getState().fetchProfile(),
+          useSessionWithDetails.getState().fetchSessionWithDetails(),
+          useSpots.getState().fetchSpots(),
+          useActivities.getState().fetchActivities(),
         ]);
-
-        // Get Sessions with details and add them to the store
-        if (sessionWithDetails.success && sessionWithDetails.data) {
-          useSessionWithDetails.setState({
-            SessionWithDetails: sessionWithDetails.data,
-          });
-        }
-        else if (!sessionWithDetails.success) {
-          ToasterAction({result: sessionWithDetails, defaultMessage: "Erreur lors du chargement des sessions avec détails"})
-        }
-
-        // Get Customer Sessions and add them to the store
-        if (customerSessions.success && customerSessions.data) {
-          useCustomerSessions.setState({
-            CustomerSessions: customerSessions.data,
-          });
-        }
-        // Get Spots and add them to the store
-        if (spots.success && spots.data) {
-          useSpots.setState({
-            Spots: spots.data,
-          });
-        }
-        // Get Activities and add them to the store
-        if (activities.success && activities.data) {
-          useActivities.setState({
-            Activities: activities.data,
-          });
-        }
-
-        setIsLoading(false);
+        useCalendar.getState().initialize();
       } catch (error) {
         console.error("Erreur lors de la récupération des données:", error);
+        setIsLoading(false);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -84,11 +48,11 @@ export default function Template({ children }: { children: React.ReactNode }) {
 
   // Get the user status
   const { status } = useAuth();
+  const mailer = useMailer();
+
   const sessionsWithDetails = useSessionWithDetails(
     (state) => state.SessionWithDetails
   );
-
-
 
   // If the user status is loading, return a loading message
   if (status === "loading" || isLoading) {
@@ -103,7 +67,31 @@ export default function Template({ children }: { children: React.ReactNode }) {
   return (
     <Dashboard sessionsWithDetails={sessionsWithDetails}>
       {children}
+
+      {/* SingOutBtn */}
       <SingOutBtn />
+
+      {/* Email Template Editor */}
+      <EmailTemplateEditor
+        isSubmitting={mailer.isSubmitting}
+        isOpen={mailer.isEditorOpen}
+        Mail={mailer.initialEmailContent}
+        EmailContent={mailer.handleEmailContent}
+        onSend={async () => {
+          await mailer.sendEmail();
+          if (mailer.queuedEmails.length > 0) {
+            const nextEmail = mailer.processNextEmail();
+            if (nextEmail) {
+              toast.success(
+                "Email envoyé avec succès. Préparation du prochain email..."
+              );
+            } else {
+              toast.success("Tous les emails ont été envoyés avec succès");
+            }
+          }
+        }}
+        onClose={mailer.closeEditor}
+      />
     </Dashboard>
   );
 }
@@ -122,10 +110,11 @@ export const getPathname = (pathname: string) => {
       return "Activités";
     case "/dashboard/email":
       return "Email";
-
-    
-    
-      default:
+    case "/dashboard/account":
+      return "Mon compte";
+    case "/dashboard/setting":
+      return "Paramètres";
+    default:
       return "Dashboard";
   }
 };

@@ -1,159 +1,97 @@
 "use client";
-/* Libs */
 import React from "react";
-/* Components */
-import SessionCard from "@/components/SessionCard";
+import {
+  SessionForm,
+  CustomerSessionForm,
+  CanceledCustomerSession,
+  CalendarCard,
+  SessionDetailCard,
+  SessionCard,
+  ItemContainer,
+} from "@/components";
 
 /* Utils */
-import { getMonthString, getYearString } from "@/utils/date";
-import { calculateSessionIncomeByMonth } from "@/utils/price";
+import { getMonthString, getYearString } from "@/utils/date.utils";
+import { calculateSessionIncomeByMonth } from "@/utils/price.utils";
 import {
   calculateNumberOfSessions,
   filterSessionsForDashboard,
   calculateInscrit,
   classifySpots,
   classifyActivities,
-} from "@/utils/utilSession";
+} from "@/utils";
 
-/* Store */
-import { useSessionWithDetails } from "@/context/store";
+/* Store & Types */
+import { useSessionWithDetails } from "@/store";
+import { ISessionWithDetails } from "@/types";
+import { useModal } from "@/hooks";
 
+/**
+ * Dashboard Component
+ * Main dashboard view displaying upcoming sessions, statistics and calendar
+ */
 const Dashboard = () => {
+  // Get sessions data from global store
   const sessionsWithDetails = useSessionWithDetails(
     (state) => state.SessionWithDetails
   );
 
+  // Filter sessions for dashboard display
   const filteredSessions = filterSessionsForDashboard(sessionsWithDetails);
 
-  const DisplayHeaderMessage = (n: number) => {
-    if (1 <= n && n <= 4) {
-      return (
-        <p className="text-xl font-bold opacity-50">
-          <span className="text-4xl">🚀</span> Lets Go !!
-        </p>
-      );
-    }
-    if (n >= 5 && n <= 10) {
-      return (
-        <p className="text-xl font-bold opacity-50">
-          <span className="text-2xl ">🚀🚀</span> Tu fais du bon boulot 🔥
-        </p>
-      );
-    }
-    if (n >= 11 && n <= 20) {
-      return (
-        <p className="text-xl font-bold opacity-50">
-
-          <span className="text-2xl">🚀🚀🚀</span> Tu es un machine 🤖
-        </p>
-      );
-    }
-    if (n >= 21) {
-      return (
-        <p className="text-xl font-bold opacity-50">
-          <span className="text-4xl">🔥</span> C&apos;est le Feu !!! Quel fierté
-          de travailler ensemble 🤝 ..
-        </p>
-      );
-    }
-  };
+  // Modal states for various actions
+  const detailsModal = useModal<ISessionWithDetails>();
+  const updateSessionModal = useModal<ISessionWithDetails>();
+  const customerModal = useModal<ISessionWithDetails>();
+  const canceledCustomerModal = useModal<ISessionWithDetails>();
 
   return (
     <section className="w-full md:p-4 flex flex-col gap-12 items-center">
-      <article className="w-full md:p-4 flex flex-col gap-12 items-center">
-        <div className="w-full flex flex-col lg:flex-row gap-4">
-          <CardContainer title="Mes sessions à venir">
-            {filteredSessions.length === 0 ? (
-              <div className="flex flex-col gap-4 justify-center items-center h-full">
-                <p className="text-xl font-bold ">
-                  {" "}
-                  <span className="text-4xl">🤷</span> Aucune session à venir
-                </p>
-                <p className="text-4xl font-bold ">
-                  {" "}
-                  Vacances 🏖️ <span className="text-xl">ou</span> Prospection 🔍
-                  ❓
-                </p>
-              </div>
-            ) : (
-              <>
-                { DisplayHeaderMessage(sessionsWithDetails.length)}
-                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 justify-items-center">
-                  {filteredSessions.map((session) => (
-                    <SessionCard key={session._id} sessionWithDetails={session} />
-                  ))}
-                </div>
-              </>
-            )}
-          </CardContainer>
+      {/* Upcoming Sessions Section */}
+      <UpcomingSessions
+        filteredSessions={filteredSessions}
+        modals={{
+          detailsModal,
+          updateSessionModal,
+          customerModal,
+          canceledCustomerModal,
+        }}
+      />
 
-          <CardContainer title="Mon calendrier">
-            <iframe
-              src="https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Europe%2FParis&bgcolor=%23ffffff&showPrint=0&showCalendars=0&showTz=0&showTabs=0&showTitle=0&showDate=0&src=ZDdlNzFlMzYzMmJkZjI3Mjg2Y2UyZmY5NDE0NmY0M2E1MWE5MTA3Y2FlYTJlM2U0Y2NhNjhmZTQ2OTNkOGYzOUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23F09300"
-              className="w-full min-h-[50vw] lg:min-h-[30vw] rounded-lg"
-            ></iframe>
-          </CardContainer>
-        </div>
-      </article>
-
-      <article className="w-full md:p-4 flex flex-col gap-12 items-center">
-        <h2 className="text-4xl font-bold">Mes statistiques</h2>
-        <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-items-center">
-          <StatisticCard title={`Statistiques de ${getMonthString()}`}>
-            <StatisticItem
-              label="Sessions"
-              value={calculateNumberOfSessions(sessionsWithDetails, "month")}
-            />
-            <StatisticItem
-              label="Nombre d'inscriptions"
-              value={calculateInscrit(sessionsWithDetails, "month")}
-            />
-            <StatisticItem
-              label="Chiffre d'affaire"
-              value={`${calculateSessionIncomeByMonth(sessionsWithDetails, "month")} €`}
-            />
-          </StatisticCard>
-          
-          <StatisticCard title={`Statistiques ${getYearString()}`}>
-            <StatisticItem
-              label="Sessions"
-              value={calculateNumberOfSessions(sessionsWithDetails, "year")}
-            />
-            <StatisticItem
-              label="Nombre d'inscriptions"
-              value={calculateInscrit(sessionsWithDetails, "year")}
-            />
-                 <StatisticItem
-              label="Chiffre d'affaire"
-              value={`${calculateSessionIncomeByMonth(sessionsWithDetails, "year")} €`}
-            />
-          </StatisticCard>
-          <StatisticCard title="Classement des Lieux">
-            <ul>
-              {Object.entries(classifySpots(sessionsWithDetails)).map(
-                ([spot, numberSessions]) => (
-                  <li key={spot} className="text-left">
-                    <span className="font-bold pr-2">{spot}:</span>{" "}
-                    {numberSessions}
-                  </li>
-                )
-              )}
-            </ul>
-          </StatisticCard>
-          <StatisticCard title="Classement des activités">
-            <ul>
-              {Object.entries(classifyActivities(sessionsWithDetails)).map(
-                ([activity, numberSessions]) => (
-                  <li key={activity} className="text-left">
-                    <span className="font-bold pr-2">{activity}:</span>{" "}
-                    {numberSessions}
-                  </li>
-                )
-              )}
-            </ul>
-          </StatisticCard>
-        </div>
-      </article>
+      {/* Modal Details */}
+      {detailsModal.data && (
+        <SessionDetailCard
+          data={detailsModal.data}
+          isOpen={detailsModal.isOpen}
+          onClose={detailsModal.closeModal}
+        />
+      )}
+      {/* Modal Update */}
+      {updateSessionModal.data && (
+        <SessionForm
+          data={updateSessionModal.data}
+          isOpen={updateSessionModal.isOpen}
+          onClose={updateSessionModal.closeModal}
+        />
+      )}
+      {/* Modal Customer */}
+      {customerModal.data && (
+        <CustomerSessionForm
+          session={customerModal.data}
+          isOpen={customerModal.isOpen}
+          onClose={customerModal.closeModal}
+        />
+      )}
+      {/* Modal Canceled Customer */}
+      {canceledCustomerModal.data && (
+        <CanceledCustomerSession
+          data={canceledCustomerModal.data}
+          isOpen={canceledCustomerModal.isOpen}
+          onClose={canceledCustomerModal.closeModal}
+        />
+      )}
+      {/* Statistics Section */}
+      <StatisticsSection sessionsWithDetails={sessionsWithDetails} />
     </section>
   );
 };
@@ -161,65 +99,237 @@ const Dashboard = () => {
 export default Dashboard;
 
 /**
- * CardContainer Component
- * @param title: string
- * @param children: React.ReactNode
- * @returns JSX.Element
+ * Displays motivational messages based on number of sessions
  */
-function CardContainer({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="w-full flex flex-col gap-4 items-center text-white bg-slate-800 dark:bg-sky-950 p-4 rounded-lg border-2 border-slate-700 dark:border-sky-800 shadow-md shadow-slate-700/50 dark:shadow-sky-800/50">
-      <h3 className="text-2xl font-bold">{title}</h3>
-      {children}
-    </div>
-  );
-}
+const DisplayHeaderMessage = (n: number) => {
+  const messages = {
+    1: { emoji: "🚀", text: "Lets Go !!" },
+    2: { emoji: "🚀🚀", text: "Tu fais du bon boulot 🔥" },
+    3: { emoji: "🚀🚀🚀", text: "Tu es un machine 🤖" },
+    4: {
+      emoji: "🔥",
+      text: "C'est le Feu! ",
+    },
+  };
 
-/**
- * StatisticCard Component
- * @param title: string
- * @param children: React.ReactNode
- * @returns JSX.Element
- */
-function StatisticCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+  const message = messages[Math.min(n, 4) as keyof typeof messages];
   return (
-    <div className="w-full flex flex-col gap-4 items-center text-white bg-slate-800 dark:bg-sky-950 p-4 rounded-lg border-2 border-slate-700 dark:border-sky-800 shadow-md shadow-slate-700/50 dark:shadow-sky-800/50">
-      <h3 className="text-xl md:text-2xl font-bold">{title}</h3>
-      <div className="w-full flex flex-col gap-1">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-/**
- * StatisticItem Component
- * @param label: string
- * @param value: string | number
- * @returns JSX.Element
- */
-function StatisticItem({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | number;
-}) {
-  return (
-    <p className="">
-      <span className="font-bold pr-2">{label}:</span> {value}
+    <p className="text-xl font-bold opacity-50">
+      <span className="text-4xl">{message.emoji}</span> {message.text}
     </p>
   );
+};
+
+/**
+ * Upcoming Sessions Component
+ * Displays the list of upcoming sessions with action modals
+ */
+interface UpcomingSessionsProps {
+  filteredSessions: ISessionWithDetails[];
+  modals: {
+    detailsModal: any;
+    updateSessionModal: any;
+    customerModal: any;
+    canceledCustomerModal: any;
+  };
 }
+
+const UpcomingSessions = ({
+  filteredSessions,
+  modals,
+}: UpcomingSessionsProps) => (
+  <article className="w-full md:p-4 flex flex-col gap-12 items-center">
+    <div className="w-full flex flex-col xl:flex-row gap-4">
+      <ItemContainer title="Mes sessions à venir" className="items-center">
+        {filteredSessions.length === 0 ? (
+          <EmptySessionsMessage />
+        ) : (
+          <SessionsList sessions={filteredSessions} modals={modals} />
+        )}
+      </ItemContainer>
+      <CalendarCard />
+    </div>
+  </article>
+);
+
+/**
+ * Empty Sessions Message Component
+ */
+const EmptySessionsMessage = () => (
+  <div className="flex flex-col gap-4 justify-center items-center h-full">
+    <p className="text-xl font-bold">
+      <span className="text-4xl">🤷</span> Aucune session à venir
+    </p>
+    <p className="text-4xl font-bold">
+      Vacances 🏖️ <span className="text-xl">ou</span> Prospection 🔍 ❓
+    </p>
+  </div>
+);
+
+/**
+ * Statistics Section Component
+ * Displays various statistics about sessions
+ */
+interface StatisticsSectionProps {
+  sessionsWithDetails: ISessionWithDetails[];
+}
+
+const StatisticsSection = ({ sessionsWithDetails }: StatisticsSectionProps) => (
+  <article className="w-full md:p-4 flex flex-col gap-12 items-center">
+    <h2 className="text-4xl font-bold">Mes statistiques</h2>
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-items-center">
+      <MonthlyStats sessionsWithDetails={sessionsWithDetails} />
+      <YearlyStats sessionsWithDetails={sessionsWithDetails} />
+      <SpotRanking sessionsWithDetails={sessionsWithDetails} />
+      <ActivityRanking sessionsWithDetails={sessionsWithDetails} />
+    </div>
+  </article>
+);
+
+/**
+ * Statistic Card Components
+ */
+interface StatisticCardProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+const StatisticCard = ({ title, children }: StatisticCardProps) => (
+  <div className="w-full flex flex-col gap-4 items-center text-white bg-slate-800 dark:bg-sky-950 p-4 rounded-lg border-2 border-slate-700 dark:border-sky-800 shadow-md shadow-slate-700/50 dark:shadow-sky-800/50">
+    <h3 className="text-xl md:text-2xl font-bold">{title}</h3>
+    <div className="w-full flex flex-col gap-1">{children}</div>
+  </div>
+);
+
+interface StatisticItemProps {
+  label: string;
+  value: string | number;
+}
+
+const StatisticItem = ({ label, value }: StatisticItemProps) => (
+  <p>
+    <span className="font-bold pr-2">{label}:</span> {value}
+  </p>
+);
+
+/**
+ * Individual Statistics Components
+ */
+const MonthlyStats = ({
+  sessionsWithDetails,
+}: {
+  sessionsWithDetails: ISessionWithDetails[];
+}) => (
+  <StatisticCard title={`Statistiques de ${getMonthString()}`}>
+    <StatisticItem
+      label="Sessions"
+      value={calculateNumberOfSessions(sessionsWithDetails, "month")}
+    />
+    <StatisticItem
+      label="Nombre d'inscriptions"
+      value={calculateInscrit(sessionsWithDetails, "month")}
+    />
+    <StatisticItem
+      label="Chiffre d'affaire"
+      value={`${calculateSessionIncomeByMonth(sessionsWithDetails, "month")} €`}
+    />
+  </StatisticCard>
+);
+
+/**
+ * Sessions List Component
+ * Displays a grid of session cards with their actions
+ */
+interface SessionsListProps {
+  sessions: ISessionWithDetails[];
+  modals: {
+    detailsModal: any;
+    updateSessionModal: any;
+    customerModal: any;
+    canceledCustomerModal: any;
+  };
+}
+
+const SessionsList = ({ sessions, modals }: SessionsListProps) => (
+  <>
+    {DisplayHeaderMessage(sessions.length)}
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 justify-items-center">
+      {sessions.map((session) => (
+        <SessionCard
+          key={session._id}
+          sessionWithDetails={session}
+          detailsModal={modals.detailsModal.openModal}
+          updateSessionModal={modals.updateSessionModal.openModal}
+          addCustomerModal={modals.customerModal.openModal}
+          canceledCustomerModal={modals.canceledCustomerModal.openModal}
+        />
+      ))}
+    </div>
+  </>
+);
+
+/**
+ * Yearly Statistics Component
+ */
+const YearlyStats = ({
+  sessionsWithDetails,
+}: {
+  sessionsWithDetails: ISessionWithDetails[];
+}) => (
+  <StatisticCard title={`Statistiques ${getYearString()}`}>
+    <StatisticItem
+      label="Sessions"
+      value={calculateNumberOfSessions(sessionsWithDetails, "year")}
+    />
+    <StatisticItem
+      label="Nombre d'inscriptions"
+      value={calculateInscrit(sessionsWithDetails, "year")}
+    />
+    <StatisticItem
+      label="Chiffre d'affaire"
+      value={`${calculateSessionIncomeByMonth(sessionsWithDetails, "year")} €`}
+    />
+  </StatisticCard>
+);
+
+/**
+ * Spot Ranking Component
+ */
+const SpotRanking = ({
+  sessionsWithDetails,
+}: {
+  sessionsWithDetails: ISessionWithDetails[];
+}) => (
+  <StatisticCard title="Classement des Lieux">
+    <ul>
+      {Object.entries(classifySpots(sessionsWithDetails)).map(
+        ([spot, numberSessions]) => (
+          <li key={spot} className="text-left">
+            <span className="font-bold pr-2">{spot}:</span> {numberSessions}
+          </li>
+        )
+      )}
+    </ul>
+  </StatisticCard>
+);
+
+/**
+ * Activity Ranking Component
+ */
+const ActivityRanking = ({
+  sessionsWithDetails,
+}: {
+  sessionsWithDetails: ISessionWithDetails[];
+}) => (
+  <StatisticCard title="Classement des activités">
+    <ul>
+      {Object.entries(classifyActivities(sessionsWithDetails)).map(
+        ([activity, numberSessions]) => (
+          <li key={activity} className="text-left">
+            <span className="font-bold pr-2">{activity}:</span> {numberSessions}
+          </li>
+        )
+      )}
+    </ul>
+  </StatisticCard>
+);

@@ -3,8 +3,9 @@ import * as yup from "yup";
 
 
 
-/*
-* CustomerSession schema
+/**
+* CustomerSession Schema
+* @returns CustomerSession Schema
 */
 export const customerSessionSchema = yup.object().shape({
  sessionId: yup.string().required("Le champ sessionId est requis"),

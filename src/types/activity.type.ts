@@ -11,26 +11,27 @@
  * @property {number} max_OfPeople - The maximum number of people for the activity
  */
 export interface IActivity {
-    _id?: string;
-    name: string;
-    description: string | null;
-    half_day: boolean;
-    full_day: boolean;
-    price_half_day: {
-        standard: number;
-        reduced: number ;
-        ACM: number ;
-    };
-    price_full_day: {
-        standard: number;
-        reduced: number ;
-        ACM: number ;
-    };
-    min_age: number;
-    max_OfPeople: number;
-    min_OfPeople: number;
-    duration: {
-        half: string | null;
-        full: string | null;
-    }
+  _id?: string;
+  name: string;
+  description: string | null;
+  half_day: boolean;
+  full_day: boolean;
+  price_half_day: {
+    standard: number;
+    reduced: number;
+    ACM: number;
+  };
+  price_full_day: {
+    standard: number;
+    reduced: number;
+    ACM: number;
+  };
+  min_age: number;
+  max_OfPeople: number;
+  min_OfPeople: number;
+  duration: {
+    half: string | null;
+    full: string | null;
+  };
+  required_equipment: string | null;
 }

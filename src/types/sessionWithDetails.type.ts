@@ -1,7 +1,4 @@
-import { ISession } from "@/types/session.type";
-import { IActivity } from "@/types/activity.type";
-import { ISpot } from "@/types/spot.type";
-import { ICustomerSession } from "@/types/customerSession.type";
+import { ISession , IActivity , ISpot , ICustomerSession } from "@/types";
 
 /**
  * Interface for a session with details

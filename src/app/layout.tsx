@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ConfigProvider , theme} from "antd";
-
+import { ConfigProvider } from "antd";
 
 /*components */
-import Header from "@/components/Header";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -14,26 +12,27 @@ export const metadata: Metadata = {
 };
 
 /*
-*root layout
-*@returns {JSX.Element} 
-*/
+ *root layout
+ *@returns {JSX.Element}
+ */
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <html lang="fr" className="scroll-smooth dark">
-      <body className={`${inter.className} w-screen dark:bg-gray-900 dark:text-white`}>
+      <body
+        className={`${inter.className} w-screen dark:bg-gray-900 dark:text-white`}
+      >
         <ConfigProvider
-        theme={{
-          token: {
-            colorPrimary: "#ffffff"
-          },
-        }}>
-        <Header />
-        {children}
+          theme={{
+            token: {
+              colorPrimary: "#ffffff",
+            },
+          }}
+        >
+          {children}
         </ConfigProvider>
       </body>
     </html>

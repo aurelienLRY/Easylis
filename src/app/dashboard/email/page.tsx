@@ -1,33 +1,41 @@
-"use client";   
-import { CustomerWaiting , customerConfirmation } from "@/libs/sendBox/template/RegistrationConfirmation";
-import { HtmlBase , MailContent } from "@/libs/sendBox/template/base";
-
-
-
-/* Store */
-import { useCustomerSessions , useSessionWithDetails } from "@/context/store";
-
-
-import EditEmail from "@/components/EditEmail";
-
-
+/* eslint-disable react-hooks/exhaustive-deps */
+"use client";
+import React from "react";
+import { getMockData } from "@/utils";
+import { useMailer } from "@/hooks/useMailer";
+import { useProfile } from "@/store";
+/*components*/
+import { EmailTemplateEditor } from "@/components";
+import { EMAIL_SCENARIOS } from "@/libs/nodeMailer/TemplateV2/constants";
 
 export default function EmailPage() {
-    const customer = useCustomerSessions(state => state.CustomerSessions);
-    const sessionWithDetails = useSessionWithDetails(state => state.SessionWithDetails);
+  const { mock_Customer, mock_SessionWithDetails } = getMockData();
+  const mailer = useMailer();
+  const { profile } = useProfile();
 
-     const {subject , content} = customerConfirmation(customer[0], sessionWithDetails[0]);
- 
-  
-  const EmailConfirmation = MailContent(subject, content);
+  React.useEffect(() => {
+    mailer.prepareEmail(EMAIL_SCENARIOS.ADD_CUSTOMER, {
+      customer: mock_Customer,
+      session: mock_SessionWithDetails,
+      profile_from: profile!,
+    });
+  }, []);
 
-    return (
-      <>
-      {/* affiche EmailConfirmation dans  */}
-      <div className="w-full h-full bg-white">
-        <div dangerouslySetInnerHTML={{ __html: EmailConfirmation }} />
-      </div>
-     <EditEmail isOpen={true} onClose={() => {}} myContent={EmailConfirmation}  />
-      </>
-    ) ;
+  const handleSendEmail = () => {
+    console.log(mailer.currentEmailContent);
+  };
+
+  return (
+    <section className="flex flex-col gap-4 justify-center items-center w-full">
+      <EmailTemplateEditor
+        isOpen={true}
+        onClose={() => {
+          console.log("close");
+        }}
+        onSend={handleSendEmail}
+        Mail={mailer.initialEmailContent}
+        EmailContent={mailer.handleEmailContent}
+      />
+    </section>
+  );
 }

@@ -17,6 +17,15 @@ export type {
   ICallbackForCustomerSession,
   ICallbackForSessionWithDetailsArray,
   ICallbackForEmailTemplate,
+  ICallbackForEmailTemplates,
+  ICallbackForUser,
+  ICallbackForCredentials,
+  ICallbackForEvent,
 } from "@/types/callback.action.type";
 export type { IEmailTemplate } from "@/types/emailTemplate.type";
-
+export type {
+  ICalendarTokenInfo,
+  ICalendarEvent,
+  IEventModel,
+  ICredentials,
+} from "@/types/calendar.type";

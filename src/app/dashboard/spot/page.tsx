@@ -2,21 +2,22 @@
 import React, { useState, useEffect } from "react";
 
 /* components */
-import SpotCard from "@/components/SpotCard";
-import { SpotForm } from "@/components/form";
-import { IconButton } from "@/components/Button";
+import { SpotCard, ItemContainer, SpotForm, IconButton } from "@/components";
 
 /* Icons */
 import { IoMdAddCircle } from "react-icons/io";
 
 /* store */
-import { useSpots, useActivities } from "@/context/store";
+import { useSpots, useActivities } from "@/store";
 
 /* utils */
-import { SearchInObject } from "@/utils/search";
+import { SearchInObject } from "@/utils/search.utils";
 
 /* types */
 import { ISpot, IActivity } from "@/types";
+/* hooks */
+
+import { useModal } from "@/hooks";
 
 type Props = {};
 
@@ -31,6 +32,7 @@ function SpotPage({}: Props) {
     "all"
   );
   const [filteredSpots, setFilteredSpots] = useState<ISpot[]>(spots);
+  const updateSpot = useModal<ISpot>();
 
   useEffect(() => {
     if (selectedActivity) {
@@ -49,14 +51,13 @@ function SpotPage({}: Props) {
           onClick={() => setOpenModalCreate(true)}
         />
       </div>
-
-      <div className=" flex flex-col gap-4 w-full min-h-60 border-2 border-sky-700 dark:border-sky-900 rounded-md px-2 md:px-4 py-6">
+      <ItemContainer className="flex flex-col gap-4 w-full min-h-60 ">
         <div className="flex flex-col-reverse items-center lg:flex-row gap-2 lg:justify-between">
           <div className="flex gap-0 flex-col  items-center md:items-start  md:justify-center ">
             <h3 className=" text-lg text-start ms-2 opacity-50">Activités</h3>
-            <div className="flex justify-center gap-4 text-xs min-h-6 font-light bg-sky-950 dark:bg-sky-800 rounded-md py-2 px-4 box-content max-w-fit">
+            <div className="flex-wrap flex justify-center gap-4 text-xs min-h-6 font-light bg-sky-950 dark:bg-sky-800 rounded-md py-2 px-2 md:px-4 box-content max-w-fit">
               <button
-                className={`py-1 px-4 rounded-md ${
+                className={`py-2 px-2  rounded-md ${
                   selectedActivity === "all"
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200 text-gray-500"
@@ -68,7 +69,7 @@ function SpotPage({}: Props) {
               {activities.map((activity: IActivity) => (
                 <button
                   key={activity._id}
-                  className={`px-2 rounded-md ${
+                  className={`py-2 px-2 rounded-md ${
                     selectedActivity === activity._id
                       ? "bg-blue-500 text-white"
                       : "bg-gray-200 text-gray-500"
@@ -90,16 +91,29 @@ function SpotPage({}: Props) {
           </div>
         </div>
 
-        <div className=" grid grid-cols-1 xl:grid-cols-2 justify-center items-center gap-4">
+        <div className=" grid grid-cols-1 xl:grid-cols-2 justify-items-center  gap-4">
           {filteredSpots.map((spot) => (
-            <SpotCard key={spot._id} spot={spot} />
+            <SpotCard
+              key={spot._id}
+              spot={spot}
+              updateSpotModal={updateSpot.openModal}
+            />
           ))}
         </div>
-      </div>
-      <SpotForm
-        isOpen={openModalCreate}
-        onClose={() => setOpenModalCreate(false)}
-      />
+      </ItemContainer>
+
+      {updateSpot.data ? (
+        <SpotForm
+          data={updateSpot.data}
+          isOpen={updateSpot.isOpen}
+          onClose={updateSpot.closeModal}
+        />
+      ) : (
+        <SpotForm
+          isOpen={openModalCreate}
+          onClose={() => setOpenModalCreate(false)}
+        />
+      )}
     </section>
   );
 }
@@ -112,7 +126,7 @@ function filterSpotsByActivities(spots: ISpot[], activityId: string) {
   if (activityId === "all") return spots;
   return spots.filter((spot) => {
     return spot.practicedActivities.some(
-      (activity) => activity.activityId === activityId
+      (activity: any) => activity.activityId === activityId
     );
   });
 }

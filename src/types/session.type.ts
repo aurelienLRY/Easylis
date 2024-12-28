@@ -22,4 +22,5 @@ export interface ISession {
     placesMax: number;
     placesReserved: number;
     type_formule: "half_day" | "full_day";
+    duration?: string;
   }
