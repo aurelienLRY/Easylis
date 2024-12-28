@@ -5,7 +5,7 @@ import { Spin } from "antd";
 import { useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
-import { Skeleton } from "@nextui-org/react";
+import dynamic from "next/dynamic";
 
 /* Types */
 import { ISpot } from "@/types";
@@ -21,7 +21,6 @@ import {
   ItemCardHeader,
   EditButton,
   DeleteButton,
-  MapCustomer,
 } from "@/components";
 
 /* store */
@@ -64,6 +63,13 @@ export function SpotCard({
       ToasterAction({ result, defaultMessage: "Lieu supprimé avec succès" });
     }
   };
+
+  const MapCustomer = dynamic(
+    () => import("@/components/modules/MapCustomer.modules"),
+    {
+      ssr: false,
+    }
+  );
   return (
     <ItemCard className="h-full px-0 pt-0  text-white flex flex-col md:flex-row gap-6 justify-between w-full max-w-[950px] relative">
       {isDelete && (

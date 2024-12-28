@@ -18,7 +18,7 @@ interface MapCustomerProps {
  * Component to display a map with markers for each spot.
  * @param spots - The spots to be displayed on the map.
  */
-export function MapCustomer({ spot }: MapCustomerProps) {
+function MapCustomer({ spot }: MapCustomerProps) {
   const mapRef = useRef<any>(null);
   useEffect(() => {
     if (mapRef.current) {
@@ -92,3 +92,5 @@ const IconMeetingFullDay = icon({
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
+
+export default MapCustomer;
