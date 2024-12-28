@@ -18,6 +18,7 @@ import { useModal, useMailer } from "@/hooks";
 
 /* types */
 import { ICustomerSession, ISessionWithDetails } from "@/types";
+import { ICustomerSession, ISessionWithDetails } from "@/types";
 
 /* utils */
 import { getMonthValue, SearchInObject } from "@/utils";
@@ -70,9 +71,17 @@ const BookingPage = () => {
   ): SortedSessions {
     return sessions.reduce(
       (acc: SortedSessions, session: ISessionWithDetails) => {
+    sessions: ISessionWithDetails[]
+  ): SortedSessions {
+    return sessions.reduce(
+      (acc: SortedSessions, session: ISessionWithDetails) => {
         const date = new Date(session.date);
         const month = date.getMonth();
         const year = date.getFullYear();
+
+        if (!acc[year]) acc[year] = {};
+        if (!acc[year][month]) acc[year][month] = [];
+
 
         if (!acc[year]) acc[year] = {};
         if (!acc[year][month]) acc[year][month] = [];
@@ -299,6 +308,44 @@ const BookingPage = () => {
             </Tooltip>
           )}
         </div>
+        {totalPages > 1 && (
+          <div className="w-full flex justify-center gap-2 my-4">
+            {Array.from({ length: totalPages }).map((_, index) => (
+              <Tooltip title={`Aller à la page ${index + 1}`} key={index}>
+                <button
+                  onClick={() => setCurrentPage(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-200 border-2 ${
+                    currentPage === index
+                      ? "bg-orange-600 border-orange-600 " // Dot actif
+                      : " border-white hover:border-orange-600" // Dot inactif
+                  }`}
+                  aria-label={`Aller à la page ${index + 1}`}
+                >
+                  <span className="sr-only">Page {index + 1}</span>
+                </button>
+              </Tooltip>
+            ))}
+          </div>
+        )}
+        {/* les modals*/}
+        {editCustomer.data && (
+          <CustomerSessionForm
+            isOpen={editCustomer.isOpen}
+            onClose={editCustomer.closeModal}
+            data={editCustomer.data.data}
+            session={editCustomer.data.session}
+          />
+        )}
+
+        {detailCustomerModal.data && (
+          <CustomerFiche
+            customer={detailCustomerModal.data}
+            onClose={detailCustomerModal.closeModal}
+            isOpen={detailCustomerModal.isOpen}
+          />
+        )}
+      </ItemContainer>
+    </>
         {totalPages > 1 && (
           <div className="w-full flex justify-center gap-2 my-4">
             {Array.from({ length: totalPages }).map((_, index) => (

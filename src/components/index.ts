@@ -1,5 +1,3 @@
-/{} UI Components {}/;
-
 // Buttons
 export {
   DeleteButton,
@@ -79,7 +77,7 @@ export { DashboardNav } from "@/components/layout/Navigation.layout";
 export { SingOutBtn } from "@/components/layout/SingOut.layout";
 export { Footer } from "@/components/layout/Footer.layout";
 
-/{} Module Components {}/;
+/* Module Components */
 
 // Session
 export {

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ConfigProvider } from "antd";
+import { ConfigProvider } from "antd";
+import layout from "antd/es/layout";
+import { root } from "postcss";
 
 /*components */
 const inter = Inter({ subsets: ["latin"] });
@@ -15,6 +18,9 @@ export const metadata: Metadata = {
  *root layout
  *@returns {JSX.Element}
  */
+ *root layout
+ *@returns {JSX.Element}
+ */
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -23,9 +29,19 @@ export default async function RootLayout({
   return (
     <html lang="fr" className="scroll-smooth dark">
       <body
+        className={`${inter.className} w-screen dark:bg-gray-900 dark:text-white`}
+      >
+      <body
         className={`${inter.className} dark:bg-gray-900 dark:text-white mb-8 md:mb-0`}
       >
         <ConfigProvider
+          theme={{
+            token: {
+              colorPrimary: "#ffffff",
+            },
+          }}
+        >
+          {children}
           theme={{
             token: {
               colorPrimary: "#ffffff",
@@ -38,3 +54,4 @@ export default async function RootLayout({
     </html>
   );
 }
+
