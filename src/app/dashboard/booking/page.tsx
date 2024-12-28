@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
 import { Tooltip } from "antd";
+import { motion, AnimatePresence } from "framer-motion";
 
 /* store */
 import { useSessionWithDetails } from "@/store";
@@ -13,7 +14,7 @@ import {
 } from "@/components";
 
 /*Hook*/
-import { useModal, useCustomer, useMailer } from "@/hooks";
+import { useModal, useMailer } from "@/hooks";
 
 /* types */
 import { ICustomerSession, ISessionWithDetails } from "@/types";
@@ -31,6 +32,25 @@ type SortedSessions = {
   };
 };
 
+const getQuarterDates = (date: Date) => {
+  const currentQuarter = Math.floor(date.getMonth() / 3);
+  const quarters = [];
+
+  for (let i = 0; i < 4; i++) {
+    const startMonth = ((currentQuarter + i) % 4) * 3;
+    const year = date.getFullYear() + Math.floor((currentQuarter + i) / 4);
+    quarters.push({
+      label: `${getMonthValue(startMonth).substring(0, 3)}-${getMonthValue(
+        startMonth + 2
+      ).substring(0, 3)} ${year}`,
+      startMonth,
+      endMonth: startMonth + 2,
+      year,
+    });
+  }
+  return quarters;
+};
+
 const BookingPage = () => {
   const mailer = useMailer();
   const { SessionWithDetails: sessionWithDetails } = useSessionWithDetails();
@@ -42,6 +62,7 @@ const BookingPage = () => {
   >([]);
   const [periodFilter, setPeriodFilter] = useState<string>("all");
   const ITEMS_PER_PAGE = 3; // Nombre de mois à afficher par page
+  const [slideDirection, setSlideDirection] = useState<number>(0);
 
   // Fonction de tri des sessions par mois et année
   function getSortedSessionByMonthAndYear(
@@ -67,43 +88,31 @@ const BookingPage = () => {
   const filterByPeriod = useCallback(
     (sessions: ISessionWithDetails[]): ISessionWithDetails[] => {
       const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = now.getMonth();
+      const quarters = getQuarterDates(now);
+
       return sessions.filter((session) => {
         const sessionDate = new Date(session.date);
         const sessionMonth = sessionDate.getMonth();
         const sessionYear = sessionDate.getFullYear();
 
-        switch (periodFilter) {
-          case "Q1":
-            return (
-              sessionMonth >= 0 &&
-              sessionMonth <= 2 &&
-              sessionYear === currentYear
-            );
-          case "Q2":
-            return (
-              sessionMonth >= 3 &&
-              sessionMonth <= 5 &&
-              sessionYear === currentYear
-            );
-          case "Q3":
-            return (
-              sessionMonth >= 6 &&
-              sessionMonth <= 8 &&
-              sessionYear === currentYear
-            );
-          case "Q4":
-            return (
-              sessionMonth >= 9 &&
-              sessionMonth <= 11 &&
-              sessionYear === currentYear
-            );
-          case "thisMonth":
-            return sessionMonth === currentMonth && sessionYear === currentYear;
-          default:
-            return true;
+        if (periodFilter === "all") return true;
+        if (periodFilter === "thisMonth") {
+          return (
+            sessionMonth === now.getMonth() && sessionYear === now.getFullYear()
+          );
         }
+
+        // Trouve le trimestre correspondant au filtre
+        const selectedQuarter = quarters.find((q) => q.label === periodFilter);
+        if (selectedQuarter) {
+          return (
+            sessionYear === selectedQuarter.year &&
+            sessionMonth >= selectedQuarter.startMonth &&
+            sessionMonth <= selectedQuarter.endMonth
+          );
+        }
+
+        return true;
       });
     },
     [periodFilter]
@@ -166,6 +175,18 @@ const BookingPage = () => {
     detailCustomerModal.closeModal();
   };
 
+  const handlePrevPage = () => {
+    setSlideDirection(-1);
+    setCurrentPage((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setSlideDirection(1);
+    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
+  };
+
+  const quarters = getQuarterDates(new Date());
+
   return (
     <>
       <ItemContainer className="">
@@ -186,13 +207,13 @@ const BookingPage = () => {
               >
                 Ce mois
               </button>
-              {["Q1", "Q2", "Q3", "Q4"].map((quarter) => (
+              {quarters.map((quarter) => (
                 <button
-                  key={quarter}
-                  className={getButtonClassName(periodFilter === quarter)}
-                  onClick={() => setPeriodFilter(quarter)}
+                  key={quarter.label}
+                  className={getButtonClassName(periodFilter === quarter.label)}
+                  onClick={() => setPeriodFilter(quarter.label)}
                 >
-                  {quarter}
+                  {quarter.label}
                 </button>
               ))}
             </div>
@@ -209,62 +230,71 @@ const BookingPage = () => {
           </div>
         </div>
 
-        <div className="flex  items-center justify-center md:min-h-[700px]">
+        <div className="flex items-center justify-center md:min-h-[700px]">
           {totalPages > 1 && (
             <Tooltip title="Mois précédents">
               <button
-                className="max-w-1/6 flex justify-end  text-white hover:text-orange-600 rounded disabled:text-gray-300"
-                onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
+                className="max-w-1/6 flex justify-end text-white hover:text-orange-600 rounded disabled:text-gray-300"
+                onClick={handlePrevPage}
                 disabled={currentPage === 0}
               >
                 <FaChevronCircleLeft className="text-4xl h-10 w-10" />
               </button>
             </Tooltip>
           )}
-          {/* Affichage des données paginées */}
-          <div className="flex flex-col gap-6  w-full items-center  ">
-            {currentMonths.map(({ year, month }) => (
-              <div
-                key={`${year}-${month}`}
-                className="flex flex-col gap-6 min-w-[350px] w-full max-w-[1500px] p-4"
+          <div className="w-full overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentPage}
+                initial={{ x: slideDirection * 1000, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: slideDirection * 1000, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="flex flex-col gap-6 w-full items-center "
               >
-                <div className="flex flex-col gap-2 items-center md:items-start">
-                  <h2 className="text-4xl font-bold">
-                    {getMonthValue(month)}{" "}
-                    <span className="text-xl font-normal text-gray-500">
-                      {year}
-                    </span>
-                  </h2>
-                  <div className="flex flex-col gap-2 w-full">
-                    {filteredSession[year]?.[month]?.map(
-                      (
-                        sessionWithDetails: ISessionWithDetails,
-                        index: number
-                      ) =>
-                        sessionWithDetails.customerSessions.length >= 1 && (
-                          <CustomerBookingTable
-                            key={index}
-                            data={sessionWithDetails}
-                            customerFiche={detailCustomerModal.openModal}
-                            editCustomer={editCustomer.openModal}
-                          />
-                        )
-                    )}
+                {currentMonths.map(({ year, month }) => (
+                  <div
+                    key={`${year}-${month}`}
+                    className="flex flex-col gap-6 min-w-[350px] w-full max-w-[1500px] p-4"
+                  >
+                    <div className="flex flex-col gap-2 items-center md:items-start">
+                      <h2 className="text-4xl font-bold">
+                        {getMonthValue(month)}{" "}
+                        <span className="text-xl font-normal text-gray-500">
+                          {year}
+                        </span>
+                      </h2>
+                      <div className="flex flex-col gap-2 w-full">
+                        {filteredSession[year]?.[month]?.map(
+                          (
+                            sessionWithDetails: ISessionWithDetails,
+                            index: number
+                          ) =>
+                            sessionWithDetails.customerSessions.length >= 1 && (
+                              <CustomerBookingTable
+                                key={index}
+                                data={sessionWithDetails}
+                                customerFiche={detailCustomerModal.openModal}
+                                editCustomer={editCustomer.openModal}
+                              />
+                            )
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                ))}
+              </motion.div>
+            </AnimatePresence>
           </div>
+
           {totalPages > 1 && (
             <Tooltip title="Mois suivants">
               <button
                 className="max-w-1/6 flex justify-end text-white hover:text-orange-600 rounded disabled:text-gray-300"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
-                }
+                onClick={handleNextPage}
                 disabled={currentPage >= totalPages - 1}
               >
-                <FaChevronCircleRight className="text-4xl h-10 w-10 " />
+                <FaChevronCircleRight className="text-4xl h-10 w-10" />
               </button>
             </Tooltip>
           )}

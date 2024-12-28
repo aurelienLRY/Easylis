@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Tooltip } from "antd";
 import { Spin } from "antd";
+import { motion, AnimatePresence } from "framer-motion";
 
 /* components */
 import {
@@ -45,6 +46,7 @@ export function AllSessionsCard({
   const [currentPage, setCurrentPage] = useState<number>(0);
   const ITEMS_PER_PAGE = 6; // Nombre de sessions par page
   const [paginationRange, setPaginationRange] = useState<number[]>([]);
+  const [slideDirection, setSlideDirection] = useState<number>(0);
 
   const detailsModal = useModal<ISessionWithDetails>();
   const updateSessionModal = useModal<ISessionWithDetails>();
@@ -112,6 +114,17 @@ export function AllSessionsCard({
     currentPage,
     totalPages,
   ]);
+
+  // Modifier les fonctions de navigation
+  const handlePrevPage = () => {
+    setSlideDirection(-1);
+    setCurrentPage((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setSlideDirection(1);
+    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
+  };
 
   if (isLoading || sessionsWithDetails.length === 0) {
     if (sessionsWithDetails.length === 0) {
@@ -246,12 +259,12 @@ export function AllSessionsCard({
         </div>
 
         {/* Grille des sessions avec navigation */}
-        <div className="flex items-center justify-center gap-4 md:min-h-[540px] relative">
+        <div className="flex items-center justify-center gap-4 md:min-h-[540px] relative overflow-hidden">
           {totalPages > 1 && (
             <Tooltip title="Sessions précédentes">
               <button
-                className="  text-white hover:text-orange-600 rounded disabled:text-gray-300"
-                onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
+                className="text-white hover:text-orange-600 rounded disabled:text-gray-300"
+                onClick={handlePrevPage}
                 disabled={currentPage === 0}
               >
                 <FaChevronCircleLeft className="text-4xl h-10 w-10" />
@@ -259,26 +272,33 @@ export function AllSessionsCard({
             </Tooltip>
           )}
 
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4 justify-items-center">
-            {currentSessions.map((customerSession) => (
-              <SessionCard
-                sessionWithDetails={customerSession}
-                key={customerSession._id}
-                detailsModal={detailsModal.openModal}
-                updateSessionModal={updateSessionModal.openModal}
-                addCustomerModal={customerModal.openModal}
-                canceledCustomerModal={canceledCustomerModal.openModal}
-              />
-            ))}
-          </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentPage}
+              initial={{ x: slideDirection * 1000, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: slideDirection * 1000, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center overflow-hidden p-1"
+            >
+              {currentSessions.map((customerSession) => (
+                <SessionCard
+                  sessionWithDetails={customerSession}
+                  key={customerSession._id}
+                  detailsModal={detailsModal.openModal}
+                  updateSessionModal={updateSessionModal.openModal}
+                  addCustomerModal={customerModal.openModal}
+                  canceledCustomerModal={canceledCustomerModal.openModal}
+                />
+              ))}
+            </motion.div>
+          </AnimatePresence>
 
           {totalPages > 1 && (
             <Tooltip title="Sessions suivantes">
               <button
-                className=" text-white hover:text-orange-600 rounded disabled:text-gray-300"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
-                }
+                className="text-white hover:text-orange-600 rounded disabled:text-gray-300"
+                onClick={handleNextPage}
                 disabled={currentPage >= totalPages - 1}
               >
                 <FaChevronCircleRight className="text-4xl h-10 w-10" />
