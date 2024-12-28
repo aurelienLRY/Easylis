@@ -1,5 +1,3 @@
-/{} UI Components {}/;
-
 // Buttons
 export {
   DeleteButton,
@@ -79,8 +77,6 @@ export { DashboardNav } from "@/components/layout/Navigation.layout";
 export { SingOutBtn } from "@/components/layout/SingOut.layout";
 export { Footer } from "@/components/layout/Footer.layout";
 
-/{} Module Components {}/;
-
 // Session
 export {
   AvatarSystem,
@@ -94,3 +90,6 @@ export {
 export { CustomerBookingTable } from "@/components/modules/CustomerBookingTable.modules";
 export { AllSessionsCard } from "@/components/modules/DisplaySessions.modules";
 export { EmailTemplateEditor } from "@/components/modules/MailerEditor.modules";
+
+// spot
+export { MapCustomer } from "@/components/modules/MapCustomer.modules";
