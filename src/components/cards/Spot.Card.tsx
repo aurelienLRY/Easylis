@@ -21,6 +21,7 @@ import {
   ItemCardHeader,
   EditButton,
   DeleteButton,
+  MapCustomer,
 } from "@/components";
 
 /* store */
@@ -117,7 +118,7 @@ export function SpotCard({
               </div>
             </ItemCardInner>
           </div>
-          <Skeleton className="min-w-[40%] flex items-center justify-center shadow-md h-full rounded-md"></Skeleton>
+          <MapCustomer spot={spot} />
         </div>
 
         {/* footer */}
