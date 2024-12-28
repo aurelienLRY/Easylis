@@ -152,7 +152,7 @@ export const SelectInput = ({
       {label && (
         <label
           htmlFor={name}
-          className="text-sm font-light opacity-70 min-w-40 max-w-20 "
+          className="text-sm font-light opacity-70 min-w-5 max-w-20 "
         >
           {label}
         </label>
