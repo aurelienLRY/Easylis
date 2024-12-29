@@ -24,6 +24,7 @@ import {
   typeOfReservation,
   customerWaitingCount,
 } from "@/utils";
+
 /* Types */
 import { ISessionWithDetails, ICustomerSession } from "@/types";
 
@@ -45,13 +46,13 @@ const variants = {
   open: { opacity: 1, height: "auto", transition: { duration: 0.3 } },
   closed: { opacity: 0, height: 0, transition: { duration: 0.2 } },
 };
+
 /**
  * Ce composant représente la table des réservations des clients.
  * @param {object} props - Les propriétés du composant.
  * @param {ISessionWithDetails} props.data - Les données de la session.
  * @param {() => void} props.customerFiche - La fonction à exécuter lorsque le bouton de fiche client est cliqué.
  * @param {(data: {data: ICustomerSession, session: ISessionWithDetails}) => void} props.editCustomer - La fonction à exécuter lorsque le bouton d'édition est cliqué.
- * @param {(data: ICustomerSession) => void} props.deleteCustomer - La fonction à exécuter lorsque le bouton de suppression est cliqué.
  * @returns {JSX.Element} Le composant table des réservations des clients.
  */
 export const CustomerBookingTable = ({
@@ -60,13 +61,12 @@ export const CustomerBookingTable = ({
   editCustomer,
 }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
+  const C_WaitingCount = customerWaitingCount(data.customerSessions);
+  const { CancelCustomer, isSubmitting } = useCustomer();
 
   const toggleTable = () => {
     setIsOpen(!isOpen);
   };
-  const C_WaitingCount = customerWaitingCount(data.customerSessions);
-
-  const { CancelCustomer, isSubmitting } = useCustomer();
 
   return (
     <article
@@ -103,12 +103,13 @@ export const CustomerBookingTable = ({
             initial="closed"
             animate="open"
             exit="closed"
-            className="overflow-x-auto w-full"
+            className="overflow-x-auto overflow-y-auto max-h-[60vh] w-full swiper-no-swiping"
+            data-swiper-no-swiping="true"
           >
             <motion.table className="min-w-full">
               <thead className="bg-slate-300 dark:bg-sky-600 text-white">
                 <tr>
-                  <th className=" text-center py-2 px-2">Nom</th>
+                  <th className="text-center py-2 px-2">Nom</th>
                   <th className="text-center py-2 px-1">Contact</th>
                   <th className="text-center py-2 px-1">Status</th>
                   <th className="text-center py-2 px-1">Enregistré par</th>
@@ -139,19 +140,14 @@ export const CustomerBookingTable = ({
                         </Tooltip>
                       </div>
                     </td>
-
-                    <td className="text-center  px-1">
+                    <td className="text-center px-1">
                       <Tooltip title="Envoyer un email">
-                        <a
-                          href={`mailto:${customerSession.email}`}
-                          className=""
-                        >
+                        <a href={`mailto:${customerSession.email}`}>
                           {customerSession.email}
                         </a>
                       </Tooltip>
                     </td>
-
-                    <td className="text-center  px-1">
+                    <td className="text-center px-1">
                       <div className="flex justify-center items-center">
                         <StatusBadge
                           customerSession={customerSession}
@@ -159,7 +155,6 @@ export const CustomerBookingTable = ({
                         />
                       </div>
                     </td>
-
                     <td className="text-center px-1">
                       <div className="flex flex-col">
                         <span>
@@ -172,12 +167,9 @@ export const CustomerBookingTable = ({
                         </span>
                       </div>
                     </td>
-
                     <td className="text-center px-1">
-                      <div className="flex items-center justify-center  gap-1 font-semibold">
-                        <span className="">
-                          {customerSession.number_of_people}
-                        </span>
+                      <div className="flex items-center justify-center gap-1 font-semibold">
+                        <span>{customerSession.number_of_people}</span>
                         {customerSession.number_of_people > 1 ? (
                           <FaUserGroup />
                         ) : (
@@ -185,8 +177,7 @@ export const CustomerBookingTable = ({
                         )}
                       </div>
                     </td>
-
-                    <td className="text-center  px-1">
+                    <td className="text-center px-1">
                       <div className="flex justify-center items-center">
                         <GlobalPriceBadge
                           price={customerSession.price_total}
@@ -195,7 +186,7 @@ export const CustomerBookingTable = ({
                       </div>
                     </td>
                     <td className="text-center px-2">
-                      <div className="flex gap-3 items-center justify-start ">
+                      <div className="flex gap-3 items-center justify-start">
                         <DetailButton
                           title="Voir la fiche client"
                           onClick={() => customerFiche(customerSession)}

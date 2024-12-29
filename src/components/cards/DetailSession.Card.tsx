@@ -51,8 +51,8 @@ export function SessionDetailCard({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Détail de la session">
-      <div className="flex flex-col gap-10 justify-evenly min-w-fit    text-white relative  ">
-        <ItemCardInner className="w-full flex flex-col items-center">
+      <div className="flex flex-col gap-8 items-center text-white  box-border max-w-[99%] ">
+        <ItemCardInner className=" flex flex-col items-center px-4 ">
           <p className="text-center text-2xl font-semibold m-0">
             {data.activity.name}
           </p>
@@ -68,7 +68,7 @@ export function SessionDetailCard({
           )}
         </ItemCardInner>
 
-        <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-8 ">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 gap-y-8 max-w-[80%]  align-middle place-items-center ">
           <DateDisplay date={new Date(data.date)} />
           <TimeDisplay startTime={data.startTime} endTime={data.endTime} />
           <LocationDisplay location={data.spot.name} />
@@ -77,11 +77,12 @@ export function SessionDetailCard({
           />
           <PlanDisplay plan={data.type_formule} />
         </div>
-
-        <CustomerTables_Session
-          data={data}
-          detailsCustomer={detailsCustomerModal.openModal}
-        />
+        <div className="w-[90%] overflow-x-scroll">
+          <CustomerTables_Session
+            data={data}
+            detailsCustomer={detailsCustomerModal.openModal}
+          />
+        </div>
       </div>
       {detailsCustomerModal && (
         <CustomerFiche
