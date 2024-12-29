@@ -63,3 +63,76 @@ li {
   text-align: -webkit-match-parent;
   unicode-bidi: isolate;
 }
+
+/* Styles pour le calendrier responsive */
+@media (max-width: 768px) {
+  .fc .fc-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 1.2rem !important;
+  }
+
+  .fc .fc-button {
+    padding: 0.2rem 0.4rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 0.5rem;
+  }
+
+  .calendar-container .fc-view {
+    font-size: 0.8rem;
+  }
+}
+
+/* Styles pour Swiper en mobile */
+@media (max-width: 640px) {
+  .swiper {
+    padding: 0 1rem;
+    height: auto !important;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .swiper-slide {
+    height: auto !important;
+    padding: 1rem 0;
+    touch-action: pan-y;
+  }
+
+  .swiper-wrapper {
+    min-height: 100%;
+    height: auto !important;
+  }
+
+  /* Améliorer la zone de swipe */
+  .swiper-slide > div {
+    pointer-events: none;
+  }
+
+  .swiper-slide > div > div {
+    pointer-events: auto;
+  }
+
+  .swiper-pagination {
+    position: relative !important;
+    margin-top: 1.5rem;
+    bottom: 0 !important;
+  }
+
+  .swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
+    background: white;
+    opacity: 0.5;
+    margin: 0 4px !important;
+  }
+
+  .swiper-pagination-bullet-active {
+    background: #f97316;
+    opacity: 1;
+  }
+}

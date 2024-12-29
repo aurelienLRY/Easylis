@@ -1,9 +1,13 @@
 "use client";
 /* Librairies */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Tooltip } from "antd";
-import { Spin } from "antd";
 import { motion, AnimatePresence } from "framer-motion";
+// Import Swiper
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
 
 /* components */
 import {
@@ -23,124 +27,322 @@ import { ISessionWithDetails } from "@/types";
 
 /* hooks */
 import { useModal } from "@/hooks";
+import { useIsMobile } from "@/hooks/useMobile";
+
 /* icons */
 import { FaChevronCircleLeft, FaChevronCircleRight } from "react-icons/fa";
 
 /**
- * AllSessionsCard Component
- * @param sessionsWithDetails: ISessionWithDetails[]
- * @returns  JSX.Element
+ * Interface pour les props du composant AllSessionsCard
  */
-export function AllSessionsCard({
-  sessionsWithDetails,
-}: {
+interface AllSessionsCardProps {
+  /** Liste des sessions avec leurs détails */
   sessionsWithDetails: ISessionWithDetails[];
-}) {
+}
+
+/**
+ * Calcule la plage de pagination
+ * @param total - Nombre total de pages
+ * @param current - Page courante
+ * @returns Tableau des numéros de page à afficher
+ */
+const calculatePaginationRange = (total: number, current: number): number[] => {
+  const range: number[] = [];
+  const maxVisible = 5;
+
+  if (total <= maxVisible) {
+    for (let i = 0; i < total; i++) range.push(i);
+  } else {
+    const leftSide = Math.floor(maxVisible / 2);
+    const rightSide = total - leftSide;
+
+    if (current <= leftSide) {
+      for (let i = 0; i < maxVisible - 1; i++) range.push(i);
+      range.push(-1);
+      range.push(total - 1);
+    } else if (current >= rightSide) {
+      range.push(0);
+      range.push(-1);
+      for (let i = total - (maxVisible - 1); i < total; i++) range.push(i);
+    } else {
+      range.push(0);
+      range.push(-1);
+      for (let i = current - 1; i <= current + 1; i++) range.push(i);
+      range.push(-1);
+      range.push(total - 1);
+    }
+  }
+  return range;
+};
+
+/**
+ * Hook personnalisé pour filtrer et trier les sessions
+ * @param sessions - Liste des sessions à filtrer
+ * @param filter - Type de filtre temporel
+ * @param status - Statut des sessions à afficher
+ * @param search - Terme de recherche
+ * @returns Sessions filtrées et triées
+ */
+const useFilteredSessions = (
+  sessions: ISessionWithDetails[],
+  filter: string,
+  status: string,
+  search: string
+): ISessionWithDetails[] => {
+  return useMemo(() => {
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    // Tri des sessions par date
+    const sortedSessions = [...sessions].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    // Application des filtres
+    const filteredSessions = sortedSessions.filter((session) => {
+      const sessionDate = new Date(session.date);
+
+      if (status && status !== "all" && session.status !== status) {
+        return false;
+      }
+
+      switch (filter) {
+        case "thisWeek":
+          return sessionDate >= startOfWeek && sessionDate <= endOfWeek;
+        case "thisMonth":
+          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+          const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+          return sessionDate >= startOfMonth && sessionDate <= endOfMonth;
+        case "past":
+          return sessionDate < now;
+        default:
+          return true;
+      }
+    });
+
+    // Application de la recherche
+    return search
+      ? (SearchInObject(filteredSessions, search) as ISessionWithDetails[])
+      : filteredSessions;
+  }, [sessions, filter, status, search]);
+};
+
+/**
+ * Composant pour afficher les sessions en mode desktop
+ */
+const DesktopView = ({
+  currentSessions,
+  handlePrevPage,
+  handleNextPage,
+  totalPages,
+  currentPage,
+  slideDirection,
+  modals,
+}: {
+  currentSessions: ISessionWithDetails[];
+  handlePrevPage: () => void;
+  handleNextPage: () => void;
+  totalPages: number;
+  currentPage: number;
+  slideDirection: number;
+  modals: {
+    detailsModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    updateSessionModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    customerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    canceledCustomerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+  };
+}) => (
+  <div className="flex items-center justify-center gap-4 md:min-h-[540px] relative overflow-hidden">
+    {totalPages > 1 && (
+      <Tooltip title="Sessions précédentes">
+        <button
+          className="text-white hover:text-orange-600 rounded disabled:text-gray-300"
+          onClick={handlePrevPage}
+          disabled={currentPage === 0}
+        >
+          <FaChevronCircleLeft className="text-4xl h-10 w-10" />
+        </button>
+      </Tooltip>
+    )}
+
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={currentPage}
+        initial={{ x: slideDirection * 1000, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: slideDirection * -1000, opacity: 0 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="w-full grid grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center overflow-hidden p-1"
+      >
+        {currentSessions.map((session) => (
+          <SessionCard
+            key={session._id}
+            sessionWithDetails={session}
+            detailsModal={modals.detailsModal.openModal}
+            updateSessionModal={modals.updateSessionModal.openModal}
+            addCustomerModal={modals.customerModal.openModal}
+            canceledCustomerModal={modals.canceledCustomerModal.openModal}
+          />
+        ))}
+      </motion.div>
+    </AnimatePresence>
+
+    {totalPages > 1 && (
+      <Tooltip title="Sessions suivantes">
+        <button
+          className="text-white hover:text-orange-600 rounded disabled:text-gray-300"
+          onClick={handleNextPage}
+          disabled={currentPage >= totalPages - 1}
+        >
+          <FaChevronCircleRight className="text-4xl h-10 w-10" />
+        </button>
+      </Tooltip>
+    )}
+  </div>
+);
+
+/**
+ * Composant pour afficher les sessions en mode mobile avec Swiper
+ */
+const MobileView = ({
+  filteredSessions,
+  currentPage,
+  setCurrentPage,
+  modals,
+}: {
+  filteredSessions: ISessionWithDetails[];
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  modals: {
+    detailsModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    updateSessionModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    customerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    canceledCustomerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+  };
+}) => {
+  // Créer des groupes de 3 sessions
+  const sessionGroups = useMemo(() => {
+    const groups = [];
+    for (let i = 0; i < filteredSessions.length; i += 3) {
+      groups.push(filteredSessions.slice(i, i + 3));
+    }
+    return groups;
+  }, [filteredSessions]);
+
+  return (
+    <Swiper
+      modules={[Pagination]}
+      pagination={{ clickable: true }}
+      onSlideChange={(swiper) => setCurrentPage(swiper.activeIndex)}
+      initialSlide={currentPage}
+      className="w-full min-h-[540px]"
+    >
+      {sessionGroups.map((group, groupIndex) => (
+        <SwiperSlide key={groupIndex}>
+          <div className="grid grid-cols-1 gap-4 p-4">
+            {group.map((session) => (
+              <SessionCard
+                key={session._id}
+                sessionWithDetails={session}
+                detailsModal={modals.detailsModal.openModal}
+                updateSessionModal={modals.updateSessionModal.openModal}
+                addCustomerModal={modals.customerModal.openModal}
+                canceledCustomerModal={modals.canceledCustomerModal.openModal}
+              />
+            ))}
+          </div>
+        </SwiperSlide>
+      ))}
+    </Swiper>
+  );
+};
+
+/**
+ * Composant AllSessionsCard - Affiche une liste de sessions avec filtrage et pagination
+ * Fonctionnalités :
+ * - Filtrage par période (semaine, mois, tout)
+ * - Filtrage par statut
+ * - Recherche textuelle
+ * - Pagination avec navigation
+ * - Adaptation du nombre d'items selon le device (3 sur mobile, 6 sur desktop)
+ *
+ * @param props - Les propriétés du composant
+ * @returns JSX.Element
+ */
+export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
   const [filter, setFilter] = useState<string>("all");
-  const [filteredSessions, setFilteredSessions] = useState<
-    ISessionWithDetails[]
-  >([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [status, setStatus] = useState<string>("Actif");
   const [search, setSearch] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(0);
-  const ITEMS_PER_PAGE = 6; // Nombre de sessions par page
-  const [paginationRange, setPaginationRange] = useState<number[]>([]);
   const [slideDirection, setSlideDirection] = useState<number>(0);
+
+  const isMobile = useIsMobile();
+  const ITEMS_PER_PAGE = isMobile ? 3 : 6;
 
   const detailsModal = useModal<ISessionWithDetails>();
   const updateSessionModal = useModal<ISessionWithDetails>();
   const customerModal = useModal<ISessionWithDetails>();
   const canceledCustomerModal = useModal<ISessionWithDetails>();
 
-  // Fonction pour calculer la plage de pagination
-  const calculatePaginationRange = (total: number, current: number) => {
-    const range: number[] = [];
-    const maxVisible = 5; // Nombre maximum de dots visibles
-
-    if (total <= maxVisible) {
-      // Afficher tous les dots si le total est inférieur au maximum
-      for (let i = 0; i < total; i++) range.push(i);
-    } else {
-      // Logique pour les dots avec ellipsis
-      const leftSide = Math.floor(maxVisible / 2);
-      const rightSide = total - leftSide;
-
-      if (current <= leftSide) {
-        // Début de la pagination
-        for (let i = 0; i < maxVisible - 1; i++) range.push(i);
-        range.push(-1); // Ellipsis
-        range.push(total - 1);
-      } else if (current >= rightSide) {
-        // Fin de la pagination
-        range.push(0);
-        range.push(-1); // Ellipsis
-        for (let i = total - (maxVisible - 1); i < total; i++) range.push(i);
-      } else {
-        // Milieu de la pagination
-        range.push(0);
-        range.push(-1); // Ellipsis gauche
-        for (let i = current - 1; i <= current + 1; i++) range.push(i);
-        range.push(-1); // Ellipsis droite
-        range.push(total - 1);
-      }
-    }
-    return range;
+  const modals = {
+    detailsModal,
+    updateSessionModal,
+    customerModal,
+    canceledCustomerModal,
   };
 
-  // Calcul de la pagination
-  const totalPages = Math.ceil(filteredSessions.length / ITEMS_PER_PAGE);
-  const startIndex = currentPage * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentSessions = filteredSessions.slice(startIndex, endIndex);
-
-  useEffect(() => {
-    setIsLoading(sessionsWithDetails.length === 0);
-    const sortedSessions = [...sessionsWithDetails].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-    const resultFilter = filterSessions(sortedSessions, filter, status);
-    const resultSearch = SearchInObject(resultFilter, search);
-    setFilteredSessions(resultSearch as ISessionWithDetails[]);
-
-    // Mise à jour de la plage de pagination
-    setPaginationRange(calculatePaginationRange(totalPages, currentPage));
-  }, [
-    filter,
+  // Utilisation du hook personnalisé pour le filtrage
+  const filteredSessions = useFilteredSessions(
     sessionsWithDetails,
+    filter,
     status,
-    search,
-    filteredSessions.length,
-    currentPage,
-    totalPages,
-  ]);
+    search
+  );
+  const totalPages = Math.ceil(filteredSessions.length / ITEMS_PER_PAGE);
 
-  // Modifier les fonctions de navigation
-  const handlePrevPage = () => {
-    setSlideDirection(-1);
-    setCurrentPage((prev) => Math.max(0, prev - 1));
-  };
+  // Memoization des sessions de la page courante
+  const currentSessions = useMemo(() => {
+    const startIndex = currentPage * ITEMS_PER_PAGE;
+    return filteredSessions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredSessions, currentPage, ITEMS_PER_PAGE]);
 
-  const handleNextPage = () => {
-    setSlideDirection(1);
-    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
-  };
-
-  if (isLoading || sessionsWithDetails.length === 0) {
-    if (sessionsWithDetails.length === 0) {
-      return (
-        <div className="flex flex-col gap-4 justify-center items-center w-screen min-h-60 ">
-          <p>Aucune session trouvée.</p>
-        </div>
-      );
-    } else {
-      return (
-        <div className="flex flex-col gap-4 justify-center items-center w-screen min-h-60 ">
-          <Spin size="large" />
-          <p>Chargement des données.</p>
-        </div>
-      );
+  // Gestion de la pagination
+  const handlePrevPage = useCallback(() => {
+    if (currentPage > 0) {
+      setSlideDirection(-1);
+      setCurrentPage((prev) => prev - 1);
     }
+  }, [currentPage]);
+
+  const handleNextPage = useCallback(() => {
+    if (currentPage < totalPages - 1) {
+      setSlideDirection(1);
+      setCurrentPage((prev) => prev + 1);
+    }
+  }, [currentPage, totalPages]);
+
+  // Calcul de la plage de pagination
+  const paginationRange = useMemo(() => {
+    return calculatePaginationRange(totalPages, currentPage);
+  }, [totalPages, currentPage]);
+
+  // Reset de la page courante lors du changement de filtre
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [filter, status, search]);
+
+  if (!sessionsWithDetails.length) {
+    return (
+      <div className="flex flex-col gap-4 justify-center items-center w-screen min-h-60">
+        <p>Aucune session trouvée.</p>
+      </div>
+    );
   }
 
   return (
@@ -258,59 +460,30 @@ export function AllSessionsCard({
           </div>
         </div>
 
-        {/* Grille des sessions avec navigation */}
-        <div className="flex items-center justify-center gap-4 md:min-h-[540px] relative overflow-hidden">
-          {totalPages > 1 && (
-            <Tooltip title="Sessions précédentes">
-              <button
-                className="text-white hover:text-orange-600 rounded disabled:text-gray-300"
-                onClick={handlePrevPage}
-                disabled={currentPage === 0}
-              >
-                <FaChevronCircleLeft className="text-4xl h-10 w-10" />
-              </button>
-            </Tooltip>
-          )}
+        {/* Vue conditionnelle selon le device */}
+        {isMobile ? (
+          <MobileView
+            filteredSessions={filteredSessions}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            modals={modals}
+          />
+        ) : (
+          <DesktopView
+            currentSessions={currentSessions}
+            handlePrevPage={handlePrevPage}
+            handleNextPage={handleNextPage}
+            totalPages={totalPages}
+            currentPage={currentPage}
+            slideDirection={slideDirection}
+            modals={modals}
+          />
+        )}
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentPage}
-              initial={{ x: slideDirection * 1000, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: slideDirection * 1000, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center overflow-hidden p-1"
-            >
-              {currentSessions.map((customerSession) => (
-                <SessionCard
-                  sessionWithDetails={customerSession}
-                  key={customerSession._id}
-                  detailsModal={detailsModal.openModal}
-                  updateSessionModal={updateSessionModal.openModal}
-                  addCustomerModal={customerModal.openModal}
-                  canceledCustomerModal={canceledCustomerModal.openModal}
-                />
-              ))}
-            </motion.div>
-          </AnimatePresence>
-
-          {totalPages > 1 && (
-            <Tooltip title="Sessions suivantes">
-              <button
-                className="text-white hover:text-orange-600 rounded disabled:text-gray-300"
-                onClick={handleNextPage}
-                disabled={currentPage >= totalPages - 1}
-              >
-                <FaChevronCircleRight className="text-4xl h-10 w-10" />
-              </button>
-            </Tooltip>
-          )}
-        </div>
-
-        {/* Dots de pagination améliorés */}
-        {totalPages > 1 && (
+        {/* Pagination dots seulement pour desktop */}
+        {!isMobile && totalPages > 1 && (
           <div className="w-full flex justify-center gap-2 my-4">
-            {paginationRange.map((pageNumber, index) => (
+            {paginationRange.map((pageNumber: number, index: number) => (
               <React.Fragment key={index}>
                 {pageNumber === -1 ? (
                   <span className="w-3 text-white opacity-50">...</span>
@@ -335,7 +508,7 @@ export function AllSessionsCard({
         )}
       </div>
 
-      {/* Modal Details */}
+      {/* Modals */}
       {detailsModal.data && (
         <SessionDetailCard
           data={detailsModal.data}
@@ -344,7 +517,6 @@ export function AllSessionsCard({
         />
       )}
 
-      {/* Modal Update */}
       {updateSessionModal.data && (
         <SessionForm
           data={updateSessionModal.data}
@@ -353,7 +525,6 @@ export function AllSessionsCard({
         />
       )}
 
-      {/* Modal Customer */}
       {customerModal.data && (
         <CustomerSessionForm
           session={customerModal.data}
@@ -362,7 +533,6 @@ export function AllSessionsCard({
         />
       )}
 
-      {/* Modal Canceled Customer */}
       {canceledCustomerModal.data && (
         <CanceledCustomerSession
           data={canceledCustomerModal.data}
@@ -372,49 +542,4 @@ export function AllSessionsCard({
       )}
     </ItemContainer>
   );
-}
-
-/**
- * filterSessions
- * @param sessions ISessionWithDetails[]
- * @param filter string
- * @param status string
- * @returns ISessionWithDetails[]
- */
-function filterSessions(
-  sessions: ISessionWithDetails[],
-  filter: string,
-  status?: string
-) {
-  const now = new Date();
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay());
-  startOfWeek.setHours(0, 0, 0, 0);
-
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6);
-  endOfWeek.setHours(23, 59, 59, 999);
-
-  return sessions.filter((session) => {
-    const sessionDate = new Date(session.date);
-
-    // Filtrer par statut si spécifié
-    if (status && status !== "all" && session.status !== status) {
-      return false;
-    }
-
-    // Filtrer par période
-    switch (filter) {
-      case "thisWeek":
-        return sessionDate >= startOfWeek && sessionDate <= endOfWeek;
-      case "thisMonth":
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        return sessionDate >= startOfMonth && sessionDate <= endOfMonth;
-      case "past":
-        return sessionDate < now;
-      default:
-        return true; // Pour le filtre "all" ou tout autre cas non spécifié
-    }
-  });
 }

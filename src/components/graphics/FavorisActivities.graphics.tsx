@@ -162,7 +162,7 @@ const FavorisActivities = () => {
   return (
     <ItemContainer title="Activités les plus populaires">
       <div className="w-full min-h-[330px]  h-fit max-h-[600px] relative flex flex-col justify-center items-center">
-        <ResponsiveContainer>
+        <ResponsiveContainer className="w-full h-full " minHeight={300}>
           <PieChart>
             <Pie
               activeIndex={activeIndex}

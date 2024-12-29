@@ -51,46 +51,45 @@ const CHART_CONFIG: ChartConfig[] = [
 
 // Composant pour le graphique
 const Chart = ({ data }: { data: MonthData[] }) => (
-  <div className="w-full h-[400px]">
-    <ResponsiveContainer>
-      <AreaChart
-        data={data}
-        margin={{
-          top: 10,
-          right: 20,
-          left: 20,
-          bottom: 10,
+  <ResponsiveContainer className="w-full h-full min-h-[300px] md:min-h-[400px]">
+    <AreaChart
+      data={data}
+      margin={{
+        top: 10,
+        right: 10,
+        left: 10,
+        bottom: 10,
+      }}
+    >
+      <XAxis dataKey="name" />
+      <YAxis />
+      <Tooltip
+        formatter={(value: number, name: string) => {
+          if (name === "Chiffre d'affaires") {
+            return new Intl.NumberFormat("fr-FR", {
+              style: "currency",
+              currency: "EUR",
+            }).format(value);
+          }
+          return value;
         }}
-      >
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip
-          formatter={(value: number, name: string) => {
-            if (name === "Chiffre d'affaires") {
-              return new Intl.NumberFormat("fr-FR", {
-                style: "currency",
-                currency: "EUR",
-              }).format(value);
-            }
-            return value;
-          }}
-          labelFormatter={(label) => `Période : ${label}`}
+        labelFormatter={(label) => `Période : ${label}`}
+      />
+      {CHART_CONFIG.map(({ id, dataKey, name, color }) => (
+        <Area
+          key={id}
+          type="monotone"
+          dataKey={dataKey}
+          name={name}
+          stackId={id}
+          stroke={color}
+          fill={color}
         />
-        {CHART_CONFIG.map(({ id, dataKey, name, color }) => (
-          <Area
-            key={id}
-            type="monotone"
-            dataKey={dataKey}
-            name={name}
-            stackId={id}
-            stroke={color}
-            fill={color}
-          />
-        ))}
-        <Legend />
-      </AreaChart>
-    </ResponsiveContainer>
-  </div>
+      ))}
+      <Legend />
+    </AreaChart>
+  </ResponsiveContainer>
+
 );
 
 // Composant pour le calcul des données
