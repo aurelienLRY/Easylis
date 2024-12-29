@@ -1,21 +1,32 @@
 "use client";
 /* Libs */
-import React, { useEffect, useState } from "react";
-import { useAuth } from "@/hooks";
-import { Spin } from "antd";
+import React, { Suspense, useEffect } from "react";
+import dynamic from "next/dynamic";
+
 import { toast } from "sonner";
 /* components */
-import { SingOutBtn, Dashboard, EmailTemplateEditor } from "@/components";
+import { SingOutBtn, DashboardNav, LoadingSpinner } from "@/components";
 
 /* Store */
 import {
-  useSessionWithDetails,
   useSpots,
   useActivities,
   useProfile,
   useCalendar,
+  useSessionWithDetails,
 } from "@/store";
 import { useMailer } from "@/hooks/useMailer";
+import { usePathname } from "next/navigation";
+
+const EmailTemplateEditor = dynamic(
+  () =>
+    import("@/components/modules/MailerEditor.modules").then(
+      (mod) => mod.EmailTemplateEditor
+    ),
+  {
+    ssr: false,
+  }
+);
 
 /**
  * Template Component
@@ -23,8 +34,6 @@ import { useMailer } from "@/hooks/useMailer";
  * @returns JSX.Element
  */
 export default function Template({ children }: { children: React.ReactNode }) {
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -37,9 +46,6 @@ export default function Template({ children }: { children: React.ReactNode }) {
         useCalendar.getState().initialize();
       } catch (error) {
         console.error("Erreur lors de la récupération des données:", error);
-        setIsLoading(false);
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -47,30 +53,20 @@ export default function Template({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Get the user status
-  const { status } = useAuth();
   const mailer = useMailer();
-
-  const sessionsWithDetails = useSessionWithDetails(
-    (state) => state.SessionWithDetails
-  );
-
-  // If the user status is loading, return a loading message
-  if (status === "loading" || isLoading) {
-    return (
-      <div className="flex gap-4 flex-col items-center justify-center h-screen">
-        <Spin size="large" />
-        <p>Chargement des données.</p>
-      </div>
-    );
-  }
+  const pathname = usePathname();
 
   return (
-    <Dashboard sessionsWithDetails={sessionsWithDetails}>
-      {children}
-
+    <div className="w-full flex flex-col items-start px-1 md:px-4 py-6 ">
+      <div className="w-full flex flex-col gap-1 items-center md:items-start md:px-6">
+        <h1 className="text-4xl font-bold">{getPathname(pathname)}</h1>
+        <DashboardNav />
+      </div>
+      <Suspense fallback={<LoadingSpinner className="h-screen" />}>
+        {children}
+      </Suspense>
       {/* SingOutBtn */}
       <SingOutBtn />
-
       {/* Email Template Editor */}
       <EmailTemplateEditor
         isSubmitting={mailer.isSubmitting}
@@ -92,7 +88,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
         }}
         onClose={mailer.closeEditor}
       />
-    </Dashboard>
+    </div>
   );
 }
 

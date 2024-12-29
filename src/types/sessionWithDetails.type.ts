@@ -13,3 +13,7 @@ export interface ISessionWithDetails
   spot: ISpot;
   customerSessions: ICustomerSession[];
 }
+
+export interface ISessionsWithDetails {
+  SessionWithDetails: ISessionWithDetails[];
+}
