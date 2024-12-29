@@ -89,6 +89,7 @@ const Chart = ({ data }: { data: MonthData[] }) => (
       <Legend />
     </AreaChart>
   </ResponsiveContainer>
+
 );
 
 // Composant pour le calcul des données
