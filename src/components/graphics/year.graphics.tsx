@@ -9,8 +9,8 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { ItemCard, ItemCardInner, ItemContainer } from "@/components";
-import { Switch, Card } from "@nextui-org/react";
+import { ItemCardInner, ItemContainer } from "@/components";
+import { Switch } from "@nextui-org/react";
 import { useSessionWithDetails } from "@/store";
 import { getMonthValue } from "@/utils";
 
@@ -51,44 +51,46 @@ const CHART_CONFIG: ChartConfig[] = [
 
 // Composant pour le graphique
 const Chart = ({ data }: { data: MonthData[] }) => (
-  <ResponsiveContainer className="w-full h-full min-h-[300px] md:min-h-[400px]">
-    <AreaChart
-      data={data}
-      margin={{
-        top: 10,
-        right: 10,
-        left: 10,
-        bottom: 10,
-      }}
-    >
-      <XAxis dataKey="name" />
-      <YAxis />
-      <Tooltip
-        formatter={(value: number, name: string) => {
-          if (name === "Chiffre d'affaires") {
-            return new Intl.NumberFormat("fr-FR", {
-              style: "currency",
-              currency: "EUR",
-            }).format(value);
-          }
-          return value;
+  <div className="w-full h-[400px]">
+    <ResponsiveContainer className="w-full h-full min-h-[300px] md:min-h-[400px]">
+      <AreaChart
+        data={data}
+        margin={{
+          top: 10,
+          right: 10,
+          left: 10,
+          bottom: 10,
         }}
-        labelFormatter={(label) => `Période : ${label}`}
-      />
-      {CHART_CONFIG.map(({ id, dataKey, name, color }) => (
-        <Area
-          key={id}
-          type="monotone"
-          dataKey={dataKey}
-          name={name}
-          stackId={id}
-          stroke={color}
-          fill={color}
+      >
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip
+          formatter={(value: number, name: string) => {
+            if (name === "Chiffre d'affaires") {
+              return new Intl.NumberFormat("fr-FR", {
+                style: "currency",
+                currency: "EUR",
+              }).format(value);
+            }
+            return value;
+          }}
+          labelFormatter={(label) => `Période : ${label}`}
         />
-      ))}
-      <Legend />
-    </AreaChart>
-  </ResponsiveContainer>
+        {CHART_CONFIG.map(({ id, dataKey, name, color }) => (
+          <Area
+            key={id}
+            type="monotone"
+            dataKey={dataKey}
+            name={name}
+            stackId={id}
+            stroke={color}
+            fill={color}
+          />
+        ))}
+        <Legend />
+      </AreaChart>
+    </ResponsiveContainer>
+  </div>
 );
 
 // Composant pour le calcul des données

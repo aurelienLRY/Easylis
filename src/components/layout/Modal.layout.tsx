@@ -72,7 +72,7 @@ export const Modal = ({ isOpen, onClose, children, title }: Props) => {
               </button>
             </Tooltip>
           </div>
-          <div className="px-6 pb-6 mt-4 flex justify-center items-center w-full">
+          <div className="px-2 pb-6 mt-4 flex justify-center items-center w-full overflow-x-scroll">
             {children}
           </div>
         </div>
