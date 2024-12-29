@@ -96,7 +96,7 @@ function Calendar() {
           locale="fr"
           locales={[frLocale]}
           plugins={[dayGridPlugin, googleCalendarPlugin, timeGridPlugin]}
-          initialView={isMobile ? "timeGridWeek" : "dayGridMonth"}
+          initialView={"dayGridMonth"}
           events={{
             googleCalendarId: profile.email,
             className: "bg-orange-600 text-sm w-full h-fit",
