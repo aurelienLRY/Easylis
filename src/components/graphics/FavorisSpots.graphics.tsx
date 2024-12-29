@@ -134,8 +134,8 @@ const FavorisSpots = () => {
 
   return (
     <ItemContainer title="Lieux les plus fréquentés">
-      <div className="w-full min-h-[330px] h-fit max-h-[600px] relative flex flex-col justify-center items-center">
-        <ResponsiveContainer>
+      <div className="w-full min-h-[330px] h-fit max-h-[600px] relative flex flex-col  items-center">
+        <ResponsiveContainer className="w-full h-full " minHeight={300}>
           <PieChart>
             <Pie
               activeIndex={activeIndex}

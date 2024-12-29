@@ -58,7 +58,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="w-full flex flex-col items-start px-1 md:px-4 py-6 ">
-      <div className="w-full flex flex-col gap-1 items-center md:items-start md:px-6">
+      <div className="w-full flex flex-col gap-1 items-center md:items-start md:px-6 mb-4">
         <h1 className="text-4xl font-bold">{getPathname(pathname)}</h1>
         <DashboardNav />
       </div>
