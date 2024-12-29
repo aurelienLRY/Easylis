@@ -7,8 +7,8 @@ import { ConfigProvider } from "antd";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Back Office | Gestion des utilisateurs",
-  description: "Back Office | Gestion des utilisateurs",
+  title: "Easylis | Gestionnaire d'activités pleine nature",
+  description: "Easylis | Gestionnaire d'activités pleine nature",
 };
 
 /*
