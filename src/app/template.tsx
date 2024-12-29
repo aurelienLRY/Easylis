@@ -12,7 +12,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
       <NextUIProvider>
         <Toaster richColors position="top-center" closeButton />
         <Header />
-        <main className="flex flex-col items-center justify-center  box-border mt-16">
+        <main className="flex flex-col items-center justify-center  box-border mt-4 md:mt-16 scroll-smooth">
           {children}
         </main>
         <Footer />

@@ -51,9 +51,9 @@ export const LoginForm = () => {
 
   return (
     <div
-      className="min-h-[500px]  max-h-[700px] min-w-[350px] max-w-[400px]
-     bg-black bg-opacity-30 backdrop-blur-sm flex flex-col gap-8 justify-center items-center
-      absolute top-1/2 left-1/4  -translate-x-1/2 -translate-y-1/2  md:left-1/4  rounded-md"
+      className="min-h-[400px]  max-h-[600px] min-w-[300px] max-w-[400px]
+     bg-black bg-opacity-30 hover:bg-opacity-50 backdrop-blur-sm flex flex-col gap-8 justify-center items-center
+      absolute top-1/2 left-1/2  -translate-x-1/2 -translate-y-1/2  md:left-1/4  rounded-md transition-all duration-300"
     >
       <h1 className="text-4xl font-bold">Connection</h1>
       <form
@@ -73,7 +73,7 @@ export const LoginForm = () => {
               className={`w-full rounded-md border border-gray-300 bg-white py-3 px-6 text-base font-medium text-gray-700 outline-none transition-all duration-200 ${
                 errors.email
                   ? "border-red-500 shadow-md shadow-red-500"
-                  : "focus:border-emerald-600 focus:shadow-md focus:shadow-emerald-600 "
+                  : "focus:border-sky-500 focus:shadow-md focus:shadow-sky-500 "
               }`}
               {...register("email")}
               aria-invalid={errors.email ? "true" : "false"}
@@ -94,7 +94,7 @@ export const LoginForm = () => {
               className={`w-full rounded-md border border-gray-300 bg-white py-3 px-6 text-base font-medium text-gray-700 outline-none transition-all duration-200 ${
                 errors.password
                   ? "border-red-500 shadow-md shadow-red-500"
-                  : "focus:border-emerald-600 focus:shadow-md focus:shadow-emerald-600"
+                  : "focus:border-sky-500 focus:shadow-md focus:shadow-sky-500"
               }`}
               {...register("password")}
               aria-invalid={errors.password ? "true" : "false"}

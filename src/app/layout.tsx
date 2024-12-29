@@ -21,10 +21,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="scroll-smooth dark">
-      <body
-        className={`${inter.className} dark:bg-gray-900 dark:text-white mb-8 md:mb-0`}
-      >
+    <html lang="fr" className=" dark">
+      <body className={`${inter.className} dark:bg-gray-900 dark:text-white`}>
         <ConfigProvider
           theme={{
             token: {

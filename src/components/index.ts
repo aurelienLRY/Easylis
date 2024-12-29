@@ -70,7 +70,6 @@ export {
 } from "@/components/input/Inputs";
 
 // Layout
-export { Dashboard } from "@/components/layout/Dashboard.layout";
 export { Header } from "@/components/layout/Header.layout";
 export { Modal } from "@/components/layout/Modal.layout";
 export { DashboardNav } from "@/components/layout/Navigation.layout";
@@ -91,4 +90,10 @@ export { CustomerBookingTable } from "@/components/modules/CustomerBookingTable.
 export { AllSessionsCard } from "@/components/modules/DisplaySessions.modules";
 export { EmailTemplateEditor } from "@/components/modules/MailerEditor.modules";
 
-// spot
+
+/* Graphics */
+export { YearlyStats } from "@/components/graphics/year.graphics";
+export { MonthlyStats } from "@/components/graphics/month.graphics";
+export { FavorisSpots } from "@/components/graphics/FavorisSpots.graphics";
+export { FavorisActivities } from "@/components/graphics/FavorisActivities.graphics";
+

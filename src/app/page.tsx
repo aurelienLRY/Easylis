@@ -16,7 +16,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="w-full h-screen relative -mt-16">
+    <div className="w-full h-[79vh] relative">
       <Image
         src="/img/escalade-scroll.jpg"
         alt="image de fond de l'application"
