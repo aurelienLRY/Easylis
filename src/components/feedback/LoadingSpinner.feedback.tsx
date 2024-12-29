@@ -1,8 +1,9 @@
 "use client";
 import { Spin } from "antd";
-
+import { cn } from "@/utils";
 interface LoadingSpinnerProps {
   text?: string;
+  className?: string;
 }
 
 /**
@@ -12,9 +13,15 @@ interface LoadingSpinnerProps {
  */
 export const LoadingSpinner = ({
   text = "Chargement...",
+  className,
 }: LoadingSpinnerProps) => {
   return (
-    <div className="flex gap-4 flex-col items-center justify-center h-full w-full">
+    <div
+      className={cn(
+        "flex gap-4 flex-col items-center justify-center h-full w-full",
+        className
+      )}
+    >
       <Spin size="large" />
       <p className="text-sm text-gray-500">{text}</p>
     </div>

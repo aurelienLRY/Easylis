@@ -1,5 +1,3 @@
-/{} UI Components {}/;
-
 // Buttons
 export {
   DeleteButton,
@@ -72,14 +70,11 @@ export {
 } from "@/components/input/Inputs";
 
 // Layout
-export { Dashboard } from "@/components/layout/Dashboard.layout";
 export { Header } from "@/components/layout/Header.layout";
 export { Modal } from "@/components/layout/Modal.layout";
 export { DashboardNav } from "@/components/layout/Navigation.layout";
 export { SingOutBtn } from "@/components/layout/SingOut.layout";
 export { Footer } from "@/components/layout/Footer.layout";
-
-/{} Module Components {}/;
 
 // Session
 export {
@@ -94,3 +89,11 @@ export {
 export { CustomerBookingTable } from "@/components/modules/CustomerBookingTable.modules";
 export { AllSessionsCard } from "@/components/modules/DisplaySessions.modules";
 export { EmailTemplateEditor } from "@/components/modules/MailerEditor.modules";
+
+
+/* Graphics */
+export { YearlyStats } from "@/components/graphics/year.graphics";
+export { MonthlyStats } from "@/components/graphics/month.graphics";
+export { FavorisSpots } from "@/components/graphics/FavorisSpots.graphics";
+export { FavorisActivities } from "@/components/graphics/FavorisActivities.graphics";
+

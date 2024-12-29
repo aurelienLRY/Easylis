@@ -8,18 +8,14 @@ import {
   SessionDetailCard,
   SessionCard,
   ItemContainer,
+  YearlyStats,
+  MonthlyStats,
+  FavorisSpots,
+  FavorisActivities,
 } from "@/components";
 
 /* Utils */
-import { getMonthString, getYearString } from "@/utils/date.utils";
-import { calculateSessionIncomeByMonth } from "@/utils/price.utils";
-import {
-  calculateNumberOfSessions,
-  filterSessionsForDashboard,
-  calculateInscrit,
-  classifySpots,
-  classifyActivities,
-} from "@/utils";
+import { filterSessionsForDashboard } from "@/utils";
 
 /* Store & Types */
 import { useSessionWithDetails } from "@/store";
@@ -177,63 +173,15 @@ interface StatisticsSectionProps {
 const StatisticsSection = ({ sessionsWithDetails }: StatisticsSectionProps) => (
   <article className="w-full md:p-4 flex flex-col gap-12 items-center">
     <h2 className="text-4xl font-bold">Mes statistiques</h2>
-    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-items-center">
-      <MonthlyStats sessionsWithDetails={sessionsWithDetails} />
-      <YearlyStats sessionsWithDetails={sessionsWithDetails} />
-      <SpotRanking sessionsWithDetails={sessionsWithDetails} />
-      <ActivityRanking sessionsWithDetails={sessionsWithDetails} />
+    <div className="w-full flex flex-col md:flex-row gap-4">
+      <YearlyStats />
+      <MonthlyStats />
+    </div>
+    <div className="w-full flex flex-col md:flex-row gap-4">
+      <FavorisSpots />
+      <FavorisActivities />
     </div>
   </article>
-);
-
-/**
- * Statistic Card Components
- */
-interface StatisticCardProps {
-  title: string;
-  children: React.ReactNode;
-}
-
-const StatisticCard = ({ title, children }: StatisticCardProps) => (
-  <div className="w-full flex flex-col gap-4 items-center text-white bg-slate-800 dark:bg-sky-950 p-4 rounded-lg border-2 border-slate-700 dark:border-sky-800 shadow-md shadow-slate-700/50 dark:shadow-sky-800/50">
-    <h3 className="text-xl md:text-2xl font-bold">{title}</h3>
-    <div className="w-full flex flex-col gap-1">{children}</div>
-  </div>
-);
-
-interface StatisticItemProps {
-  label: string;
-  value: string | number;
-}
-
-const StatisticItem = ({ label, value }: StatisticItemProps) => (
-  <p>
-    <span className="font-bold pr-2">{label}:</span> {value}
-  </p>
-);
-
-/**
- * Individual Statistics Components
- */
-const MonthlyStats = ({
-  sessionsWithDetails,
-}: {
-  sessionsWithDetails: ISessionWithDetails[];
-}) => (
-  <StatisticCard title={`Statistiques de ${getMonthString()}`}>
-    <StatisticItem
-      label="Sessions"
-      value={calculateNumberOfSessions(sessionsWithDetails, "month")}
-    />
-    <StatisticItem
-      label="Nombre d'inscriptions"
-      value={calculateInscrit(sessionsWithDetails, "month")}
-    />
-    <StatisticItem
-      label="Chiffre d'affaire"
-      value={`${calculateSessionIncomeByMonth(sessionsWithDetails, "month")} €`}
-    />
-  </StatisticCard>
 );
 
 /**
@@ -266,70 +214,4 @@ const SessionsList = ({ sessions, modals }: SessionsListProps) => (
       ))}
     </div>
   </>
-);
-
-/**
- * Yearly Statistics Component
- */
-const YearlyStats = ({
-  sessionsWithDetails,
-}: {
-  sessionsWithDetails: ISessionWithDetails[];
-}) => (
-  <StatisticCard title={`Statistiques ${getYearString()}`}>
-    <StatisticItem
-      label="Sessions"
-      value={calculateNumberOfSessions(sessionsWithDetails, "year")}
-    />
-    <StatisticItem
-      label="Nombre d'inscriptions"
-      value={calculateInscrit(sessionsWithDetails, "year")}
-    />
-    <StatisticItem
-      label="Chiffre d'affaire"
-      value={`${calculateSessionIncomeByMonth(sessionsWithDetails, "year")} €`}
-    />
-  </StatisticCard>
-);
-
-/**
- * Spot Ranking Component
- */
-const SpotRanking = ({
-  sessionsWithDetails,
-}: {
-  sessionsWithDetails: ISessionWithDetails[];
-}) => (
-  <StatisticCard title="Classement des Lieux">
-    <ul>
-      {Object.entries(classifySpots(sessionsWithDetails)).map(
-        ([spot, numberSessions]) => (
-          <li key={spot} className="text-left">
-            <span className="font-bold pr-2">{spot}:</span> {numberSessions}
-          </li>
-        )
-      )}
-    </ul>
-  </StatisticCard>
-);
-
-/**
- * Activity Ranking Component
- */
-const ActivityRanking = ({
-  sessionsWithDetails,
-}: {
-  sessionsWithDetails: ISessionWithDetails[];
-}) => (
-  <StatisticCard title="Classement des activités">
-    <ul>
-      {Object.entries(classifyActivities(sessionsWithDetails)).map(
-        ([activity, numberSessions]) => (
-          <li key={activity} className="text-left">
-            <span className="font-bold pr-2">{activity}:</span> {numberSessions}
-          </li>
-        )
-      )}
-    </ul>
-  </StatisticCard>
 );
