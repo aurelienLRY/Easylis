@@ -2,8 +2,12 @@
 /* Librairies */
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Tooltip } from "antd";
-import { Spin } from "antd";
 import { motion, AnimatePresence } from "framer-motion";
+// Import Swiper
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
 
 /* components */
 import {
@@ -130,6 +134,136 @@ const useFilteredSessions = (
 };
 
 /**
+ * Composant pour afficher les sessions en mode desktop
+ */
+const DesktopView = ({
+  currentSessions,
+  handlePrevPage,
+  handleNextPage,
+  totalPages,
+  currentPage,
+  slideDirection,
+  modals,
+}: {
+  currentSessions: ISessionWithDetails[];
+  handlePrevPage: () => void;
+  handleNextPage: () => void;
+  totalPages: number;
+  currentPage: number;
+  slideDirection: number;
+  modals: {
+    detailsModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    updateSessionModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    customerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    canceledCustomerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+  };
+}) => (
+  <div className="flex items-center justify-center gap-4 md:min-h-[540px] relative overflow-hidden">
+    {totalPages > 1 && (
+      <Tooltip title="Sessions précédentes">
+        <button
+          className="text-white hover:text-orange-600 rounded disabled:text-gray-300"
+          onClick={handlePrevPage}
+          disabled={currentPage === 0}
+        >
+          <FaChevronCircleLeft className="text-4xl h-10 w-10" />
+        </button>
+      </Tooltip>
+    )}
+
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={currentPage}
+        initial={{ x: slideDirection * 1000, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: slideDirection * -1000, opacity: 0 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="w-full grid grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center overflow-hidden p-1"
+      >
+        {currentSessions.map((session) => (
+          <SessionCard
+            key={session._id}
+            sessionWithDetails={session}
+            detailsModal={modals.detailsModal.openModal}
+            updateSessionModal={modals.updateSessionModal.openModal}
+            addCustomerModal={modals.customerModal.openModal}
+            canceledCustomerModal={modals.canceledCustomerModal.openModal}
+          />
+        ))}
+      </motion.div>
+    </AnimatePresence>
+
+    {totalPages > 1 && (
+      <Tooltip title="Sessions suivantes">
+        <button
+          className="text-white hover:text-orange-600 rounded disabled:text-gray-300"
+          onClick={handleNextPage}
+          disabled={currentPage >= totalPages - 1}
+        >
+          <FaChevronCircleRight className="text-4xl h-10 w-10" />
+        </button>
+      </Tooltip>
+    )}
+  </div>
+);
+
+/**
+ * Composant pour afficher les sessions en mode mobile avec Swiper
+ */
+const MobileView = ({
+  filteredSessions,
+  currentPage,
+  setCurrentPage,
+  modals,
+}: {
+  filteredSessions: ISessionWithDetails[];
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  modals: {
+    detailsModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    updateSessionModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    customerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    canceledCustomerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+  };
+}) => {
+  // Créer des groupes de 3 sessions
+  const sessionGroups = useMemo(() => {
+    const groups = [];
+    for (let i = 0; i < filteredSessions.length; i += 3) {
+      groups.push(filteredSessions.slice(i, i + 3));
+    }
+    return groups;
+  }, [filteredSessions]);
+
+  return (
+    <Swiper
+      modules={[Pagination]}
+      pagination={{ clickable: true }}
+      onSlideChange={(swiper) => setCurrentPage(swiper.activeIndex)}
+      initialSlide={currentPage}
+      className="w-full min-h-[540px]"
+    >
+      {sessionGroups.map((group, groupIndex) => (
+        <SwiperSlide key={groupIndex}>
+          <div className="grid grid-cols-1 gap-4 p-4">
+            {group.map((session) => (
+              <SessionCard
+                key={session._id}
+                sessionWithDetails={session}
+                detailsModal={modals.detailsModal.openModal}
+                updateSessionModal={modals.updateSessionModal.openModal}
+                addCustomerModal={modals.customerModal.openModal}
+                canceledCustomerModal={modals.canceledCustomerModal.openModal}
+              />
+            ))}
+          </div>
+        </SwiperSlide>
+      ))}
+    </Swiper>
+  );
+};
+
+/**
  * Composant AllSessionsCard - Affiche une liste de sessions avec filtrage et pagination
  * Fonctionnalités :
  * - Filtrage par période (semaine, mois, tout)
@@ -148,7 +282,6 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [slideDirection, setSlideDirection] = useState<number>(0);
 
-  // Utilisation du hook useIsMobile pour adapter le nombre d'items
   const isMobile = useIsMobile();
   const ITEMS_PER_PAGE = isMobile ? 3 : 6;
 
@@ -156,6 +289,13 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
   const updateSessionModal = useModal<ISessionWithDetails>();
   const customerModal = useModal<ISessionWithDetails>();
   const canceledCustomerModal = useModal<ISessionWithDetails>();
+
+  const modals = {
+    detailsModal,
+    updateSessionModal,
+    customerModal,
+    canceledCustomerModal,
+  };
 
   // Utilisation du hook personnalisé pour le filtrage
   const filteredSessions = useFilteredSessions(
@@ -320,59 +460,30 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
           </div>
         </div>
 
-        {/* Grille des sessions avec navigation */}
-        <div className="flex items-center justify-center gap-4 md:min-h-[540px] relative overflow-hidden">
-          {totalPages > 1 && (
-            <Tooltip title="Sessions précédentes">
-              <button
-                className="text-white hover:text-orange-600 rounded disabled:text-gray-300"
-                onClick={handlePrevPage}
-                disabled={currentPage === 0}
-              >
-                <FaChevronCircleLeft className="text-4xl h-10 w-10" />
-              </button>
-            </Tooltip>
-          )}
+        {/* Vue conditionnelle selon le device */}
+        {isMobile ? (
+          <MobileView
+            filteredSessions={filteredSessions}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            modals={modals}
+          />
+        ) : (
+          <DesktopView
+            currentSessions={currentSessions}
+            handlePrevPage={handlePrevPage}
+            handleNextPage={handleNextPage}
+            totalPages={totalPages}
+            currentPage={currentPage}
+            slideDirection={slideDirection}
+            modals={modals}
+          />
+        )}
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentPage}
-              initial={{ x: slideDirection * 1000, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: slideDirection * 1000, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center overflow-hidden p-1"
-            >
-              {currentSessions.map((customerSession) => (
-                <SessionCard
-                  sessionWithDetails={customerSession}
-                  key={customerSession._id}
-                  detailsModal={detailsModal.openModal}
-                  updateSessionModal={updateSessionModal.openModal}
-                  addCustomerModal={customerModal.openModal}
-                  canceledCustomerModal={canceledCustomerModal.openModal}
-                />
-              ))}
-            </motion.div>
-          </AnimatePresence>
-
-          {totalPages > 1 && (
-            <Tooltip title="Sessions suivantes">
-              <button
-                className="text-white hover:text-orange-600 rounded disabled:text-gray-300"
-                onClick={handleNextPage}
-                disabled={currentPage >= totalPages - 1}
-              >
-                <FaChevronCircleRight className="text-4xl h-10 w-10" />
-              </button>
-            </Tooltip>
-          )}
-        </div>
-
-        {/* Dots de pagination améliorés */}
-        {totalPages > 1 && (
+        {/* Pagination dots seulement pour desktop */}
+        {!isMobile && totalPages > 1 && (
           <div className="w-full flex justify-center gap-2 my-4">
-            {paginationRange.map((pageNumber, index) => (
+            {paginationRange.map((pageNumber: number, index: number) => (
               <React.Fragment key={index}>
                 {pageNumber === -1 ? (
                   <span className="w-3 text-white opacity-50">...</span>
@@ -397,7 +508,7 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
         )}
       </div>
 
-      {/* Modal Details */}
+      {/* Modals */}
       {detailsModal.data && (
         <SessionDetailCard
           data={detailsModal.data}
@@ -406,7 +517,6 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
         />
       )}
 
-      {/* Modal Update */}
       {updateSessionModal.data && (
         <SessionForm
           data={updateSessionModal.data}
@@ -415,7 +525,6 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
         />
       )}
 
-      {/* Modal Customer */}
       {customerModal.data && (
         <CustomerSessionForm
           session={customerModal.data}
@@ -424,7 +533,6 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
         />
       )}
 
-      {/* Modal Canceled Customer */}
       {canceledCustomerModal.data && (
         <CanceledCustomerSession
           data={canceledCustomerModal.data}
