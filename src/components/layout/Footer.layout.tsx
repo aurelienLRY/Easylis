@@ -3,7 +3,7 @@ import packageJson from "../../../package.json";
 
 export const Footer = () => {
   return (
-    <footer className=" w-full min-h-16 bg-slate-900 dark:bg-sky-950 flex flex-col justify-center  items-center p-4 relative ">
+    <footer className=" w-full min-h-fit h-full bg-slate-900 dark:bg-sky-950 text-white  p-4 relative flex flex-col justify-center items-center ">
       <p>Easylis {new Date().getFullYear()} - Tous droits réservés</p>
       <p>
         <span className="text-xs opacity-10 absolute bottom-0 left-1">

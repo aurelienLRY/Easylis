@@ -53,6 +53,7 @@
     "react-international-phone": "^4.3.0",
     "react-leaflet": "^4.2.1",
     "react-spinners": "^0.14.1",
+    "recharts": "^2.15.0",
     "sass": "^1.77.8",
     "scss": "^0.2.4",
     "sharp": "^0.33.5",

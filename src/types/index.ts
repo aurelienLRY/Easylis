@@ -3,7 +3,11 @@ export type { IUser } from "@/types/user.type";
 export type { IActivity } from "@/types/activity.type";
 export type { ISpot } from "@/types/spot.type";
 export type { ICustomerSession } from "@/types/customerSession.type";
-export type { ISessionWithDetails } from "@/types/sessionWithDetails.type";
+export type {
+  ISessionWithDetails,
+  ISessionsWithDetails,
+} from "@/types/sessionWithDetails.type";
+
 export type {
   ICallback,
   ICallbackForSessions,
