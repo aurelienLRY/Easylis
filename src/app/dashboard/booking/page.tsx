@@ -374,12 +374,12 @@ const BookingPage = () => {
         {/* Filtre par période */}
         <div className="flex flex-col items-start w-full md:w-auto">
           <div className="text-lg opacity-50 mb-2">Période</div>
-          <div className="flex justify-center gap-2 text-xs font-light bg-sky-950 dark:bg-sky-800 rounded-md py-2 px-4 w-full md:w-auto">
+          <div className="flex flex-wrap justify-center gap-2 text-xs font-light bg-sky-950 dark:bg-sky-800 rounded-md py-2 px-4 w-full md:w-auto">
             <button
               className={getButtonClassName(periodFilter === "all")}
               onClick={() => setPeriodFilter("all")}
             >
-              Tout
+              Toutes
             </button>
             <button
               className={getButtonClassName(periodFilter === "thisMonth")}
