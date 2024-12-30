@@ -5,7 +5,12 @@ import dynamic from "next/dynamic";
 
 import { toast } from "sonner";
 /* components */
-import { SingOutBtn, DashboardNav, LoadingSpinner } from "@/components";
+import {
+  SingOutBtn,
+  DashboardNav,
+  LoadingSpinner,
+  EmailTemplateEditor,
+} from "@/components";
 
 /* Store */
 import {
@@ -18,15 +23,15 @@ import {
 import { useMailer } from "@/hooks/useMailer";
 import { usePathname } from "next/navigation";
 
-const EmailTemplateEditor = dynamic(
-  () =>
-    import("@/components/modules/MailerEditor.modules").then(
-      (mod) => mod.EmailTemplateEditor
-    ),
-  {
-    ssr: false,
-  }
-);
+// const EmailTemplateEditor = dynamic(
+//   () =>
+//     import("@/components/modules/MailerEditor.modules").then(
+//       (mod) => mod.EmailTemplateEditor
+//     ),
+//   {
+//     ssr: false,
+//   }
+// );
 
 /**
  * Template Component

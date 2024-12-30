@@ -13,9 +13,9 @@ type Props = {
 export const InfoTooltips = ({ title }: Props) => {
   return (
     <Tooltip title={title}>
-      <div className="cursor-pointer">
+      <span className="cursor-pointer">
         <BsExclamationCircle className="text-sky-500 text-lg" />
-      </div>
+      </span>
     </Tooltip>
   );
 };

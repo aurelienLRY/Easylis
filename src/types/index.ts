@@ -33,3 +33,9 @@ export type {
   IEventModel,
   ICredentials,
 } from "@/types/calendar.type";
+
+export interface PriceType {
+  standard: number;
+  reduced: number;
+  ACM: number;
+}
