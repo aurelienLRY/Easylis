@@ -55,7 +55,7 @@ export const Modal = ({ isOpen, onClose, children, title }: Props) => {
         }`}
       >
         {/*modal*/}
-        <div className="min-w-[350px] w-fit max-w-[90vw] md:min-w-[500px] lg:min-w-[600px] lg:max-w-[70vw] max-h-[90vh] overflow-y-auto bg-gray-800 dark:bg-sky-950 rounded-md shadow-md shadow-slate-400 dark:shadow-sky-400">
+        <div className="min-w-[350px] w-fit max-w-[90vw] md:min-w-[500px] lg:min-w-[600px] lg:max-w-[70vw] max-h-[90vh]  bg-gray-800 dark:bg-sky-950 rounded-md shadow-md shadow-slate-400 dark:shadow-sky-400">
           <div className="flex justify-evenly items-center bg-gray-600 rounded-t-md w-full py-2">
             <div className=" h-7 flex  items-center px-3">
               <span className="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
@@ -72,7 +72,7 @@ export const Modal = ({ isOpen, onClose, children, title }: Props) => {
               </button>
             </Tooltip>
           </div>
-          <div className="px-2 pb-6 mt-4 flex justify-center items-center w-full overflow-x-scroll">
+          <div className="px-2 pb-6 mt-4 flex justify-center items-center w-full">
             {children}
           </div>
         </div>
