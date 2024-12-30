@@ -85,29 +85,44 @@ function Calendar() {
   const { profile } = useProfile();
   const { checkTokenValidity } = useCalendar();
   if (!profile) return null;
+
+  // Définir les configurations du header en fonction de la taille d'écran
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
   return (
-    <div className="h-full w-full flex flex-col gap-4  justify-around min-w-[350px]">
-      <FullCalendar
-        locale="fr"
-        locales={[frLocale]}
-        plugins={[dayGridPlugin, googleCalendarPlugin, timeGridPlugin]}
-        initialView="dayGridMonth"
-        events={{
-          googleCalendarId: profile.email,
-          className: "bg-orange-600 text-sm w-full h-fit",
-        }}
-        googleCalendarApiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY}
-        themeSystem="Cosmo"
-        headerToolbar={{
-          left: "prev,next today",
-          center: "title",
-          right: "dayGridMonth,timeGridWeek",
-        }}
-        titleFormat={{ day: "numeric", month: "short", year: "numeric" }}
-        //contentHeight="500px"
-        aspectRatio={1.4}
-        scrollTime="08:00:00 "
-      />
+    <div className="w-full flex flex-col items-center gap-4">
+      <div className="w-full h-full calendar-container">
+        <FullCalendar
+          locale="fr"
+          locales={[frLocale]}
+          plugins={[dayGridPlugin, googleCalendarPlugin, timeGridPlugin]}
+          initialView={"dayGridMonth"}
+          events={{
+            googleCalendarId: profile.email,
+            className: "bg-orange-600 text-sm w-full h-fit",
+          }}
+          googleCalendarApiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY}
+          themeSystem="Cosmo"
+          headerToolbar={{
+            left: isMobile ? "prev,next" : "prev,next today",
+            center: "title",
+            right: isMobile
+              ? "timeGridWeek,dayGridMonth"
+              : "dayGridMonth,timeGridWeek",
+          }}
+          titleFormat={{
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          }}
+          aspectRatio={isMobile ? 0.8 : 1.4}
+          scrollTime="08:00:00"
+          // Ajout des props pour améliorer l'affichage mobile
+          height="auto"
+          handleWindowResize={true}
+          stickyHeaderDates={true}
+        />
+      </div>
       <div className=" w-full flex justify-end items-center px-2 text-slate-400">
         <RefreshButton
           onClick={checkTokenValidity}

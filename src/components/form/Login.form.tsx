@@ -58,7 +58,7 @@ export const LoginForm = () => {
       <h1 className="text-4xl font-bold">Connection</h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-4 items-center justify-center h-full"
+        className="flex flex-col gap-4 items-center justify-center h-full px-4"
       >
         <div className="flex flex-col gap-1">
           <div className="flex flex-col ">

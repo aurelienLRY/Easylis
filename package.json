@@ -1,6 +1,6 @@
 {
   "name": "Easylis",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -58,6 +58,7 @@
     "scss": "^0.2.4",
     "sharp": "^0.33.5",
     "sonner": "^1.5.0",
+    "swiper": "^11.1.15",
     "tailwind-merge": "^2.5.5",
     "xss": "^1.0.15",
     "yup": "^1.4.0",

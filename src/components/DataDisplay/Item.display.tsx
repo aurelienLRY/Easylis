@@ -10,7 +10,7 @@ interface ItemDisplayProps {
 export const ItemDisplay = ({ children, icon, title }: ItemDisplayProps) => {
   return (
     <Tooltip title={title}>
-      <div className="flex flex-col items-center gap-2 relative bg-orange-700 px-4 py-2 rounded-md w-fit">
+      <div className="flex flex-col items-center gap-2 relative bg-orange-700 px-4 py-2 rounded-md w-fit max-h-fit text-center">
         <div className="absolute left-1/2 -top-6 -translate-x-1/2 text-4xl">
           {icon}
         </div>

@@ -9,8 +9,8 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { ItemCard, ItemCardInner, ItemContainer } from "@/components";
-import { Switch, Card } from "@nextui-org/react";
+import { ItemCardInner, ItemContainer } from "@/components";
+import { Switch } from "@nextui-org/react";
 import { useSessionWithDetails } from "@/store";
 import { getMonthValue } from "@/utils";
 
@@ -52,13 +52,13 @@ const CHART_CONFIG: ChartConfig[] = [
 // Composant pour le graphique
 const Chart = ({ data }: { data: MonthData[] }) => (
   <div className="w-full h-[400px]">
-    <ResponsiveContainer>
+    <ResponsiveContainer className="w-full h-full min-h-[300px] md:min-h-[400px]">
       <AreaChart
         data={data}
         margin={{
           top: 10,
-          right: 20,
-          left: 20,
+          right: 10,
+          left: 10,
           bottom: 10,
         }}
       >

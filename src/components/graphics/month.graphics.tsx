@@ -58,13 +58,13 @@ const CHART_CONFIG: ChartConfig[] = [
 // Composant pour le graphique
 const Chart = ({ data }: { data: DayData[] }) => (
   <div className="w-full h-[400px]">
-    <ResponsiveContainer>
+    <ResponsiveContainer className="w-full h-full min-h-[300px] md:min-h-[400px]">
       <AreaChart
         data={data}
         margin={{
           top: 10,
-          right: 20,
-          left: 20,
+          right: 10,
+          left: 10,
           bottom: 10,
         }}
       >

@@ -37,16 +37,16 @@ export const CustomerTables_Session = ({
 }) => {
   const { CancelCustomer, isSubmitting } = useCustomer();
   return (
-    <table className="w-full rounded-md">
-      <thead className="bg-slate-300 dark:bg-sky-600 text-white">
+    <table className="rounded-xl w-full">
+      <thead className="bg-slate-300 dark:bg-sky-600 text-white rounded-t-xl">
         <tr>
-          <th className=" text-center py-2 px-2">Nom</th>
+          <th className=" text-center py-2 px-2 first:rounded-tl-xl">Nom</th>
           <th className="text-center py-2 px-1">Contact</th>
           <th className="text-center py-2 px-1">Status</th>
           <th className="text-center py-2 px-1">Enregistré par</th>
           <th className="text-center py-2 px-1">Groupe de</th>
           <th className="text-center py-2 px-1">Prix total</th>
-          <th className="text-center py-2 px-1"></th>
+          <th className="text-center py-2 px-1 last:rounded-tr-xl"></th>
         </tr>
       </thead>
       <tbody className="text-sm text-center rounded-md">
