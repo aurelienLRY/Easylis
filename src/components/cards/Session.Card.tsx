@@ -212,11 +212,13 @@ export const SessionCard = ({
         defaultMessage: "Session supprimée avec succès",
       });
     },
+
     [
       sessionWithDetails,
       profile?.tokenRefreshCalendar,
       deleteSessionWithDetails,
     ]
+
   );
 
   const handleSwitchAction = useCallback(async () => {
@@ -251,6 +253,7 @@ export const SessionCard = ({
     updateSessionWithDetails,
     canceledCustomerModal,
   ]);
+
 
   const cardClassName = useMemo(() => {
     const baseClass =
