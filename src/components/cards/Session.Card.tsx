@@ -212,7 +212,13 @@ export const SessionCard = ({
         defaultMessage: "Session supprimée avec succès",
       });
     },
-    [sessionWithDetails, profile?.tokenRefreshCalendar]
+
+    [
+      sessionWithDetails,
+      profile?.tokenRefreshCalendar,
+      deleteSessionWithDetails,
+    ]
+
   );
 
   const handleSwitchAction = useCallback(async () => {
@@ -241,7 +247,13 @@ export const SessionCard = ({
     } else if (isReserved && !isArchived && !customerIsCancelled) {
       canceledCustomerModal(sessionWithDetails);
     }
-  }, [sessionWithDetails, sessionStatus]);
+  }, [
+    sessionWithDetails,
+    sessionStatus,
+    updateSessionWithDetails,
+    canceledCustomerModal,
+  ]);
+
 
   const cardClassName = useMemo(() => {
     const baseClass =

@@ -13,11 +13,16 @@ export const connectDB = async () => {
       return Promise.resolve(true);
     }
   } catch (error) {
-    console.error(error);
+    console.error("Error connecting to MongoDB:", error);
     return Promise.reject(error);
   }
 };
 
 export const disconnectDB = async () => {
-  await mongoose.disconnect();
+  try {
+    await mongoose.disconnect();
+  } catch (error) {
+    console.error("Error disconnecting from MongoDB:", error);
+    return Promise.reject(error);
+  }
 };

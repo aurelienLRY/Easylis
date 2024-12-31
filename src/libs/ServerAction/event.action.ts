@@ -1,6 +1,9 @@
 "use server";
-import { EventCalendar } from "@/libs/database/models";
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
+
+/* Gestion Database */
+import { connectDB, disconnectDB, EventCalendar } from "@/libs/database";
+
+/* Types */
 import { IEventModel, ICallbackForEvent } from "@/types";
 
 /**

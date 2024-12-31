@@ -25,7 +25,6 @@ const schema = yup.object().shape({
 });
 
 export const LoginForm = () => {
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -44,9 +43,6 @@ export const LoginForm = () => {
 
     if (result.error) {
       toast.error(result.error);
-    }
-    if (result.ok) {
-      router.push("/dashboard");
     }
   };
 

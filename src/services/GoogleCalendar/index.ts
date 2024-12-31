@@ -1,4 +1,20 @@
 /* Server Side */
-export * from "@/services/GoogleCalendar/ServerSide";
+export {
+  GoogleAuthorization,
+  addEvent,
+  checkToken,
+  deleteEvent,
+  getEvent,
+  oauth2Client,
+  refreshAccessToken,
+  updateEvent,
+} from "@/services/GoogleCalendar/ServerSide";
 /* Client Side */
-export * from "@/services/GoogleCalendar/ClientSide";
+export {
+  fetcherAddEvent,
+  fetcherCheckToken,
+  fetcherDeleteEvent,
+  fetcherRefreshToken,
+  fetcherUpdateEvent,
+  generateEvent,
+} from "@/services/GoogleCalendar/ClientSide";
