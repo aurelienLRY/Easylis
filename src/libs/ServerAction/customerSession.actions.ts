@@ -3,10 +3,10 @@
 import * as yup from "yup";
 import xss from "xss";
 
-/* Database */
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
-/* Models */
-import { CustomerSession , Session } from "@/libs/database/models";
+/* gestion Database */
+import { connectDB, disconnectDB, CustomerSession, Session } from "@/libs/database";
+
+/* YUP schema */
 import { customerSessionSchema } from "@/libs/yup";
 
 /* Types */

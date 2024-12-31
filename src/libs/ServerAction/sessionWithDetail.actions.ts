@@ -5,7 +5,7 @@ import {
   CustomerSession,
   Spot,
   Session,
-} from "@/libs/database/models";
+} from "@/libs/database";
 
 /*Types*/
 import {

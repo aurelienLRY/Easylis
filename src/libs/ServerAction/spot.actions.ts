@@ -4,11 +4,10 @@
 import * as yup from "yup";
 import xss from "xss";
 
-/* Database */
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
+/* Gestion Database */
+import { connectDB, disconnectDB, Spot } from "@/libs/database";
 
-/* Models */
-import { Spot } from "@/libs/database/models";
+/* YUP schema */
 import { spotSchema } from "@/libs/yup";
 
 /* Types */

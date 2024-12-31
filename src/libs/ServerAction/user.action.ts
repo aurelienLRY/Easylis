@@ -4,10 +4,8 @@
 import * as yup from "yup";
 import xss from "xss";
 
-/* Database */
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
-/* Models */
-import { User } from "@/libs/database/models";
+/* Gestion Database */
+import { connectDB, disconnectDB, User } from "@/libs/database";
 /* Types */
 import { IUser, ICallbackForUser } from "@/types";
 /* Yup */

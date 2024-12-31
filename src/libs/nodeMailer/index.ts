@@ -1,1 +1,1 @@
-export * from "./sender";
+export {nodeMailerSender} from "./sender";

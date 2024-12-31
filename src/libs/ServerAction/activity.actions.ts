@@ -3,10 +3,8 @@
 import * as yup from "yup";
 import xss from "xss";
 
-/* Database */
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
-/* Models */
-import { Activity } from "@/libs/database/models";
+/* Gestion Database */
+import { Activity, connectDB, disconnectDB } from "@/libs/database";
 
 /* YUP schema */
 import { activitySchema } from "@/libs/yup";

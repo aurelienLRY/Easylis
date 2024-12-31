@@ -12,10 +12,9 @@ import {
   ICallbackForSession,
   ICallbackForSessionWithDetailsArray,
 } from "@/types";
-/* Database */
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
-/* Models */
-import { Session } from "@/libs/database/models";
+/* Gestion Database */
+import { connectDB, disconnectDB, Session } from "@/libs/database";
+
 /*  actions */
 import {
   GET_SERVER_SESSIONS_WITH_DETAILS,

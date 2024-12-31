@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
+  debug: true, // Pour activer les logs de debug
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -14,22 +15,27 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        await connectDB();
-        const userFound = await User.findOne({
-          email: credentials?.email,
-        });
-        await disconnectDB();
-        console.log("userFound", userFound);
+        try {
+          await connectDB();
+          const userFound = await User.findOne({
+            email: credentials?.email,
+          });
+          await disconnectDB();
+          console.log("userFound", userFound);
 
-        if (!userFound) throw new Error("Email inconnu");
+          if (!userFound) throw new Error("Email inconnu");
 
-        const passwordMatch = await bcrypt.compare(
-          credentials!.password,
-          userFound.password
-        );
+          const passwordMatch = await bcrypt.compare(
+            credentials!.password,
+            userFound.password
+          );
 
-        if (!passwordMatch) throw new Error("Mot de passe incorrect");
-        return userFound;
+          if (!passwordMatch) throw new Error("Mot de passe incorrect");
+          return userFound;
+        } catch (error) {
+          console.error("Error authorizing user:", error);
+          throw new Error("Erreur lors de l'authentification");
+        }
       },
     }),
   ],
