@@ -39,6 +39,7 @@ export const LoginForm = () => {
       email: data.email,
       password: data.password,
       redirect: false,
+      callbackUrl: "/dashboard",
     })) as { error: string; ok: boolean };
 
     if (result.error) {
