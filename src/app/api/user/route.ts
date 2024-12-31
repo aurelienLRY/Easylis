@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { User } from "@/libs/database/models";
+import { User } from "@/libs/database";
 import { userSchema } from "@/libs/yup";
 import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
 import bcrypt from "bcryptjs";

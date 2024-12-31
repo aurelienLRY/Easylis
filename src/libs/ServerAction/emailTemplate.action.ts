@@ -1,9 +1,8 @@
 "use server";
 
-/* Database */
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
-/* Models */
-import { EmailTemplate } from "@/libs/database/models/EmailTemplate.model";
+/* Gestion Database */
+import { connectDB, disconnectDB, EmailTemplate } from "@/libs/database";
+
 /* Types */
 import {
   IEmailTemplate,

@@ -28,18 +28,21 @@ const UserSchema = new Schema<IUser>(
 );
 
 UserSchema.pre("save", async function (next) {
-  if (this.firstName) {
-    this.firstName = capitalizeFirstLetter(this.firstName);
-    this.firstName = await crypto.encrypt(this.firstName);
+  try {
+    if (this.firstName) {
+      this.firstName = capitalizeFirstLetter(this.firstName);
+      this.firstName = await crypto.encrypt(this.firstName);
+    }
+    if (this.lastName) {
+      this.lastName = capitalizeFirstLetter(this.lastName);
+      this.lastName = await crypto.encrypt(this.lastName);
+    }
+    if (this.phone) {
+      this.phone = await crypto.encrypt(this.phone);
+    }
+  } catch (error) {
+    console.error("Error encrypting user data:", error);
   }
-  if (this.lastName) {
-    this.lastName = capitalizeFirstLetter(this.lastName);
-    this.lastName = await crypto.encrypt(this.lastName);
-  }
-  if (this.phone) {
-    this.phone = await crypto.encrypt(this.phone);
-  }
-
   next();
 });
 
@@ -74,14 +77,18 @@ UserSchema.post("findOneAndUpdate", async function (doc) {
 });
 
 UserSchema.post("findOne", async function (doc) {
-  if (doc.firstName !== null) {
-    doc.firstName = await crypto.decrypt(doc.firstName);
-  }
-  if (doc.lastName !== null) {
-    doc.lastName = await crypto.decrypt(doc.lastName);
-  }
-  if (doc.phone !== null) {
-    doc.phone = await crypto.decrypt(doc.phone);
+  try {
+    if (doc.firstName !== null) {
+      doc.firstName = await crypto.decrypt(doc.firstName);
+    }
+    if (doc.lastName !== null) {
+      doc.lastName = await crypto.decrypt(doc.lastName);
+    }
+    if (doc.phone !== null) {
+      doc.phone = await crypto.decrypt(doc.phone);
+    }
+  } catch (error) {
+    console.error("Error decrypting user data:", error);
   }
 });
 
