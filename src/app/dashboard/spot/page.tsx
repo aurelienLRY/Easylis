@@ -42,8 +42,16 @@ function SpotPage({}: Props) {
     }
   }, [selectedActivity, search, spots]);
 
+  if (!activities) {
+    return (
+      <section className="flex flex-col gap-4 justify-center items-center w-full">
+        <div>Veuillez enregistrer au minimum une activité</div>
+      </section>
+    );
+  }
+
   return (
-    <section className="flex flex-col gap-4 justify-center items-center w-full">
+    <section>
       <div className="flex justify-center items-center w-full">
         <IconButton
           title="Créer un lieu"
