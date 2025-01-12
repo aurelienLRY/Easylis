@@ -6,7 +6,9 @@ import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { InferType } from "yup";
 import { Spin } from "antd";
-import { Editor } from "@tinymce/tinymce-react";
+import dynamic from "next/dynamic";
+
+const DynamicEditor = dynamic(() => import("./DynamicEditor"), { ssr: false });
 
 /* actions & services */
 import { CREATE_ACTIVITY, UPDATE_ACTIVITY } from "@/libs/ServerAction";
@@ -27,6 +29,7 @@ import {
   ToasterAction,
   InfoTooltips,
   ItemCardInner,
+  ItemContainer,
 } from "@/components";
 
 /* Types et interfaces */
@@ -59,17 +62,6 @@ interface SubmitButtonProps {
   isSubmitting: boolean;
   isEditing: boolean;
 }
-
-/* Constantes */
-const EDITOR_CONFIG = {
-  height: 300,
-  menubar: false,
-  plugins: ["lists", "emoticons"] as string[],
-  toolbar:
-    "undo redo | bold italic underline | alignleft aligncenter alignright alignfull | numlist bullist | emoticons",
-  language: "fr_FR",
-  browser_spellcheck: true,
-} as const;
 
 const PRICE_TYPES = [
   { name: "standard" as const, label: "Prix standard" },
@@ -141,13 +133,14 @@ const RequiredEquipmentSection = memo(
           </h3>
           <InfoTooltips title="Renseigner les équipements nécessaires pour pratiquer l'activité. Le contenu de l'éditeur est visible dans les emails envoyés aux participants" />
         </div>
-        <Editor
-          textareaName="required_equipment"
-          apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
-          initialValue={initialValue}
-          init={EDITOR_CONFIG}
-          onEditorChange={setRequiredEquipment}
-        />
+        <div className="min-h-[300px]">
+          <DynamicEditor
+            textareaName="required_equipment"
+            apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
+            initialValue={initialValue}
+            onEditorChange={setRequiredEquipment}
+          />
+        </div>
       </div>
     </ItemCardInner>
   )
@@ -183,7 +176,7 @@ SubmitButton.displayName = "SubmitButton";
  */
 const SectionTitle = memo(
   ({ title, tooltipText }: { title: string; tooltipText: string }) => (
-    <div className="flex justify-center items-center gap-2">
+    <div className="flex justify-center items-center gap-2 w-full">
       <h3 className="text-sky-500 text-xl font-bold text-center">{title}</h3>
       <InfoTooltips title={tooltipText} />
     </div>
@@ -196,25 +189,27 @@ SectionTitle.displayName = "SectionTitle";
  * Composant pour la section de gestion des groupes
  */
 const GroupManagementSection = memo(() => (
-  <div className="flex flex-col gap-2 md:items-center">
-    <SectionTitle
-      title="Gestion des groupes"
-      tooltipText="Renseigner les nombres maximum et minimum de personnes pour les groupes"
-    />
-    <div className="flex flex-col md:flex-row gap-2 md:gap-6">
-      <Input
-        name="max_OfPeople"
-        type="number"
-        label="Nombre maximum de personnes"
+  <ItemCardInner className="w-full p-4">
+    <div className="flex flex-col gap-2 md:items-center">
+      <SectionTitle
+        title="Gestion des groupes"
+        tooltipText="Renseigner les nombres maximum et minimum de personnes pour les groupes"
       />
-      <Input
-        name="min_OfPeople"
-        type="number"
-        label="Nombre minimum de personnes"
-      />
+      <div className="flex flex-col md:flex-row gap-2 md:gap-6">
+        <Input
+          name="max_OfPeople"
+          type="number"
+          label="Nombre maximum de personnes"
+        />
+        <Input
+          name="min_OfPeople"
+          type="number"
+          label="Nombre minimum de personnes"
+        />
+      </div>
+      <Input name="min_age" type="number" label="Age minimum" />
     </div>
-    <Input name="min_age" type="number" label="Age minimum" />
-  </div>
+  </ItemCardInner>
 ));
 
 GroupManagementSection.displayName = "GroupManagementSection";
@@ -231,46 +226,36 @@ const FormulasSection = memo(
     watchFullDay: boolean | undefined;
   }) => (
     <ItemCardInner className="w-full p-4">
-      <table className="w-full border-collapse">
-        <tbody>
-          <tr className="flex justify-center items-center gap-2 w-full">
-            <SectionTitle
-              title="Formule"
-              tooltipText="Sélectionner si l'activité peut être pratiquée en une demi-journée et/ou en une journée complète"
-            />
-          </tr>
-          <tr className="flex flex-col md:flex-row justify-around gap-2 w-full">
-            <Formula
-              type="half"
-              label="Demi-journée"
-              watchValue={watchHalfDay}
-            />
-            <Formula
-              type="full"
-              label="Journée complète"
-              watchValue={watchFullDay}
-            />
-          </tr>
-          <tr className="flex justify-center items-center gap-2 w-full">
-            <SectionTitle
-              title="Tarification"
-              tooltipText="Renseigner les prix pour les formules sélectionnées"
-            />
-          </tr>
-          <tr className="flex flex-col justify-around items-center md:flex-row gap-4 w-full">
-            <PricingColumn
-              title="Prix demi-journée"
-              prefix="price_half_day"
-              disabled={!watchHalfDay}
-            />
-            <PricingColumn
-              title="Prix journée complète"
-              prefix="price_full_day"
-              disabled={!watchFullDay}
-            />
-          </tr>
-        </tbody>
-      </table>
+      <div className="flex flex-col gap-4">
+        <SectionTitle
+          title="Formule"
+          tooltipText="Sélectionner si l'activité peut être pratiquée en une demi-journée et/ou en une journée complète"
+        />
+        <div className="flex flex-col md:flex-row justify-around gap-2 w-full">
+          <Formula type="half" label="Demi-journée" watchValue={watchHalfDay} />
+          <Formula
+            type="full"
+            label="Journée complète"
+            watchValue={watchFullDay}
+          />
+        </div>
+        <SectionTitle
+          title="Tarification"
+          tooltipText="Renseigner les prix pour les formules sélectionnées"
+        />
+        <div className="flex flex-col justify-around items-center md:flex-row gap-4 w-full">
+          <PricingColumn
+            title="Prix demi-journée"
+            prefix="price_half_day"
+            disabled={!watchHalfDay}
+          />
+          <PricingColumn
+            title="Prix journée complète"
+            prefix="price_full_day"
+            disabled={!watchFullDay}
+          />
+        </div>
+      </div>
     </ItemCardInner>
   )
 );
@@ -281,10 +266,7 @@ FormulasSection.displayName = "FormulasSection";
  * Composant principal du formulaire d'activité
  */
 export function ActivityForm({ data, isOpen, onClose }: ActivityFormProps) {
-  const [requiredEquipment, setRequiredEquipment] = useState<string>(
-    data?.required_equipment || ""
-  );
-
+  const [requiredEquipment, setRequiredEquipment] = useState<string>("");
   const { updateActivities } = useActivities();
 
   const methods = useForm<TActivityForm>({
@@ -321,6 +303,7 @@ export function ActivityForm({ data, isOpen, onClose }: ActivityFormProps) {
       },
       required_equipment: data?.required_equipment || "",
     });
+    setRequiredEquipment(data?.required_equipment || "");
   }, [data, reset]);
 
   const onSubmit = useCallback(
@@ -380,7 +363,7 @@ export function ActivityForm({ data, isOpen, onClose }: ActivityFormProps) {
           />
           <GroupManagementSection />
           <RequiredEquipmentSection
-            initialValue={requiredEquipment}
+            initialValue={data?.required_equipment || ""}
             setRequiredEquipment={setRequiredEquipment}
           />
           <SubmitButton isSubmitting={isSubmitting} isEditing={!!data?._id} />
