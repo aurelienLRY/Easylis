@@ -65,15 +65,15 @@ const PriceRow = memo(
     showHalfDay,
     showFullDay,
   }: PriceRowProps) => (
-    <tr className="hover:bg-orange-500 transition-all duration-200">
+    <tr>
       <td className="border border-sky-500 p-2">{label}</td>
       {showHalfDay && (
-        <td className="border border-sky-500 p-2">
+        <td className="border border-sky-500 p-2 text-center">
           {halfDayPrice !== undefined ? `${halfDayPrice}€` : "N/A"}
         </td>
       )}
       {showFullDay && (
-        <td className="border border-sky-500 p-2">
+        <td className="border border-sky-500 p-2 text-center">
           {fullDayPrice !== undefined ? `${fullDayPrice}€` : "N/A"}
         </td>
       )}
@@ -271,7 +271,7 @@ export function ActivityCard({ activity, updateActivityModal }: Props) {
           )}
         </tr>
       </thead>
-      <tbody className="text-center">
+      <tbody className="text-center hover:[&>tr]:bg-orange-500 [&>tr]:transition-all [&>tr]:duration-200">
         {priceCategories.map(({ label, type }) => (
           <PriceRow
             key={type}

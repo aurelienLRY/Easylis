@@ -1,7 +1,7 @@
 "use client";
 
 /* librairie react */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 /* librairie leaflet */
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -19,11 +19,11 @@ interface MapCustomerProps {
  * @param spots - The spots to be displayed on the map.
  */
 function MapCustomer({ spot }: MapCustomerProps) {
-  const mapRef = useRef<any>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
-    if (mapRef.current) {
-      mapRef.current._leaflet_id = null;
-    }
+    setIsMounted(true);
+    return () => setIsMounted(false);
   }, []);
 
   const coordinatesWeb = convertGpsCoordinates(spot.gpsCoordinates);
@@ -34,33 +34,48 @@ function MapCustomer({ spot }: MapCustomerProps) {
     ? convertGpsCoordinates(spot.meetingPoint.full_day)
     : null;
 
+  if (!isMounted) {
+    return (
+      <div className="w-full h-full min-h-[300px] rounded-md z-0 bg-gray-100" />
+    );
+  }
+
   return (
-    <MapContainer
-      center={coordinatesWeb}
-      zoom={14}
-      className="w-full h-full min-h-[300px] rounded-md z-0"
-    >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <Marker position={coordinatesWeb} icon={IconWeb}>
-        <Popup>
-          <p>{spot.name}</p>
-        </Popup>
-      </Marker>
-      {coordinatesMeetingHalf_day && (
-        <Marker position={coordinatesMeetingHalf_day} icon={IconMeetingHalfDay}>
+    <div className="w-full h-full min-h-[300px] rounded-md z-0">
+      <MapContainer
+        key={`map-${spot._id}`}
+        center={coordinatesWeb}
+        zoom={14}
+        className="w-full h-full"
+      >
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <Marker position={coordinatesWeb} icon={IconWeb}>
           <Popup>
-            <p>Point de rendez-vous demi-journée</p>
+            <p>{spot.name}</p>
           </Popup>
         </Marker>
-      )}
-      {coordinatesMeetingFull_day && (
-        <Marker position={coordinatesMeetingFull_day} icon={IconMeetingFullDay}>
-          <Popup>
-            <p>Point de rendez-vous pleine journée</p>
-          </Popup>
-        </Marker>
-      )}
-    </MapContainer>
+        {coordinatesMeetingHalf_day && (
+          <Marker
+            position={coordinatesMeetingHalf_day}
+            icon={IconMeetingHalfDay}
+          >
+            <Popup>
+              <p>Point de rendez-vous demi-journée</p>
+            </Popup>
+          </Marker>
+        )}
+        {coordinatesMeetingFull_day && (
+          <Marker
+            position={coordinatesMeetingFull_day}
+            icon={IconMeetingFullDay}
+          >
+            <Popup>
+              <p>Point de rendez-vous pleine journée</p>
+            </Popup>
+          </Marker>
+        )}
+      </MapContainer>
+    </div>
   );
 }
 
