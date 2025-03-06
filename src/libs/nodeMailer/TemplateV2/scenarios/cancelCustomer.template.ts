@@ -10,14 +10,15 @@ export const cancelCustomerTemplate = (
 ): IEmailTemplateData => {
   const { customer, session, profile_from } = data;
   return {
-    title: `Annulation de votre réservation du ${formatDate(session.date)}`,
+    title: `Annulation de votre réservation pour l'activité sportive du ${formatDate(
+      session.date
+    )}`,
     content: `
       <p>Bonjour ${customer.first_names},</p>
-      <p>Nous vous confirmons l'annulation de votre réservation pour l'activité "${
+      <p>Occitanie Evasion vous informons que, malheureusement, la réservation pour l'activité "${
         session.activity.name
-      }" 
-      du ${formatDate(session.date)}.</p>
-      <p>Nous espérons vous revoir bientôt pour une nouvelle aventure !</p>
+      }" prévue le ${formatDate(session.date)} a été annulée.</p>
+      <p> En espérant vous retrouver une fois prochaine pour une nouvelle évasion en pleine nature !</p>
     `,
     profile_from,
   };
