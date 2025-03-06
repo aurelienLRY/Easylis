@@ -10,22 +10,21 @@ export const bookingRequestTemplate = (
 ): IEmailTemplateData => {
   const { customer, session, profile_from } = data;
   return {
-    title: `Demande de réservation reçue pour le ${formatDate(session.date)}`,
+    title: `Confirmation de votre demande de réservation pour l’activité ${session.activity.name}`,
     content: `
       <p>Bonjour ${customer.first_names},</p>
-      <p>Nous avons bien reçu votre demande de réservation pour l'activité "${
+      <p>Occitanie Evasion vous remercie pour votre demande de réservation pour l'activité "${
         session.activity.name
-      }".</p>
-      <p>Détails de votre demande :</p>
-      <ul>
-        <li>Date : ${formatDate(session.date)}</li>
-        <li>Activité : ${session.activity.name}</li>
-        <li>Nombre de personnes : ${customer.number_of_people}</li>
-        <li>Prix total : ${formatPrice(customer.price_total)}</li>
-      </ul>
-      <p>Nous traiterons votre demande dans les plus brefs délais et vous recontacterons sous 48h pour confirmer votre réservation.</p>
+      }" le ${formatDate(session.date)} pour ${
+      customer.number_of_people
+    } personne(s).</p>
+
+    <p> J’ai bien pris en compte votre demande et je reviens vers vous très rapidement soit par mail, soit par
+téléphone, pour vous donner tous les détails et finaliser la réservation ensemble.</p>
+
+<p> Si vous avez des questions entre temps, n’hésitez pas a me contacter directement par mail ou par
+téléphone, je vous répondrai avec plaisir.</p>
     `,
-     profile_from,
+    profile_from,
   };
 };
-

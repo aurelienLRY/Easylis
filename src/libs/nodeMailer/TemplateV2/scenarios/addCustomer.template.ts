@@ -14,20 +14,25 @@ export const addCustomerTemplate = (
       ? session.spot.meetingPoint.half_day
       : session.spot.meetingPoint.full_day;
   return {
-    title: `Votre réservation pour le ${formatDate(session.date)} est validée`,
+    title: `Confirmation de votre réservation pour l’activité ${session.activity.name}`,
     content: `
       <p>Bonjour ${customer.first_names},</p>
-      <p>Votre réservation pour l'activité "${
-        session.activity.name
-      }" du ${formatDate(session.date)} 
-      pour ${customer.number_of_people} personne(s) est confirmée.</p>
-      <p style="font-weight: bold;">Détails de la session :</p>
+      <p> Occitanie Evasion vous remercie pour votre réservation ! </p>
+      <p> Je suis ravis de vous accueillir pour une
+expérience en "${session.activity.name}". </p>
+      <p style="font-weight: bold;">Voici les détails de votre réservation:</p>
       <ul>
-        <li>Horaires : ${session.startTime} - ${session.endTime}</li>
+        <li> Activité : ${session.activity.name}</li>
+        <li> Formule (journée/demi journée) : ${
+          session.type_formule === "half_day" ? "Demi-journée" : "Journée"
+        }</li>
+        <li>Date : ${formatDate(session.date)}</li>
+        <li>Heure de rendez-vous : ${session.startTime}</li>
         <li>Lieu : ${session.spot.name}</li>
+        <li>Nombre de personnes : ${customer.number_of_people}</li>
         <li>Prix total : ${customer.price_total}€</li>
       </ul>
-      <p style="font-weight: bold;">Équipement nécessaire :</p>
+      <p style="font-weight: bold;">Ce qu’il vous faut prévoir pour profiter pleinement de la sortie:</p>
       ${session.activity.required_equipment}
     `,
     buttonText: "Voir l'itinéraire",

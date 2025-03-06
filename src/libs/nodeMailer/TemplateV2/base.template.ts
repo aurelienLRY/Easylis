@@ -38,9 +38,10 @@ export const generateEmailTemplate = (
           </div>
 
           <div style="background-color: #075985; color: white; padding: 20px; text-align: center; font-size: 14px;">
-            <p style="margin: 0 0 10px 0;">Cordialement,<br>${
-              templateData.profile_from.firstName
-            }</p>
+            <p style="margin: 0 0 10px 0;">
+            A très bientôt pour une évasion en pleine nature ! <br>
+            Bien a vous,<br>
+            ${templateData.profile_from.firstName}</p>
             <div style="margin-bottom: 10px;">
               <a href="mailto:contact@occitanie-evasion.com" style="color: white; text-decoration: none;">
                 contact@occitanie-evasion.com

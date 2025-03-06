@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ConfigProvider } from "antd";
@@ -7,9 +7,39 @@ import { ConfigProvider } from "antd";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Easylis | Gestionnaire d'activités pleine nature",
+  applicationName: "Easylis",
+  title: {
+    default: "Easylis | Gestionnaire d'activités pleine nature",
+    template: "%s | Easylis",
+  },
   description: "Easylis | Gestionnaire d'activités pleine nature",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "Easylis",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    title: "Easylis | Gestionnaire d'activités pleine nature",
+    description: "Easylis | Gestionnaire d'activités pleine nature",
+    siteName: "Easylis",
+    locale: "fr-FR",
+    type: "website",
+  },
 };
+/*
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  colorScheme: "dark",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  minimumScale: 1,
+  userScalable: false,
+};*/
 
 /*
  *root layout
