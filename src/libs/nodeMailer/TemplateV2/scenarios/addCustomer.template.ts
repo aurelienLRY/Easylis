@@ -32,6 +32,7 @@ expérience en "${session.activity.name}". </p>
         <li>Nombre de personnes : ${customer.number_of_people}</li>
         <li>Prix total : ${customer.price_total}€</li>
       </ul>
+      <p> Le règlement est à effectuer sur place, exclusivement en espèces ou par chèque.  </p>
       <p style="font-weight: bold;">Ce qu’il vous faut prévoir pour profiter pleinement de la sortie:</p>
       ${session.activity.required_equipment}
     `,

@@ -30,6 +30,7 @@ export const updateCustomerTemplate = (
       <li>Lieu : ${session.spot.name}</li>
       <li>Prix total : ${customer.price_total}€</li>
     </ul>
+    <p> Le règlement est à effectuer sur place, exclusivement en espèces ou par chèque.  </p>
     <p style="font-weight: bold; text-align: center; font-size: 1.2rem;"> Équipement nécessaire :</p>
     ${session.activity.required_equipment}
   
