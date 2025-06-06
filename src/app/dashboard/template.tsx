@@ -1,7 +1,6 @@
 "use client";
 /* Libs */
 import React, { Suspense, useEffect } from "react";
-import dynamic from "next/dynamic";
 
 import { toast } from "sonner";
 /* components */
@@ -22,6 +21,7 @@ import {
 } from "@/store";
 import { useMailer } from "@/hooks/useMailer";
 import { usePathname } from "next/navigation";
+import {useSession} from "next-auth/react"
 
 // const EmailTemplateEditor = dynamic(
 //   () =>
@@ -38,7 +38,11 @@ import { usePathname } from "next/navigation";
  * @param children: React.ReactNode
  * @returns JSX.Element
  */
-export default function Template({ children }: { children: React.ReactNode }) {
+export default function Template({ children }: { children: React.ReactNode }) {   
+  
+
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -55,11 +59,15 @@ export default function Template({ children }: { children: React.ReactNode }) {
     };
 
     fetchData();
+
   }, []);
+  const session = useSession();
+  console.log("session", session);
 
   // Get the user status
   const mailer = useMailer();
   const pathname = usePathname();
+
 
   return (
     <div className="w-full flex flex-col items-start px-1 md:px-4 py-6 ">
