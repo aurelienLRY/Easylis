@@ -39,8 +39,9 @@ export const generateEmailTemplate = (
 
           <div style="background-color: #075985; color: white; padding: 20px; text-align: center; font-size: 14px;">
             <p style="margin: 0 0 10px 0;">
+            Je reste à votre disposition par mail ou par téléphone pour toute question éventuelle.<br>
             A très bientôt pour une évasion en pleine nature ! <br>
-            Bien a vous,<br>
+            Bien à vous,<br>
             ${templateData.profile_from.firstName}</p>
             <div style="margin-bottom: 10px;">
               <a href="mailto:contact@occitanie-evasion.com" style="color: white; text-decoration: none;">
