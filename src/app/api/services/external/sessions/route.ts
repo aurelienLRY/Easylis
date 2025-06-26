@@ -85,8 +85,8 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({ 
-      Type : Tsession,
-      ActiveSessions: sessionsWithActivitiesAndSpots 
+      type : Tsession,
+      data: sessionsWithActivitiesAndSpots 
     }, { status: 200 });
   } catch (error) {
     console.log(error);
