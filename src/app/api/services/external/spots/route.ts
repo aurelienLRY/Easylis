@@ -1,5 +1,5 @@
 import { NextRequest , NextResponse} from "next/server";
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
+import { connectDBOnce } from "@/libs/database/setting.mongoose";
 import { Spot } from "@/libs/database";
 
 const TSpot = {
@@ -26,16 +26,15 @@ const TSpot = {
 
 export async function GET(req: NextRequest) {
   try {
-    await connectDB();
+    await connectDBOnce();
     const spots = await Spot.find();
+    
     return NextResponse.json({
-        Type : TSpot,
-        spots: spots
+        type : TSpot,
+        data: spots
     }, { status: 200 });
   } catch (error) {
     console.log(error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  } finally {
-    await disconnectDB();
   }
 }

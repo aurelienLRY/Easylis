@@ -33,7 +33,6 @@ export const ChangePassword = (props: Props) => {
   });
 
   const onSubmit = async (data: yup.InferType<typeof schema>) => {
-    console.log("onSubmit password", data);
     const fetchPassword = await fetch("/api/user", {
       method: "PUT",
       body: JSON.stringify(data),

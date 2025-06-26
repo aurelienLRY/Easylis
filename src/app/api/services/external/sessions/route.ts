@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
+import { connectDBOnce } from "@/libs/database/setting.mongoose";
 import { Session , Activity , Spot } from "@/libs/database";
 
 
@@ -67,8 +66,7 @@ import { Session , Activity , Spot } from "@/libs/database";
 
 export async function GET(req: NextRequest) {
   try {
-
-    await connectDB();
+    await connectDBOnce();
     const sessions = await Session.find({
       date: { $gte: new Date() },
       status: "Actif"
@@ -87,14 +85,11 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({ 
-      Type : Tsession,
-      ActiveSessions: sessionsWithActivitiesAndSpots 
+      type : Tsession,
+      data: sessionsWithActivitiesAndSpots 
     }, { status: 200 });
   } catch (error) {
     console.log(error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
-  finally {
-    await disconnectDB();
   }
 }
