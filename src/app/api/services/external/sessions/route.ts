@@ -9,10 +9,12 @@ export async function GET(req: NextRequest) {
 
     await connectDB();
     const sessions = await Session.find({
-        expires: { $gt: new Date() },
+      date: { $gte: new Date() },
+      status: "Actif"
     });
     return NextResponse.json(sessions, { status: 200 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
   finally {

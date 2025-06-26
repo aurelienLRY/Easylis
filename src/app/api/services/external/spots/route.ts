@@ -1,13 +1,16 @@
 import { NextRequest , NextResponse} from "next/server";
-import { GET_SPOTS } from "@/libs/ServerAction/spot.actions";
-
-
+import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
+import { Spot } from "@/libs/database";
 
 export async function GET(req: NextRequest) {
   try {
-    const spots = await GET_SPOTS();
+    await connectDB();
+    const spots = await Spot.find();
     return NextResponse.json(spots, { status: 200 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  } finally {
+    await disconnectDB();
   }
 }
