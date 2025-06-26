@@ -67,7 +67,6 @@ import { Session , Activity , Spot } from "@/libs/database";
 
 export async function GET(req: NextRequest) {
   try {
-
     await connectDB();
     const sessions = await Session.find({
       date: { $gte: new Date() },

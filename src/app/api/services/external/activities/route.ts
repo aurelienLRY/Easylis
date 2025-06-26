@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const activities = await Activity.find({});
+    
     return NextResponse.json({
         Type : TActivity,
         activities: activities
