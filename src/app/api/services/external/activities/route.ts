@@ -35,8 +35,8 @@ export async function GET(req: NextRequest) {
     const activities = await Activity.find({});
     
     return NextResponse.json({
-        Type : TActivity,
-        activities: activities
+        type : TActivity,
+         data: activities
     }, { status: 200 });
   } catch (error) {
     console.log(error);

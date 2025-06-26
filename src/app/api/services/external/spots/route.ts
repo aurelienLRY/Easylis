@@ -30,8 +30,8 @@ export async function GET(req: NextRequest) {
     const spots = await Spot.find();
     
     return NextResponse.json({
-        Type : TSpot,
-        spots: spots
+        type : TSpot,
+        data: spots
     }, { status: 200 });
   } catch (error) {
     console.log(error);
