@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
+import { connectDBOnce } from "@/libs/database/setting.mongoose";
 import { Activity } from "@/libs/database";
 
 const TActivity = {
@@ -32,7 +31,7 @@ const TActivity = {
 
 export async function GET(req: NextRequest) {
   try {
-    await connectDB();
+    await connectDBOnce();
     const activities = await Activity.find({});
     
     return NextResponse.json({
@@ -42,7 +41,5 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.log(error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  } finally {
-    await disconnectDB();
   }
 }   

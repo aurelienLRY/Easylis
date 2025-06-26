@@ -62,7 +62,6 @@ export default function Template({ children }: { children: React.ReactNode }) {
 
   }, []);
   const session = useSession();
-  console.log("session", session);
 
   // Get the user status
   const mailer = useMailer();
