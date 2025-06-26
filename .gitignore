@@ -42,3 +42,6 @@ next-env.d.ts
 
 #avatar 
 /public/img/avatar
+public/sw.js
+public/sw.js
+public/workbox-*.js

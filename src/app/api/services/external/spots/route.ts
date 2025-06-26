@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const spots = await Spot.find();
+    
     return NextResponse.json({
         Type : TSpot,
         spots: spots
