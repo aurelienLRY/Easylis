@@ -76,6 +76,20 @@ UserSchema.post("findOneAndUpdate", async function (doc) {
   }
 });
 
+UserSchema.post("find", async function (docs) {
+  for (const doc of docs) {
+    if (doc.firstName !== null) {
+      doc.firstName = await crypto.decrypt(doc.firstName);
+    }
+    if (doc.lastName !== null) {
+      doc.lastName = await crypto.decrypt(doc.lastName);
+    }
+    if (doc.phone !== null) {
+      doc.phone = await crypto.decrypt(doc.phone);
+    }
+  }
+});
+
 UserSchema.post("findOne", async function (doc) {
   try {
     if (doc.firstName !== null) {

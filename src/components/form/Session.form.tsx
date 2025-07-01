@@ -336,7 +336,7 @@ export function SessionForm({
           </div>
           {isUpdate && (
             <div className="flex flex-col items-center gap-1 p-2 rounded-md border-2 border-sky-500 w-full">
-              <p className="text-sky-500 text-xl font-bold">Statut</p>
+              <p className={` text-sky-500 text-xl font-bold ${data?.status === "Pending" &&  "animate-pulse"}`}>Statut</p>
               <SelectInput
                 name="status"
                 options={[
@@ -387,14 +387,15 @@ const MailerForUpdate = async (
 ): Promise<boolean> => {
   if (!isUpdate || oldSession.customerSessions.length === 0) return false;
 
-  const hasImportantChanges =
+  const hasImportantChanges = 
     oldSession.date !== newSession.date ||
     oldSession.startTime !== newSession.startTime ||
     oldSession.spot._id !== newSession.spot._id;
+    
 
   if (hasImportantChanges) {
     const wantToSendEmail = window.confirm(
-      `La session a été modifiée ! \nVoulez-vous envoyer un email aux clients ?`
+      `La session a été modifiée ! \nVoulez-vous envoyer un email aux clients deja confirmés ?`
     );
 
     if (wantToSendEmail) {
@@ -406,7 +407,7 @@ const MailerForUpdate = async (
 
       // filtrer les customer qui on un status annulé
       const customerSessions = newSession.customerSessions.filter(
-        (customer) => customer.status !== "Canceled"
+        (customer) => customer.status !== "Canceled" && customer.status !== "Waiting"
       );
 
       // On prépare le premier email seulement

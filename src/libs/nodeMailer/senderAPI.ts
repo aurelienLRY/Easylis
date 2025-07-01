@@ -1,10 +1,9 @@
-"use server";
 import nodemailer from "nodemailer";
 
 /**
- * Crée un transporteur pour envoyer des emails avec nodemailer
+ * Crée un transporteur pour envoyer des emails avec nodemailer (pour API Routes)
  */
-const nodemailerTransporter = nodemailer.createTransport(
+const Transporter = nodemailer.createTransport(
   {
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT),
@@ -21,19 +20,19 @@ const nodemailerTransporter = nodemailer.createTransport(
 );
 
 /**
- * Envoi un email avec nodemailer (pour Server Actions)
+ * Envoi un email avec nodemailer (pour API Routes)
  * @param email - L'email du destinataire
  * @param subject - Le sujet de l'email
  * @param html - Le contenu de l'email
  * @returns true si l'email a été envoyé avec succès, false sinon
  */
-export const nodeMailerSender = async (
+export const nodeMailerSenderAPI = async (
   email: string,
   subject: string,
   html: string
 ): Promise<boolean> => {
   try {
-    const isVerified = await nodemailerTransporter.verify();
+    const isVerified = await Transporter.verify();
     if (!isVerified) {
       throw new Error("Le serveur SMTP n'est pas disponible");
     }
@@ -45,7 +44,7 @@ export const nodeMailerSender = async (
       html: html,
     };
 
-    const info = await nodemailerTransporter.sendMail(mailOptions);
+    const info = await Transporter.sendMail(mailOptions);
     if (!info.messageId) {
       throw new Error("L'email n'a pas été envoyé");
     }
@@ -54,6 +53,4 @@ export const nodeMailerSender = async (
     console.log("Erreur lors de l'envoi de l'email", error);
     return false;
   }
-};
-
-
+}; 

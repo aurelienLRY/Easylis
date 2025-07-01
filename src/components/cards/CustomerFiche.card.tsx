@@ -40,6 +40,7 @@ export const CustomerFiche = ({
   const [isSubmitting, setIsSubmitting] = React.useState<boolean[]>(
     new Array(customer?.people_list?.length || 0).fill(false)
   );
+ 
 
   if (!customer) return null;
   mailer.onClose = () => {

@@ -45,7 +45,7 @@ export const useCustomer = () => {
         const refreshToken = profile?.tokenRefreshCalendar;
         if (refreshToken) {
           const event = generateEvent(act.data);
-          await fetcherUpdateEvent(refreshToken, event, act.data._id);
+          await fetcherUpdateEvent(refreshToken, event, act.data._id );
         } else {
           toast.error(
             "Votre calendrier n'est pas connecté, l'évènement n'a pas été mis à jour dans votre calendrier"
@@ -72,6 +72,42 @@ export const useCustomer = () => {
       setIsSubmitting(false);
       return act;
     }
+  };
+
+  const validateCustomer = async (customer: ICustomerSession) => {
+    setIsSubmitting(true);
+    const act = await UPDATE_CUSTOMER_SESSION(customer._id, customer);
+    if (act.success && act.data) {
+      updateSessionWithDetails(act.data);
+      const refreshToken = profile?.tokenRefreshCalendar;
+      if (refreshToken) {
+        const event = generateEvent(act.data);
+        await fetcherUpdateEvent(refreshToken, event, act.data._id);
+      } else {
+        toast.error(
+          "Votre calendrier n'est pas connecté, l'évènement n'a pas été mis à jour dans votre calendrier"
+        );
+      }
+      if (mailer) {
+        const wantToSendEmail = window.confirm(
+          `Client validé avec succès ! \nVoulez-vous envoyer un email au client ?`
+        );
+        if (wantToSendEmail) {
+          mailer?.prepareEmail(EMAIL_SCENARIOS.ADD_CUSTOMER, {
+            customer: customer,
+            session: act.data,
+            profile_from: profile!,
+          });
+        }
+      }
+      ToasterAction({
+        result: act,
+        defaultMessage: "Client validé avec succès",
+      });
+      setIsSubmitting(false);
+      return act;
+    }
+    
   };
 
   const addCustomer = async (customer: ICustomerSession) => {
@@ -142,5 +178,5 @@ export const useCustomer = () => {
     }
   };
 
-  return { CancelCustomer, addCustomer, updateCustomer, isSubmitting };
+  return { CancelCustomer, addCustomer, updateCustomer, isSubmitting, validateCustomer };
 };

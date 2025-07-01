@@ -6,6 +6,7 @@ import { BiEditAlt } from "react-icons/bi";
 import { FaRegEye } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { FiRefreshCcw } from "react-icons/fi";
+import { BiCheck } from "react-icons/bi";
 
 /**
  * Ce composant représente un bouton personnalisé avec une icône.
@@ -67,6 +68,37 @@ export const EditButton = ({
     <Tooltip title={`${title ? title : "Modifier"}`}>
       <button onClick={onClick} className={`text-2xl group ${className}`}>
         <BiEditAlt className="group-hover:text-orange-600 transition-all duration-300" />
+        {children}
+      </button>
+    </Tooltip>
+  );
+};
+/**
+ * Ce composant représente un bouton d'édition.
+ * Il utilise un `Tooltip` de Material-UI pour afficher un titre lorsque l'utilisateur survole le bouton.
+ *
+ * @param {object} props - Les propriétés du composant.
+ * @param {string} [props.title] - Le titre à afficher dans le tooltip.
+ * @param {() => void} props.onClick - La fonction à exécuter lorsque le bouton est cliqué.
+ * @param {string} [props.className] - Classes CSS supplémentaires pour le bouton.
+ * @param {React.ReactNode} [props.children] - Les enfants à afficher à l'intérieur du bouton.
+ * @returns {JSX.Element} Le composant bouton d'édition avec tooltip.
+ */
+export const ValidateButton = ({
+  title,
+  onClick,
+  className,
+  children,
+}: {
+  title?: string;
+  onClick: () => void;
+  className?: string;
+  children?: React.ReactNode;
+}) => {
+  return (
+    <Tooltip title={`${title ? title : "Valider"}`}>
+      <button onClick={onClick} className={`text-2xl group ${className}`}>
+        <BiCheck className="text-green-500 scale-110 group-hover:text-orange-600 transition-all duration-300  animate-pulse  animate-infinite "  />
         {children}
       </button>
     </Tooltip>

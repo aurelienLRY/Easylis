@@ -3,6 +3,7 @@ export {
   DeleteButton,
   DetailButton,
   EditButton,
+  ValidateButton,
   IconButton,
   PrimaryButton,
   RefreshButton,
