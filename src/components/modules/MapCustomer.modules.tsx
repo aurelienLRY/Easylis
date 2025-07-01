@@ -109,3 +109,4 @@ const IconMeetingFullDay = icon({
 });
 
 export default MapCustomer;
+MapCustomer.displayName = "MapCustomer";

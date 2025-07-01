@@ -12,6 +12,7 @@ import {
   EditButton,
   DeleteButton,
   ToasterAction,
+  ValidateButton,
 } from "@/components";
 import {
   calculateSessionIncome,
@@ -129,7 +130,12 @@ const SessionActions = ({
             <IoMdPersonAdd className="text-2xl hover:text-slate-200 cursor-pointer transition-all" />
           </button>
         </Tooltip>
-        <EditButton title="Modifier la session" onClick={onEdit} />
+        {status.isPending && (
+          <ValidateButton title="Valider la session" onClick={onEdit} />
+        )}
+        {!status.isPending && (
+          <EditButton title="Modifier la session" onClick={onEdit} />
+        )}
         <DeleteButton
           title={
             status.isReserved
@@ -228,7 +234,7 @@ export const SessionCard = ({
       if (!window.confirm("Voulez-vous vraiment archiver cette session ?"))
         return;
 
-      const result = await UPDATE_SESSION(sessionWithDetails._id, {
+      const result = await UPDATE_SESSION(sessionWithDetails._id!, {
         ...sessionWithDetails,
         activity: sessionWithDetails.activity._id as string,
         spot: sessionWithDetails.spot._id as string,
@@ -286,7 +292,7 @@ export const SessionCard = ({
         onAdd={() => addCustomerModal(sessionWithDetails)}
         onEdit={() => updateSessionModal(sessionWithDetails)}
         onSwitch={handleSwitchAction}
-        onDelete={() => deleteSession(sessionWithDetails._id)}
+        onDelete={() => deleteSession(sessionWithDetails._id!)}
       />
     </ItemCard>
   );

@@ -31,6 +31,7 @@ import { useMailer } from "@/hooks/useMailer";
 /*icons */
 import { IoMdPersonAdd } from "react-icons/io";
 import { FaUser } from "react-icons/fa";
+import { elementClosest } from "@fullcalendar/core/internal";
 
 /* Validation */
 const baseSchema = yup.object().shape({
@@ -72,7 +73,7 @@ type Props = {
 };
 
 export function CustomerSessionForm({ session, data, isOpen, onClose }: Props) {
-  const { addCustomer, updateCustomer } = useCustomer();
+  const { addCustomer, updateCustomer, validateCustomer } = useCustomer();
   /* Form */
   const methods = useForm({
     resolver: yupResolver(createDynamicSchema([])),
@@ -116,13 +117,15 @@ export function CustomerSessionForm({ session, data, isOpen, onClose }: Props) {
    * Submit Form
    */
   const onSubmit = async (formData: any) => {
+
+
     const newCustomer: ICustomerSession = {
       ...formData,
       _id: data?._id || undefined,
       sessionId: session._id,
       date: session.date,
       status: "Validated",
-      typeOfReservation: "ByCompany",
+      typeOfReservation: data?.typeOfReservation || "ByCompany",
       number_of_people: fields.length,
       price_applicable: getPriceApplicable(
         watch.tarification === "reduced" ? true : false,
@@ -135,10 +138,21 @@ export function CustomerSessionForm({ session, data, isOpen, onClose }: Props) {
         0
       ),
     };
-    if (data?._id && newCustomer) {
-      await updateCustomer(newCustomer);
-    } else if (newCustomer) {
-      await addCustomer(newCustomer);
+
+    if (data?._id && data?.status === "Waiting" && newCustomer) {
+      if (session.status === "Pending") {
+        window.alert("La session est en attente de validation, vous devez la valider avant de poursuivre");
+        onClose();
+        return;
+      } else {
+        await validateCustomer(newCustomer);
+      }
+    } else {
+      if (data?._id && newCustomer) {
+        await updateCustomer(newCustomer);
+      } else if (newCustomer) {
+        await addCustomer(newCustomer);
+      }
     }
   };
 
@@ -155,10 +169,10 @@ export function CustomerSessionForm({ session, data, isOpen, onClose }: Props) {
             key == "standard"
               ? "Tarif normal"
               : key == "acm"
-              ? "Tarif acm"
-              : key == "reduced"
-              ? "Tarif réduit"
-              : key,
+                ? "Tarif acm"
+                : key == "reduced"
+                  ? "Tarif réduit"
+                  : key,
         }));
     } else {
       return Object.entries(session.activity.price_full_day)
@@ -169,10 +183,10 @@ export function CustomerSessionForm({ session, data, isOpen, onClose }: Props) {
             key == "standard"
               ? "Tarif normal"
               : key == "acm"
-              ? "Tarif acm"
-              : key == "reduced"
-              ? "Tarif réduit"
-              : key,
+                ? "Tarif acm"
+                : key == "reduced"
+                  ? "Tarif réduit"
+                  : key,
         }));
     }
   };
@@ -233,17 +247,13 @@ export function CustomerSessionForm({ session, data, isOpen, onClose }: Props) {
     session.type_formule,
   ]);
 
-  const handleClose = () => {
-    mailer.closeEditor();
-    reset();
-    onClose();
-  };
+
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={data?._id ? "Modifier le client" : "Ajouter un client"}
+      title={data?._id && data?.status === "Waiting" ? "Valider la réservation" : data?._id ? "Modifier un client " : "Ajouter un client "}
     >
       <FormProvider {...methods}>
         <form
@@ -395,6 +405,8 @@ export function CustomerSessionForm({ session, data, isOpen, onClose }: Props) {
           >
             {isSubmitting ? (
               <Spin size="default" />
+            ) : data?._id && data?.status === "Waiting" ? (
+              "Valider"
             ) : data?._id ? (
               "Modifier"
             ) : (

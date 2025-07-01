@@ -10,8 +10,8 @@ export interface IEmailTemplateData {
 }
 
 export interface ITemplateData {
-  customer: ICustomerSession;
-  session: ISessionWithDetails;
+  customer: Omit<ICustomerSession, "_id">;
+  session: Omit<ISessionWithDetails, "_id">;
   profile_from: IUser;
   changes?: {
     oldDate?: Date;

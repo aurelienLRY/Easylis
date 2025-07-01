@@ -104,7 +104,7 @@ export async function CREATE_CUSTOMER_SESSION(
     }
 
     const sessionWithDetails = (await GET_SERVER_SESSION_WITH_DETAILS(
-      UpdateSession._id
+      UpdateSession._id!
     )) as ISessionWithDetails;
 
     return {
@@ -202,7 +202,6 @@ export async function GET_CUSTOMER_SESSION_BY_ID(
  * @param customerId - The id of the customer session to update
  * @param data - The data to update the customer session with
  * @returns {success: boolean, data: ISessionWithDetails | null, error: string | null, feedback: string[] | null}
- * //TODO: Mettre en place l'envoi des mails en fonction des modifications
  */
 export const UPDATE_CUSTOMER_SESSION = async (
   customerId: string,
@@ -222,10 +221,21 @@ export const UPDATE_CUSTOMER_SESSION = async (
       customerId
     )) as ICustomerSession;
 
-    if (xssData.status === "Validated" && oldCustomer.status !== "Validated") {
+   
+     console.log( "xssData.status >>>>", xssData.status);
+     console.log( "oldCustomer.validatedAt >>>>", oldCustomer.validatedAt);
+     console.log( "oldCustomer.status >>>>", oldCustomer.status);
+
+    if (xssData.status === "Validated" && oldCustomer.validatedAt === null) {
+      console.log( "is validated actif 1 ");
       xssData.validatedAt = new Date();
     }
-    if (xssData.status === "Canceled" && oldCustomer.status !== "Canceled") {
+    if (xssData.status === "Validated" && oldCustomer.status === "Waiting" && oldCustomer.validatedAt === null) {
+      console.log( "is validated actif 2 ");
+      xssData.validatedAt = new Date();
+    }
+    if (xssData.status === "Canceled") {
+      console.log( "is canceled actif ");
       xssData.canceledAt = new Date();
     }
 

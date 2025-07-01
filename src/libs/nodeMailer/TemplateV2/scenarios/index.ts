@@ -12,27 +12,27 @@ import { IEmailScenario } from "@/libs/nodeMailer/TemplateV2/types";
 export const emailScenarios: Record<string, IEmailScenario> = {
   [EMAIL_SCENARIOS.ADD_CUSTOMER]: {
     scenario: EMAIL_SCENARIOS.ADD_CUSTOMER,
-    subject: "Confirmation de votre réservation",
+    subject: "🎉​​ Confirmation de votre réservation 🎉​​",
     template: addCustomerTemplate,
   },
   [EMAIL_SCENARIOS.UPDATE_CUSTOMER]: {
     scenario: EMAIL_SCENARIOS.UPDATE_CUSTOMER,
-    subject: "Modification de votre réservation",
+    subject: "🧐 Modification de votre réservation 🧐",
     template: updateCustomerTemplate,
   },
   [EMAIL_SCENARIOS.CANCEL_CUSTOMER]: {
     scenario: EMAIL_SCENARIOS.CANCEL_CUSTOMER,
-    subject: "Annulation de votre réservation",
+    subject: "🙄 Annulation de votre réservation 🙄",
     template: cancelCustomerTemplate,
   },
   [EMAIL_SCENARIOS.UPDATE_SESSION]: {
     scenario: EMAIL_SCENARIOS.UPDATE_SESSION,
-    subject: "Modification de votre session",
+    subject: "🧐 Modification de votre session 🧐",
     template: updateSessionTemplate,
   },
   [EMAIL_SCENARIOS.BOOKING_REQUEST]: {
     scenario: EMAIL_SCENARIOS.BOOKING_REQUEST,
-    subject: "Demande de réservation reçue",
+    subject: "🎉​​ Demande de réservation reçue 🎉​​",
     template: bookingRequestTemplate,
   },
 } as const;

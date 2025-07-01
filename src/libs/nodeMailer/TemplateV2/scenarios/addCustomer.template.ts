@@ -1,4 +1,3 @@
-import { ICustomerSession, ISessionWithDetails } from "@/types";
 import {
   IEmailTemplateData,
   ITemplateData,
