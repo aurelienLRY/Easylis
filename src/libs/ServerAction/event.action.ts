@@ -1,7 +1,7 @@
 "use server";
 
 /* Gestion Database */
-import { connectDB, disconnectDB, EventCalendar } from "@/libs/database";
+import { connectDBOnce, EventCalendar } from "@/libs/database";
 
 /* Types */
 import { IEventModel, ICallbackForEvent } from "@/types";
@@ -15,7 +15,7 @@ export const CREATE_EVENT = async (
   eventModel: IEventModel
 ): Promise<ICallbackForEvent> => {
   try {
-    await connectDB();
+    await connectDBOnce();
     const newEvent = new EventCalendar(eventModel);
     await newEvent.save();
     return {
@@ -31,8 +31,6 @@ export const CREATE_EVENT = async (
       feedback: null,
       error: error as string,
     };
-  } finally {
-    await disconnectDB();
   }
 };
 
@@ -45,7 +43,7 @@ export const GET_EVENT_BY_SESSION_ID = async (
   sessionId: string
 ): Promise<ICallbackForEvent> => {
   try {
-    await connectDB();
+    await connectDBOnce();
     const event = await EventCalendar.findOne({ sessionId });
     return {
       success: true,
@@ -60,8 +58,6 @@ export const GET_EVENT_BY_SESSION_ID = async (
       feedback: null,
       error: error as string,
     };
-  } finally {
-    await disconnectDB();
   }
 };
 
@@ -76,7 +72,7 @@ export const UPDATE_EVENT = async (
   eventModel: IEventModel
 ): Promise<ICallbackForEvent> => {
   try {
-    await connectDB();
+    await connectDBOnce();
     const updatedEvent = await EventCalendar.findByIdAndUpdate(
       eventId,
       eventModel,
@@ -97,8 +93,6 @@ export const UPDATE_EVENT = async (
       feedback: null,
       error: error as string,
     };
-  } finally {
-    await disconnectDB();
   }
 };
 
@@ -109,7 +103,7 @@ export const UPDATE_EVENT = async (
  */
 export const DELETE_EVENT = async (id: string): Promise<ICallbackForEvent> => {
   try {
-    await connectDB();
+    await connectDBOnce();
     await EventCalendar.findByIdAndDelete(id);
     return {
       success: true,
@@ -124,7 +118,5 @@ export const DELETE_EVENT = async (id: string): Promise<ICallbackForEvent> => {
       feedback: null,
       error: error as string,
     };
-  } finally {
-    await disconnectDB();
   }
 };

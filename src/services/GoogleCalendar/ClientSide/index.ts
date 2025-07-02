@@ -6,3 +6,4 @@ export { fetcherAddEvent } from "@/services/GoogleCalendar/ClientSide/fetcherAdd
 export { fetcherUpdateEvent } from "@/services/GoogleCalendar/ClientSide/fetcherUpdateEvent";
 export { fetcherDeleteEvent } from "@/services/GoogleCalendar/ClientSide/fetcherDeleteEvent";
 export { generateEvent } from "@/services/GoogleCalendar/ClientSide/generateEvent";
+export { fetcherSyncCalendar } from "@/services/GoogleCalendar/ClientSide/fetcherSyncCalendar";

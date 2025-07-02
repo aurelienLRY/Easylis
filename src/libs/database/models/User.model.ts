@@ -16,7 +16,7 @@ const UserSchema = new Schema<IUser>(
       required: true,
       match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Email invalide"],
     },
-    phone: { type: String },
+    phone: { type: String, default: null },
     avatar: { type: String, default: "/img/default-avatar.webp" },
     password: { type: String, required: true },
     username: { type: String, required: true, default: "username ?" },

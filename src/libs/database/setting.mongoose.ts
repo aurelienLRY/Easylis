@@ -13,7 +13,7 @@ let connectionPromise: Promise<boolean> | null = null;
 export const connectDB = async () => {
   try {
     // Si déjà connecté, on retourne directement
-    if (isConnected) {
+    if (isConnected && mongoose.connection.readyState === 1) {
       return Promise.resolve(true);
     }
 
@@ -25,12 +25,11 @@ export const connectDB = async () => {
     // Créer une nouvelle promesse de connexion
     connectionPromise = (async () => {
       try {
-        // Configuration moderne pour optimiser les connexions
+        // Configuration simplifiée et compatible
         const options = {
-          maxPoolSize: 10, // Nombre maximum de connexions dans le pool
-          serverSelectionTimeoutMS: 5000, // Timeout de sélection du serveur
-          socketTimeoutMS: 45000, // Timeout des sockets
-          bufferCommands: false, // Désactiver le buffering des commandes
+          maxPoolSize: 10,
+          serverSelectionTimeoutMS: 5000,
+          socketTimeoutMS: 45000,
         };
 
         const { connection } = await mongoose.connect(MONGODB_URI, options);
@@ -80,7 +79,7 @@ export const connectDB = async () => {
   }
 };
 
-// Version optimisée pour les routes externes (pas de déconnexion)
+// Version optimisée pour les routes API - ne se déconnecte jamais automatiquement
 export const connectDBOnce = async () => {
   try {
     // Si déjà connecté, on retourne directement
@@ -100,9 +99,10 @@ export const connectDBOnce = async () => {
   }
 };
 
+// Fonction de déconnexion uniquement pour les cas spéciaux
 export const disconnectDB = async () => {
   try {
-    // Ne déconnecter que si on est en mode développement ou si explicitement demandé
+    // Ne déconnecter que si explicitement demandé et en mode développement
     if (process.env.NODE_ENV === 'development' && isConnected) {
       await mongoose.disconnect();
       isConnected = false;
@@ -119,3 +119,5 @@ export const disconnectDB = async () => {
 export const isDBConnected = () => {
   return isConnected && mongoose.connection.readyState === 1;
 };
+
+

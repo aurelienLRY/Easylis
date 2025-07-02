@@ -5,7 +5,7 @@ import * as yup from "yup";
 import xss from "xss";
 
 /* Gestion Database */
-import { connectDB, disconnectDB, Spot } from "@/libs/database";
+import { connectDBOnce, Spot } from "@/libs/database";
 
 /* YUP schema */
 import { spotSchema } from "@/libs/yup";
@@ -80,7 +80,7 @@ export async function CREATE_SPOT(spot: ISpot): Promise<ICallbackForSpot> {
       throw new Error("Au moins un point de rendez-vous est requis");
     }
 
-    await connectDB();
+    await connectDBOnce();
     const newSpot = new Spot(cleanSpot);
     await newSpot.save();
 
@@ -108,8 +108,6 @@ export async function CREATE_SPOT(spot: ISpot): Promise<ICallbackForSpot> {
         data: null,
       };
     }
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -119,7 +117,7 @@ export async function CREATE_SPOT(spot: ISpot): Promise<ICallbackForSpot> {
  */
 export async function GET_SPOTS(): Promise<ICallbackForSpots> {
   try {
-    await connectDB();
+    await connectDBOnce();
     const spots = await Spot.find();
     return {
       success: true,
@@ -136,8 +134,6 @@ export async function GET_SPOTS(): Promise<ICallbackForSpots> {
       error: message,
       feedback: null,
     };
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -148,7 +144,7 @@ export async function GET_SPOTS(): Promise<ICallbackForSpots> {
  */
 export async function GET_SPOT_BY_ID(id: string): Promise<ICallbackForSpot> {
   try {
-    await connectDB();
+    await connectDBOnce();
     const spot = await Spot.findById(id);
     return {
       success: true,
@@ -187,7 +183,7 @@ export async function UPDATE_SPOT(
       throw new Error("Au moins un point de rendez-vous est requis");
     }
 
-    await connectDB();
+    await connectDBOnce();
 
     const updatedSpot = await Spot.findByIdAndUpdate(id, cleanSpot, {
       new: true,
@@ -216,8 +212,6 @@ export async function UPDATE_SPOT(
         feedback: null,
       };
     }
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -230,7 +224,7 @@ export const DELETE_SPOT = async (
   spotId: string
 ): Promise<ICallbackForSpot> => {
   try {
-    await connectDB();
+    await connectDBOnce();
     const sessionsWithDetails = await GET_SERVER_SESSIONS_WITH_DETAILS();
     const sessionsWithDetailsBySpot = sessionsWithDetails.filter(
       (session) => session.spot._id === spotId
@@ -257,7 +251,5 @@ export const DELETE_SPOT = async (
     const message = (error as Error).message;
     console.log(message);
     return { success: false, error: message, data: null, feedback: null };
-  } finally {
-    await disconnectDB();
   }
 };

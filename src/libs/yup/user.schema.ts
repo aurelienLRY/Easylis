@@ -9,7 +9,7 @@ export const userSchema = yup.object().shape({
   firstName: yup.string(),
   lastName: yup.string(),
   email: yup.string().email("Invalid email").required("L'email est requis"),
-  phone: yup.string(),
+  phone: yup.string().nullable().default(null),
   password: yup.string(),
   username: yup.string().required("Le nom d'utilisateur est requis"),
   avatar: yup.string().default("/img/default-avatar.webp"),

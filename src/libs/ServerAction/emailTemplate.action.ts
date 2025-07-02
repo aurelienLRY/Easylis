@@ -1,7 +1,7 @@
 "use server";
 
 /* Gestion Database */
-import { connectDB, disconnectDB, EmailTemplate } from "@/libs/database";
+import { connectDBOnce, EmailTemplate } from "@/libs/database";
 
 /* Types */
 import {
@@ -19,7 +19,7 @@ export const CREATE_EMAIL_TEMPLATE = async (
   emailTemplate: IEmailTemplate
 ): Promise<ICallbackForEmailTemplate> => {
   try {
-    await connectDB();
+    await connectDBOnce();
     const newEmailTemplate = new EmailTemplate(emailTemplate);
     (await newEmailTemplate.save()) as IEmailTemplate;
     if (!newEmailTemplate || newEmailTemplate === null) {
@@ -39,8 +39,6 @@ export const CREATE_EMAIL_TEMPLATE = async (
       feedback: null,
       error: errorMessage,
     };
-  } finally {
-    await disconnectDB();
   }
 };
 
@@ -51,7 +49,7 @@ export const CREATE_EMAIL_TEMPLATE = async (
 export const GET_EMAIL_TEMPLATE =
   async (): Promise<ICallbackForEmailTemplates> => {
     try {
-      await connectDB();
+      await connectDBOnce();
       const emailTemplate = (await EmailTemplate.find()) as IEmailTemplate[];
       if (!emailTemplate || emailTemplate === null) {
         throw new Error("Template email non trouvé");
@@ -70,8 +68,6 @@ export const GET_EMAIL_TEMPLATE =
         feedback: null,
         error: errorMessage,
       };
-    } finally {
-      await disconnectDB();
     }
   };
 
@@ -84,7 +80,7 @@ export const GET_EMAIL_TEMPLATE_BY_SCENARIO = async (
   scenario: string
 ): Promise<ICallbackForEmailTemplate> => {
   try {
-    await connectDB();
+    await connectDBOnce();
     const emailTemplate = (await EmailTemplate.findOne({
       scenario,
     })) as IEmailTemplate;
@@ -105,8 +101,6 @@ export const GET_EMAIL_TEMPLATE_BY_SCENARIO = async (
       feedback: null,
       error: errorMessage,
     };
-  } finally {
-    await disconnectDB();
   }
 };
 
@@ -119,7 +113,7 @@ export const UPDATE_EMAIL_TEMPLATE = async (
   emailTemplate: IEmailTemplate
 ): Promise<ICallbackForEmailTemplate> => {
   try {
-    await connectDB();
+    await connectDBOnce();
     const email = (await EmailTemplate.findByIdAndUpdate(
       emailTemplate._id,
       emailTemplate,
@@ -142,7 +136,5 @@ export const UPDATE_EMAIL_TEMPLATE = async (
       feedback: null,
       error: errorMessage,
     };
-  } finally {
-    await disconnectDB();
   }
 };

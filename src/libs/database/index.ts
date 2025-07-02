@@ -1,4 +1,4 @@
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
+import { connectDB, disconnectDB, connectDBOnce } from "@/libs/database/setting.mongoose";
 import { Activity } from "@/libs/database/models/Activity.model";
 import { CustomerSession } from "@/libs/database/models/CustomerSession.model";
 import { EmailTemplate } from "@/libs/database/models/EmailTemplate.model";
@@ -10,6 +10,7 @@ import { User } from "@/libs/database/models/User.model";
 export {
   connectDB,
   disconnectDB,
+  connectDBOnce,
   Activity,
   CustomerSession,
   EmailTemplate,

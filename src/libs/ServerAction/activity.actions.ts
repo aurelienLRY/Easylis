@@ -4,7 +4,7 @@ import * as yup from "yup";
 import xss from "xss";
 
 /* Gestion Database */
-import { Activity, connectDB, disconnectDB } from "@/libs/database";
+import { Activity, connectDBOnce } from "@/libs/database";
 
 /* YUP schema */
 import { activitySchema } from "@/libs/yup";
@@ -71,7 +71,7 @@ export const CREATE_ACTIVITY = async (
     const yupActivity = (await validateActivity(activity)) as IActivity;
     const cleanActivity = (await xssActivity(yupActivity)) as IActivity;
     /* database */
-    await connectDB();
+    await connectDBOnce();
     const newActivity = new Activity(cleanActivity);
     await newActivity.save();
     /* feedback */
@@ -100,8 +100,6 @@ export const CREATE_ACTIVITY = async (
         data: null,
       };
     }
-  } finally {
-    disconnectDB();
   }
 };
 
@@ -111,7 +109,7 @@ export const CREATE_ACTIVITY = async (
  */
 export async function GET_ACTIVITIES(): Promise<ICallbackForActivities> {
   try {
-    await connectDB();
+    await connectDBOnce();
     const activities = (await Activity.find()) as IActivity[];
     return {
       success: true,
@@ -123,8 +121,6 @@ export async function GET_ACTIVITIES(): Promise<ICallbackForActivities> {
     const message = (error as Error).message;
     console.error("Erreur lors de la récupération des activités:", error);
     return { success: false, data: null, error: message, feedback: null };
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -137,7 +133,7 @@ export async function GET_ACTIVITY_BY_ID(
   id: string
 ): Promise<ICallbackForActivity> {
   try {
-    await connectDB();
+    await connectDBOnce();
     const activity = (await Activity.findById(id)) as IActivity | null;
     return {
       success: true,
@@ -149,8 +145,6 @@ export async function GET_ACTIVITY_BY_ID(
     const message = (error as Error).message;
     console.error("Erreur lors de la récupération de l'activité:", error);
     return { success: false, data: null, error: message, feedback: null };
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -171,7 +165,7 @@ export const UPDATE_ACTIVITY = async (
 
     console.log("cleanActivity", cleanActivity);
 
-    await connectDB();
+    await connectDBOnce();
     const updatedActivity = await Activity.findByIdAndUpdate(
       id,
       cleanActivity,
@@ -198,8 +192,6 @@ export const UPDATE_ACTIVITY = async (
       const message = (error as Error).message;
       return { success: false, data: null, error: message, feedback: null };
     }
-  } finally {
-    await disconnectDB();
   }
 };
 
@@ -212,7 +204,7 @@ export const DELETE_ACTIVITY = async (
   activityId: string
 ): Promise<ICallbackForActivity> => {
   try {
-    await connectDB();
+    await connectDBOnce();
     const sessionsWithDetails = await GET_SERVER_SESSIONS_WITH_DETAILS();
     const sessionsWithDetailsByActivity = sessionsWithDetails.filter(
       (session) => session.activity._id === activityId
@@ -239,7 +231,5 @@ export const DELETE_ACTIVITY = async (
     const message = (error as Error).message;
     console.error("Erreur lors de la suppression de l'activité:", error);
     return { success: false, error: message, data: null, feedback: null };
-  } finally {
-    await disconnectDB();
   }
 };

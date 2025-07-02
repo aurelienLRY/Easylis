@@ -3,7 +3,6 @@ import { oauth2Client } from "@/services";
 import { authOptions } from "@/app/api/auth/auth";
 import { UPDATE_USER, GET_USER_BY_ID } from "@/libs/ServerAction";
 import { getServerSession } from "next-auth";
-import { disconnectDB } from "@/libs/database/setting.mongoose";
 import { IUser } from "@/types";
 
 export async function GET(req: NextRequest) {
@@ -52,7 +51,5 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Erreur lors de l'échange des tokens :", error);
     return NextResponse.json({ error: "Erreur lors de l'autorisation" });
-  } finally {
-    await disconnectDB();
   }
 }

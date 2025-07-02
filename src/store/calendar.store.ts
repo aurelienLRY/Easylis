@@ -1,11 +1,13 @@
 "use client";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import { toast } from "sonner";
 
 /* services */
 import {
   fetcherCheckToken,
   fetcherRefreshToken,
+  fetcherSyncCalendar,
 } from "@/services/GoogleCalendar/ClientSide";
 
 /* store */
@@ -26,6 +28,7 @@ interface CalendarActions {
   refreshToken: () => Promise<boolean>;
   checkToken: () => Promise<boolean>;
   checkTokenValidity: () => Promise<void>;
+  syncCalendar: () => Promise<void>;
 }
 
 type CalendarStore = CalendarState & CalendarActions;
@@ -59,6 +62,24 @@ export const useCalendar = create<CalendarStore>()(
           false,
           "initialize"
         );
+      },
+
+      /**
+       * Synchronise le calendrier
+       */
+      syncCalendar: async () => {
+        const { profile } = await useProfile.getState();
+        if (!profile?.tokenCalendar) return;
+        set({ isLoading: true }, false, "syncCalendar");
+        const response = await fetcherSyncCalendar();
+        if (response.success && response.data) {
+          set({ isLoading: false }, false, "syncCalendar");
+          toast.success(response.feedback?.[0] || "Synchronisation réussie");
+        } else {
+          set({ isLoading: false }, false, "syncCalendar");
+          toast.error("Erreur lors de la synchronisation");
+          console.error(response.error);
+        }
       },
 
       /**
