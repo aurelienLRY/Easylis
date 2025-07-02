@@ -7,6 +7,8 @@ import { FaRegEye } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { FiRefreshCcw } from "react-icons/fi";
 import { BiCheck } from "react-icons/bi";
+import { MdCloudSync } from "react-icons/md";
+
 
 /**
  * Ce composant représente un bouton personnalisé avec une icône.
@@ -199,6 +201,34 @@ export const RefreshButton = ({
           <Spin size="small" className="text-slate-200" />
         ) : (
           <FiRefreshCcw className="group-hover:text-slate-200 transition-all duration-300" />
+        )}
+        {children}
+      </button>
+    </Tooltip>
+  );
+};
+
+
+export const SyncButton = ({
+  title,
+  onClick,
+  className,
+  children,
+  isLoading = false,
+}: {
+  title?: string;
+  onClick: () => void;
+  className?: string;
+  children?: React.ReactNode;
+  isLoading?: boolean;
+}) => {
+  return (
+    <Tooltip title={`${title ? title : "Synchroniser"}`}>
+      <button onClick={onClick} className={`text-2xl group ${className}`}>
+        {isLoading ? (
+          <Spin size="small" className="text-slate-200" />
+        ) : (
+          <MdCloudSync className="group-hover:text-slate-200 transition-all duration-300" />
         )}
         {children}
       </button>

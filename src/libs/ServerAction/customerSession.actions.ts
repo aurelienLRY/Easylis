@@ -4,7 +4,7 @@ import * as yup from "yup";
 import xss from "xss";
 
 /* gestion Database */
-import { connectDB, disconnectDB, CustomerSession, Session } from "@/libs/database";
+import { connectDBOnce, CustomerSession, Session } from "@/libs/database";
 
 /* YUP schema */
 import { customerSessionSchema } from "@/libs/yup";
@@ -81,7 +81,7 @@ export async function CREATE_CUSTOMER_SESSION(
       YupValidation
     )) as ICustomerSession;
 
-    await connectDB();
+    await connectDBOnce();
 
     const UpdateSession = (await Session.findByIdAndUpdate(
       xssCustomer.sessionId,
@@ -131,8 +131,6 @@ export async function CREATE_CUSTOMER_SESSION(
         data: null,
       };
     }
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -142,7 +140,7 @@ export async function CREATE_CUSTOMER_SESSION(
  */
 export async function GET_CUSTOMER_SESSIONS(): Promise<ICallbackForCustomerSessions> {
   try {
-    await connectDB();
+    await connectDBOnce();
     const sessions = (await CustomerSession.find()) as ICustomerSession[];
     return {
       success: true,
@@ -157,8 +155,6 @@ export async function GET_CUSTOMER_SESSIONS(): Promise<ICallbackForCustomerSessi
     );
     const message = (error as Error).message;
     return { success: false, data: null, error: message, feedback: null };
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -172,7 +168,7 @@ export async function GET_CUSTOMER_SESSION_BY_ID(
   id: string
 ): Promise<ICallbackForCustomerSession> {
   try {
-    await connectDB();
+    await connectDBOnce();
     const thisCustomerSession = (await CustomerSession.findById(
       id
     )) as ICustomerSession;
@@ -192,8 +188,6 @@ export async function GET_CUSTOMER_SESSION_BY_ID(
     );
     const message = (error as Error).message;
     return { success: false, data: null, error: message, feedback: null };
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -216,7 +210,7 @@ export const UPDATE_CUSTOMER_SESSION = async (
       YupValidation
     )) as ICustomerSession;
 
-    await connectDB();
+    await connectDBOnce();
     const oldCustomer = (await CustomerSession.findById(
       customerId
     )) as ICustomerSession;
@@ -302,8 +296,6 @@ export const UPDATE_CUSTOMER_SESSION = async (
         data: null,
       };
     }
-  } finally {
-    await disconnectDB();
   }
 };
 
@@ -317,7 +309,7 @@ export const CANCEL_CUSTOMER_SESSION = async (
   customerSessionId: string
 ): Promise<ICallbackForSessionWithDetails> => {
   try {
-    await connectDB();
+    await connectDBOnce();
     const customerSession = (await CustomerSession.findById(
       customerSessionId
     )) as ICustomerSession;
@@ -383,8 +375,6 @@ export const CANCEL_CUSTOMER_SESSION = async (
       data: null,
       feedback: ["Erreur lors de l'annulation de la customer session"],
     };
-  } finally {
-    await disconnectDB();
   }
 };
 
@@ -392,7 +382,7 @@ export const DELETE_CUSTOMER_SESSION = async (
   customerSessionId: string
 ): Promise<ICallbackForCustomerSession> => {
   try {
-    await connectDB();
+    await connectDBOnce();
     const result = await CustomerSession.findByIdAndDelete(customerSessionId);
     if (!result) {
       throw new Error("Erreur lors de la suppression de la réservation");

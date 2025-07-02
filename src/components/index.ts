@@ -8,9 +8,11 @@ export {
   PrimaryButton,
   RefreshButton,
   SecondaryButton,
+  SyncButton,
 } from "@/components/buttons/Buttons";
 export { HeaderBtn } from "@/components/buttons/NaviationAvatar.button";
 export { ThemeToggle } from "@/components/buttons/ThemeToggle.button";
+
 
 // Cards
 export { ActivityCard } from "@/components/cards/Activity.Card";

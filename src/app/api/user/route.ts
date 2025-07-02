@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { User } from "@/libs/database";
 import { userSchema } from "@/libs/yup";
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
+import { connectDBOnce } from "@/libs/database/setting.mongoose";
 import bcrypt from "bcryptjs";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/auth";
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
     await userSchema.validate({ email, password, username, lastName });
 
-    await connectDB();
+    await connectDBOnce();
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
       email: email,
@@ -63,8 +63,6 @@ export async function POST(req: Request) {
       return handleError(error.message, 400);
     }
     return handleError("Internal Server Error", 500);
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -112,7 +110,7 @@ export const PUT = async (req: Request): Promise<NextResponse> => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await connectDB();
+    await connectDBOnce();
 
     const user = await User.findByIdAndUpdate(
       session.user._id,
@@ -150,7 +148,5 @@ export const PUT = async (req: Request): Promise<NextResponse> => {
       error.message,
       500
     );
-  } finally {
-    await disconnectDB();
   }
 };

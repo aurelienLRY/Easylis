@@ -3,7 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { Tooltip } from "antd";
 
 /* fullcalendar */
 import FullCalendar from "@fullcalendar/react";
@@ -18,6 +17,7 @@ import {
   SecondaryButton,
   LoadingSpinner,
   RefreshButton,
+  SyncButton,
 } from "@/components";
 
 /* stores */
@@ -83,7 +83,7 @@ const ConnectToCalendar = () => {
 
 function Calendar() {
   const { profile } = useProfile();
-  const { checkTokenValidity } = useCalendar();
+  const { checkTokenValidity, syncCalendar  } = useCalendar();
   if (!profile) return null;
 
   // Définir les configurations du header en fonction de la taille d'écran
@@ -123,8 +123,14 @@ function Calendar() {
           stickyHeaderDates={true}
         />
       </div>
-      <div className=" w-full flex justify-end items-center px-2 text-slate-400">
-        <RefreshButton
+      <div className=" w-full flex gap-4 justify-end items-center px-2 text-slate-400">
+  
+        <SyncButton
+          className=" text-3xl"
+          onClick={syncCalendar}
+          title="Mettre à jour les événements"
+        />     
+         <RefreshButton
           onClick={checkTokenValidity}
           title="Rafraîchir le calendrier"
         />

@@ -13,7 +13,7 @@ import {
   ICallbackForSessionWithDetailsArray,
 } from "@/types";
 /* Gestion Database */
-import { connectDB, disconnectDB, Session } from "@/libs/database";
+import { connectDBOnce, Session } from "@/libs/database";
 
 /*  actions */
 import {
@@ -80,7 +80,7 @@ export async function CREATE_SESSION(
     const xssData = await xssSession(YupValidation as ISession);
 
     /* connect to database */
-    await connectDB();
+    await connectDBOnce();
 
     /* create session */
     const newSession = new Session(xssData);
@@ -115,8 +115,6 @@ export async function CREATE_SESSION(
         data: null,
       };
     }
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -126,7 +124,7 @@ export async function CREATE_SESSION(
  */
 export async function GET_SESSIONS(): Promise<ICallbackForSessions> {
   try {
-    await connectDB();
+    await connectDBOnce();
     const sessions = (await Session.find()) as ISession[];
     if (sessions.length === 0) {
       return {
@@ -151,8 +149,6 @@ export async function GET_SESSIONS(): Promise<ICallbackForSessions> {
       error: message,
       feedback: ["Erreur lors de la récupération des sessions"],
     };
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -165,7 +161,7 @@ export async function GET_SESSION_BY_ID(
   id: string
 ): Promise<ICallbackForSession> {
   try {
-    await connectDB();
+    await connectDBOnce();
     const session = (await Session.findById(id)) as ISession | null;
     if (!session) {
       return {
@@ -190,8 +186,6 @@ export async function GET_SESSION_BY_ID(
       error: message,
       feedback: ["Erreur lors de la récupération de la session"],
     };
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -201,7 +195,7 @@ export async function GET_SESSION_BY_ID(
  */
 export async function GET_SESSIONS_WITH_DETAILS(): Promise<ICallbackForSessionWithDetailsArray> {
   try {
-    await connectDB();
+    await connectDBOnce();
 
     const sessionsWithDetails = await GET_SERVER_SESSIONS_WITH_DETAILS();
     return {
@@ -222,8 +216,6 @@ export async function GET_SESSIONS_WITH_DETAILS(): Promise<ICallbackForSessionWi
       error: message,
       feedback: null,
     };
-  } finally {
-    await disconnectDB();
   }
 }
 
@@ -256,7 +248,7 @@ export const UPDATE_SESSION = async (
       duration: xssData.duration,
     };
 
-    await connectDB();
+    await connectDBOnce();
     const updatedSession = await Session.findByIdAndUpdate(
       sessionId,
       updateData,
@@ -292,8 +284,6 @@ export const UPDATE_SESSION = async (
         data: null,
       };
     }
-  } finally {
-    await disconnectDB();
   }
 };
 
@@ -306,7 +296,7 @@ export const DELETE_SESSION = async (
   sessionId: string
 ): Promise<ICallbackForSession> => {
   try {
-    await connectDB();
+    await connectDBOnce();
     const session = (await Session.findById(sessionId)) as ISession;
     if (!session) {
       throw new Error("Session not found");
@@ -327,7 +317,5 @@ export const DELETE_SESSION = async (
     console.log("Erreur lors de la suppression de la session:", error);
     const message = (error as Error).message;
     return { success: false, error: message, data: null, feedback: null };
-  } finally {
-    await disconnectDB();
   }
 };

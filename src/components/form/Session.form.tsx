@@ -201,10 +201,10 @@ export function SessionForm({
     }
   }, [watchFormule, isUpdate, data, activities, watchActivity, methods]);
 
-  const onSubmit = async (data: TSessionForm) => {
+  const onSubmit = async (newData: TSessionForm) => {
     const result = isUpdate
-      ? await UPDATE_SESSION(data!._id as string, data as ISession)
-      : await CREATE_SESSION(data as ISession);
+      ? await UPDATE_SESSION(data!._id as string, newData as ISession)
+      : await CREATE_SESSION(newData as ISession);
 
     if (result.success) {
       if (result.data) {
@@ -213,9 +213,18 @@ export function SessionForm({
         const sessionId = result.data._id;
         const refreshToken = profile?.tokenRefreshCalendar;
         if (refreshToken && sessionId) {
-          isUpdate
-            ? await fetcherUpdateEvent(refreshToken, event, sessionId)
-            : await fetcherAddEvent(refreshToken, event, sessionId);
+          if (result.data.status === "Actif") {
+            if (isUpdate && data.status === "Pending") {
+              console.log("add event before update pending");
+              await fetcherAddEvent(refreshToken, event, sessionId);
+            } else if (isUpdate && data.status === "Actif") {
+              console.log("update event before update actif");
+              await fetcherUpdateEvent(refreshToken, event, sessionId);
+            } else {
+              console.log("add event before create");
+              await fetcherAddEvent(refreshToken, event, sessionId);
+            }
+          }
         } else {
           toast.error(
             "Votre calendrier n'est pas connecté, l'évènement n'a pas été mis à jour dans votre calendrier"
@@ -247,6 +256,9 @@ export function SessionForm({
         ? "Session modifiée avec succès"
         : "Session créée avec succès",
     });
+    if(result.success){
+      handleOnClose();
+    }
   };
 
   const handleOnClose = () => {
@@ -336,7 +348,7 @@ export function SessionForm({
           </div>
           {isUpdate && (
             <div className="flex flex-col items-center gap-1 p-2 rounded-md border-2 border-sky-500 w-full">
-              <p className={` text-sky-500 text-xl font-bold ${data?.status === "Pending" &&  "animate-pulse"}`}>Statut</p>
+              <p className={` text-sky-500 text-xl font-bold ${data?.status === "Pending" && "animate-pulse"}`}>Statut</p>
               <SelectInput
                 name="status"
                 options={[
@@ -387,11 +399,11 @@ const MailerForUpdate = async (
 ): Promise<boolean> => {
   if (!isUpdate || oldSession.customerSessions.length === 0) return false;
 
-  const hasImportantChanges = 
+  const hasImportantChanges =
     oldSession.date !== newSession.date ||
     oldSession.startTime !== newSession.startTime ||
     oldSession.spot._id !== newSession.spot._id;
-    
+
 
   if (hasImportantChanges) {
     const wantToSendEmail = window.confirm(

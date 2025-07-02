@@ -20,7 +20,7 @@ import {
   DELETE_EVENT,
   GET_EVENT_BY_SESSION_ID,
 } from "@/libs/ServerAction";
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
+import { connectDBOnce } from "@/libs/database/setting.mongoose";
 
 /**
  * Gestionnaire d'erreurs centralisé
@@ -199,7 +199,7 @@ export async function DELETE(
   req: NextRequest
 ): Promise<NextResponse<ICallback>> {
   try {
-    await connectDB();
+    await connectDBOnce();
     const { refreshToken, sessionId } = await req.json();
 
     if (
@@ -240,7 +240,5 @@ export async function DELETE(
     throw new Error("Impossible de supprimer l'événement de Google Calendar");
   } catch (error: any) {
     return handleError(error, "Impossible de supprimer l'événement");
-  } finally {
-    await disconnectDB();
   }
 }
