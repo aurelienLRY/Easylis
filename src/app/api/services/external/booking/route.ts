@@ -8,9 +8,9 @@ import { Session, CustomerSession, User } from "@/libs/database";
 // Types
 import { IActivity, ISession, ISpot, ICustomerSession } from "@/types";
 // NodeMailer
-import { emailScenarios, generateEmail } from "@/libs/nodeMailer/TemplateV2";
+import { emailScenarios, generateEmail } from "@/services/Mailer/clientSide";
 import { GET_SERVER_SESSION_WITH_DETAILS } from "@/libs/ServerAction";
-import { nodeMailerSenderAPI } from "@/libs/nodeMailer/senderAPI";
+import { nodeMailerSenderAPI } from "@/services/Mailer/serverSide";
 
 
 export async function POST(req: NextRequest) {

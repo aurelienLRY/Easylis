@@ -84,6 +84,7 @@ export const DashboardNav = () => {
           label="Réservations"
           count={customerWaitingCount}
         />
+        <NavLink href="/dashboard/client" label="Mes clients" />
       </div>
       <div className="flex relative">
         <NavLink href="/dashboard/spot" label="Lieux" />

@@ -34,7 +34,7 @@ import { formatDate } from "@/utils/date.utils";
 import { generateEvent } from "@/services/GoogleCalendar/ClientSide/generateEvent";
 import { ISession, ISessionWithDetails, IActivity, IUser } from "@/types";
 import { useMailer, MailerStore } from "@/hooks/useMailer";
-import { EMAIL_SCENARIOS } from "@/libs/nodeMailer/TemplateV2/constants";
+import { EMAIL_SCENARIOS } from "@/services/Mailer";
 
 export type TSessionForm = {
   _id?: string;
