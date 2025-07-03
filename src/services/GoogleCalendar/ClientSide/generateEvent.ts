@@ -9,7 +9,7 @@ export const generateEvent = (session: ISessionWithDetails): ICalendarEvent => {
     `${session.activity.name} - ${session.spot.name}` || "Réservation activité";
 
   const eventStartDateTime = new Date(
-    formatDateTime(session.date, session.startTime)
+    formatDateTime(session.date, session.startTime, timeZone)
   );
   const reminderDateTime = new Date(eventStartDateTime);
   reminderDateTime.setDate(reminderDateTime.getDate() - 1); // Un jour avant
@@ -25,11 +25,11 @@ export const generateEvent = (session: ISessionWithDetails): ICalendarEvent => {
     summary: summary,
     description: ThisDescription(session),
     start: {
-      dateTime: formatDateTime(session.date, session.startTime),
+      dateTime: formatDateTime(session.date, session.startTime, timeZone),
       timeZone: timeZone,
     },
     end: {
-      dateTime: formatDateTime(session.date, session.endTime),
+      dateTime: formatDateTime(session.date, session.endTime, timeZone),
       timeZone: timeZone,
     },
     location: location,

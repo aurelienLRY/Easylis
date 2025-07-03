@@ -1,6 +1,8 @@
 "use client";
-import { generateEvent } from "@/services/GoogleCalendar/ClientSide/generateEvent";
-import { fetcherUpdateEvent } from "@/services/GoogleCalendar/ClientSide/fetcherUpdateEvent";
+
+import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
+
+
 import { useProfile, useSessionWithDetails } from "@/store";
 import { ICustomerSession } from "@/types";
 import { useState } from "react";
@@ -24,6 +26,7 @@ import { useMailer } from "@/hooks/useMailer";
  * @returns
  */
 export const useCustomer = () => {
+  const {  updateEvent, generateEventFromSession , addEvent , checkEventExists } = useGoogleCalendar();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { profile } = useProfile();
   const mailer = useMailer();
@@ -44,8 +47,13 @@ export const useCustomer = () => {
         updateSessionWithDetails(act.data);
         const refreshToken = profile?.tokenRefreshCalendar;
         if (refreshToken) {
-          const event = generateEvent(act.data);
-          await fetcherUpdateEvent(refreshToken, event, act.data._id );
+          const event = generateEventFromSession(act.data);
+          const checkEvent = await checkEventExists(act.data._id, refreshToken);
+          if (checkEvent.success) {
+            await updateEvent(refreshToken, event, act.data._id );
+          }else{
+            await addEvent(refreshToken, event, act.data._id);
+          }
         } else {
           toast.error(
             "Votre calendrier n'est pas connecté, l'évènement n'a pas été mis à jour dans votre calendrier"
@@ -81,8 +89,13 @@ export const useCustomer = () => {
       updateSessionWithDetails(act.data);
       const refreshToken = profile?.tokenRefreshCalendar;
       if (refreshToken) {
-        const event = generateEvent(act.data);
-        await fetcherUpdateEvent(refreshToken, event, act.data._id);
+        const event = generateEventFromSession(act.data);
+        const checkEvent = await checkEventExists(act.data._id, refreshToken);
+        if (checkEvent.success) {
+          await updateEvent(refreshToken, event, act.data._id);
+        }else{
+          await addEvent(refreshToken, event, act.data._id);
+        }
       } else {
         toast.error(
           "Votre calendrier n'est pas connecté, l'évènement n'a pas été mis à jour dans votre calendrier"
@@ -117,8 +130,13 @@ export const useCustomer = () => {
       updateSessionWithDetails(act.data);
       const refreshToken = profile?.tokenRefreshCalendar;
       if (refreshToken) {
-        const event = generateEvent(act.data);
-        await fetcherUpdateEvent(refreshToken, event, act.data._id);
+        const event = generateEventFromSession(act.data);
+        const checkEvent = await checkEventExists(act.data._id, refreshToken);
+        if (checkEvent.success) {
+          await updateEvent(refreshToken, event, act.data._id);
+        }else{
+          await addEvent(refreshToken, event, act.data._id);
+        }
       } else {
         toast.error(
           "Votre calendrier n'est pas connecté, l'évènement n'a pas été mis à jour dans votre calendrier"
@@ -151,8 +169,13 @@ export const useCustomer = () => {
       updateSessionWithDetails(act.data);
       const refreshToken = profile?.tokenRefreshCalendar;
       if (refreshToken) {
-        const event = generateEvent(act.data);
-        await fetcherUpdateEvent(refreshToken, event, act.data._id);
+        const event = generateEventFromSession(act.data);
+        const checkEvent = await checkEventExists(act.data._id, refreshToken);
+        if (checkEvent.success) {
+          await updateEvent(refreshToken, event, act.data._id);
+        }else{
+          await addEvent(refreshToken, event, act.data._id);
+        }
       } else {
         toast.error(
           "Votre calendrier n'est pas connecté, l'évènement n'a pas été mis à jour dans votre calendrier"
