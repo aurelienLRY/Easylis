@@ -1,10 +1,10 @@
-import { EMAIL_SCENARIOS } from "@/libs/nodeMailer/TemplateV2/constants";
-import { addCustomerTemplate } from "@/libs/nodeMailer/TemplateV2/scenarios/addCustomer.template";
-import { updateCustomerTemplate } from "@/libs/nodeMailer/TemplateV2/scenarios/updateCustomer.template";
-import { cancelCustomerTemplate } from "@/libs/nodeMailer/TemplateV2/scenarios/cancelCustomer.template";
-import { updateSessionTemplate } from "@/libs/nodeMailer/TemplateV2/scenarios/updateSession.template";
-import { bookingRequestTemplate } from "@/libs/nodeMailer/TemplateV2/scenarios/bookingRequest.template";
-import { IEmailScenario } from "@/libs/nodeMailer/TemplateV2/types";
+import { EMAIL_SCENARIOS } from "../constants";
+import { addCustomerTemplate } from "./addCustomer.template";
+import { updateCustomerTemplate } from "./updateCustomer.template";
+import { cancelCustomerTemplate } from "./cancelCustomer.template";
+import { updateSessionTemplate } from "./updateSession.template";
+import { bookingRequestTemplate } from "./bookingRequest.template";
+import { IEmailScenario } from "../types";
 
 /**
  * Scénarios d'emails disponibles avec leurs configurations
@@ -42,6 +42,7 @@ export const emailScenarios: Record<string, IEmailScenario> = {
  */
 export {
   addCustomerTemplate,
+  updateCustomerTemplate,
   cancelCustomerTemplate,
   updateSessionTemplate,
   bookingRequestTemplate,

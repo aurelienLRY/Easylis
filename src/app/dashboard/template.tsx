@@ -116,8 +116,8 @@ export const getPathname = (pathname: string) => {
       return "Lieux";
     case "/dashboard/activity":
       return "Activités";
-    case "/dashboard/email":
-      return "Email";
+    case "/dashboard/emails":
+      return "Historique des emails";
     case "/dashboard/account":
       return "Mon compte";
     case "/dashboard/setting":

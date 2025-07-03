@@ -8,9 +8,9 @@ import { Session, CustomerSession, User } from "@/libs/database";
 // Types
 import { IActivity, ISession, ISpot, ICustomerSession } from "@/types";
 // NodeMailer
-import { emailScenarios, generateEmail } from "@/libs/nodeMailer/TemplateV2";
+import { emailScenarios, generateEmail } from "@/services/Mailer/clientSide";
 import { GET_SERVER_SESSION_WITH_DETAILS } from "@/libs/ServerAction";
-import { nodeMailerSenderAPI } from "@/libs/nodeMailer/senderAPI";
+import { nodeMailerSenderAPI } from "@/services/Mailer/serverSide";
 
 
 export async function POST(req: NextRequest) {
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
 }
 
    // Création du client
-  await CustomerSession.create(preCustomer);
+  const newCustomer = await CustomerSession.create(preCustomer);
    // Mise à jour de la session
    await Session.findByIdAndUpdate(newSession._id, { $inc: { placesReserved: BookingVerified.customer.number_of_people } }, { new: true });
 
@@ -79,20 +79,56 @@ export async function POST(req: NextRequest) {
    const users = await User.find();
    const user = users[1]; // Récupère le second utilisateur (index 1)
 
-   // Envoi de l'email de confirmation
-   const PreEmail = generateEmail(emailScenarios.BOOKING_REQUEST, {
-     customer: preCustomer,
-      session: sessionWithDetails, 
-      profile_from: user });
+   // Envoi de l'email de confirmation avec gestion d'erreur
+   try {
+     const PreEmail = generateEmail(emailScenarios.BOOKING_REQUEST, {
+       customer: preCustomer,
+       session: sessionWithDetails, 
+       profile_from: user 
+     });
      
-   
-        await nodeMailerSenderAPI(preCustomer.email, emailScenarios.BOOKING_REQUEST.subject, PreEmail);
-    
+     const emailSent = await nodeMailerSenderAPI(
+       preCustomer.email, 
+       emailScenarios.BOOKING_REQUEST.subject, 
+       PreEmail,
+       {},
+       "BOOKING_REQUEST",
+       newCustomer._id as string,
+       newSession._id as string
+     );
 
- 
-    return NextResponse.json({ message: "Booking request received" }, { status: 200 });
+     if (!emailSent) {
+       console.error("❌ Échec d'envoi de l'email de confirmation pour la réservation:", {
+         customerId: newCustomer._id,
+         sessionId: newSession._id,
+         email: preCustomer.email
+       });
+       // Ne pas faire échouer la réservation si l'email échoue
+     } else {
+       console.log("✅ Email de confirmation envoyé avec succès:", {
+         customerId: newCustomer._id,
+         sessionId: newSession._id,
+         email: preCustomer.email,
+         scenario: "BOOKING_REQUEST"
+       });
+     }
+   } catch (emailError) {
+     console.error("❌ Erreur lors de l'envoi de l'email de confirmation:", {
+       error: emailError,
+       customerId: newCustomer._id,
+       sessionId: newSession._id,
+       email: preCustomer.email
+     });
+     // Ne pas faire échouer la réservation si l'email échoue
+   }
+
+   return NextResponse.json({ 
+     message: "Booking request received",
+     sessionId: newSession._id,
+     customerId: newCustomer._id
+   }, { status: 200 });
   } catch (error) {
-    console.log(error);
+    console.error("❌ Erreur lors du traitement de la réservation:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -2,8 +2,8 @@ import { ICustomerSession, ISessionWithDetails } from "@/types";
 import {
   IEmailTemplateData,
   ITemplateData,
-} from "@/libs/nodeMailer/TemplateV2/types";
-import { formatDate } from "@/libs/nodeMailer/TemplateV2/utils";
+} from "../types";
+import { formatDate } from "../utils";
 
 export const updateCustomerTemplate = (
   data: ITemplateData
@@ -14,7 +14,8 @@ export const updateCustomerTemplate = (
       ? session.spot.meetingPoint.half_day
       : session.spot.meetingPoint.full_day;
   
-  
+  const required_equipment = session.activity.required_equipment === null ? "" : (`<p style="font-weight: bold;">Ce qu’il vous faut prévoir pour profiter pleinement de la sortie:</p>
+        ${session.activity.required_equipment }`);  
       return {
     title: `Votre réservation pour le ${formatDate(
       session.date
@@ -31,8 +32,8 @@ export const updateCustomerTemplate = (
       <li>Prix total : ${customer.price_total}€</li>
     </ul>
     <p> Le règlement est à effectuer sur place, exclusivement en espèces ou par chèque.  </p>
-    <p style="font-weight: bold; text-align: center; font-size: 1.2rem;"> Équipement nécessaire :</p>
-    ${session.activity.required_equipment}
+
+    ${required_equipment}
   
     `,
     buttonText: "Voir l'itinéraire",

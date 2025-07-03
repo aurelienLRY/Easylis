@@ -31,7 +31,6 @@ import { useMailer } from "@/hooks/useMailer";
 /*icons */
 import { IoMdPersonAdd } from "react-icons/io";
 import { FaUser } from "react-icons/fa";
-import { elementClosest } from "@fullcalendar/core/internal";
 
 /* Validation */
 const baseSchema = yup.object().shape({

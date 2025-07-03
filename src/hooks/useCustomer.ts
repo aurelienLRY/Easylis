@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { ToasterAction } from "@/components";
 
 /* template email */
-import { EMAIL_SCENARIOS } from "@/libs/nodeMailer/TemplateV2/constants";
+import { EMAIL_SCENARIOS } from "@/services/Mailer";
 
 /* hooks */
 import { useMailer } from "@/hooks/useMailer";
