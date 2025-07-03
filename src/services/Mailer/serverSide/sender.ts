@@ -2,6 +2,7 @@
 import nodemailer from "nodemailer";
 import { IEmailSendResult, IMailerConfig, EmailErrorType } from "../clientSide/types";
 import { analyzeEmailError } from "../clientSide/errorHandler";
+import { CREATE_EMAIL_LOG } from "@/libs/ServerAction/emailLog.actions";
 
 /**
  * Configuration par défaut du mailer
@@ -32,7 +33,6 @@ const createTransporter = () => {
     },
     {
       from: process.env.SMTP_EMAIL,
-      cc: "leroyaurelien11@gmail.com",
     }
   );
 };
@@ -59,7 +59,10 @@ export const nodeMailerSender = async (
   email: string,
   subject: string,
   html: string,
-  config: Partial<IMailerConfig> = {}
+  config: Partial<IMailerConfig> = {},
+  scenario: string = "CUSTOM",
+  customerId?: string,
+  sessionId?: string
 ): Promise<IEmailSendResult> => {
   const finalConfig = { ...defaultConfig, ...config };
   const timestamp = new Date();
@@ -127,7 +130,7 @@ export const nodeMailerSender = async (
         });
       }
 
-      return {
+      const result = {
         success: true,
         messageId: info.messageId,
         recipient: email,
@@ -135,6 +138,26 @@ export const nodeMailerSender = async (
         timestamp,
         retryCount
       };
+
+      // Log de l'email envoyé
+      try {
+        await CREATE_EMAIL_LOG(
+          {
+            recipient: email,
+            subject,
+            content: html,
+            scenario,
+            customerId,
+            sessionId,
+          },
+          result
+        );
+      } catch (logError) {
+        console.error("Erreur lors du logging de l'email:", logError);
+        // Ne pas faire échouer l'envoi si le logging échoue
+      }
+
+      return result;
 
     } catch (error: any) {
       retryCount++;
@@ -151,7 +174,7 @@ export const nodeMailerSender = async (
 
       // Si c'est la dernière tentative ou si l'erreur n'est pas retentable
       if (retryCount > finalConfig.maxRetries || !emailError.retryable) {
-        return {
+        const result = {
           success: false,
           recipient: email,
           subject,
@@ -159,6 +182,25 @@ export const nodeMailerSender = async (
           error: emailError,
           retryCount
         };
+
+        // Log de l'échec d'envoi
+        try {
+          await CREATE_EMAIL_LOG(
+            {
+              recipient: email,
+              subject,
+              content: html,
+              scenario,
+              customerId,
+              sessionId,
+            },
+            result
+          );
+        } catch (logError) {
+          console.error("Erreur lors du logging de l'échec d'email:", logError);
+        }
+
+        return result;
       }
 
       // Attendre avant de retenter

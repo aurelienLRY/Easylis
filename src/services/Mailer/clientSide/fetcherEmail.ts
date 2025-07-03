@@ -12,7 +12,10 @@ export class EmailClientService {
   static async sendEmail(
     to: string, 
     subject: string, 
-    content: string
+    content: string,
+    scenario?: string,
+    customerId?: string,
+    sessionId?: string
   ): Promise<IEmailSendResult> {
     try {
       const response = await fetch(this.API_URL, {
@@ -23,7 +26,10 @@ export class EmailClientService {
         body: JSON.stringify({
           to,
           subject,
-          content
+          content,
+          scenario,
+          customerId,
+          sessionId
         })
       });
 

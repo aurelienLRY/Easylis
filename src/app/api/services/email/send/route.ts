@@ -5,7 +5,7 @@ import { IEmailSendResult } from '@/services/Mailer/clientSide/types';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { to, subject, content } = body;
+    const { to, subject, content, scenario, customerId, sessionId } = body;
 
     // Validation des données
     if (!to || !subject || !content) {
@@ -31,7 +31,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Envoi de l'email via nodemailer (côté serveur)
-    const result: IEmailSendResult = await nodeMailerSender(to, subject, content);
+    const result: IEmailSendResult = await nodeMailerSender(
+      to, 
+      subject, 
+      content, 
+      {}, 
+      scenario || "CUSTOM", 
+      customerId, 
+      sessionId
+    );
 
     if (result.success) {
       return NextResponse.json({

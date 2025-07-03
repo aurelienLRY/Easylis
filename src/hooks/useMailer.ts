@@ -25,6 +25,9 @@ export type MailerStore = {
   emailData: {
     to: string;
     subject: string;
+    scenario?: string;
+    customerId?: string;
+    sessionId?: string;
   } | null;
   lastSendResult: IEmailSendResult | null;
 
@@ -80,6 +83,9 @@ export const useMailer = create<MailerStore>((set, get) => ({
       emailData: {
         to: data.customer.email,
         subject: emailScenario.subject,
+        scenario: scenario,
+        customerId: (data.customer as any)._id,
+        sessionId: (data.session as any)._id,
       },
       lastSendResult: null,
     });
@@ -95,7 +101,10 @@ export const useMailer = create<MailerStore>((set, get) => ({
       const result: IEmailSendResult = await EmailClientService.sendEmail(
         emailData.to,
         emailData.subject,
-        currentEmailContent
+        currentEmailContent,
+        emailData.scenario,
+        emailData.customerId,
+        emailData.sessionId
       );
 
       // Stocker le résultat
