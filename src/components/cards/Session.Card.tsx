@@ -253,10 +253,12 @@ export const SessionCard = ({
           ...sessionWithDetails,
           status: SESSION_STATUS.ARCHIVED,
         });
-        const checkEvent = await checkEventExists(sessionWithDetails._id as string, profile?.tokenRefreshCalendar as string);
-        if (checkEvent.success) {
-          await deleteEvent(profile?.tokenRefreshCalendar as string, sessionWithDetails._id as string);
-        }
+         await checkEventExists(sessionWithDetails._id as string, profile?.tokenRefreshCalendar as string).then((res) => {
+          if (res.success) {
+            deleteEvent(profile?.tokenRefreshCalendar as string, sessionWithDetails._id as string);
+          }
+        });
+       
         toast.success("Session archivée avec succès");
       } else if (result.feedback) {
         toast.error(result.feedback);

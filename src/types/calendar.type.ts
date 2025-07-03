@@ -27,8 +27,8 @@ export interface ICalendarEvent {
   id?: string;
   summary: string;
   description: string;
-  start: { dateTime: string; timeZone: string };
-  end: { dateTime: string; timeZone: string };
+  start: { dateTime: string | Date; timeZone: string };
+  end: { dateTime: string | Date; timeZone: string };
   reminders?: {
     useDefault: boolean;
     overrides: { method: string; minutes: number }[];
