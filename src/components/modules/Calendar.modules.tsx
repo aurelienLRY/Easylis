@@ -83,7 +83,7 @@ const ConnectToCalendar = () => {
 
 function Calendar() {
   const { profile } = useProfile();
-  const { checkTokenValidity, syncCalendar  } = useCalendar();
+  const {  syncCalendar  } = useCalendar();
   if (!profile) return null;
 
   // Définir les configurations du header en fonction de la taille d'écran
@@ -123,17 +123,14 @@ function Calendar() {
           stickyHeaderDates={true}
         />
       </div>
-      <div className=" w-full flex gap-4 justify-end items-center px-2 text-slate-400">
+      <div className=" w-full flex gap-4 justify-end items-center px-6 text-slate-400">
   
         <SyncButton
           className=" text-3xl"
           onClick={syncCalendar}
           title="Mettre à jour les événements"
         />     
-         <RefreshButton
-          onClick={checkTokenValidity}
-          title="Rafraîchir le calendrier"
-        />
+ 
       </div>
     </div>
   );
