@@ -9,6 +9,7 @@ import {
   fetcherRefreshToken,
   fetcherSyncCalendar,
 } from "@/services/GoogleCalendar/ClientSide";
+import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
 
 /* store */
 import { useProfile } from "@/store";
@@ -46,7 +47,7 @@ export const useCalendar = create<CalendarStore>()(
       expiryDate: 0,
       lastCheck: 0,
       isLoading: false,
-
+      
       /**
        * Initialise le store et vérifie la validité du token
        */

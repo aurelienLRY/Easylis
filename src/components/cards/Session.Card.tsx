@@ -23,7 +23,11 @@ import {
 import { ISessionWithDetails } from "@/types";
 import { RiCalendarCloseFill } from "react-icons/ri";
 import { IoMdPersonAdd } from "react-icons/io";
-import { fetcherDeleteEvent } from "@/services/GoogleCalendar/ClientSide";
+
+
+// Hooks
+import { useGoogleCalendar } from "@/hooks";
+
 
 // Types
 type SessionStatus = {
@@ -181,6 +185,7 @@ export const SessionCard = ({
   const { updateSessionWithDetails, deleteSessionWithDetails } =
     useSessionWithDetails();
   const { profile } = useProfile();
+  const { deleteEvent , checkEventExists } = useGoogleCalendar();
 
   const sessionStatus = useMemo<SessionStatus>(
     () => ({
@@ -208,10 +213,10 @@ export const SessionCard = ({
       const result = await DELETE_SESSION(sessionId);
       if (result.success) {
         deleteSessionWithDetails(sessionWithDetails);
-        await fetcherDeleteEvent(
-          profile?.tokenRefreshCalendar as string,
-          sessionWithDetails._id as string
-        );
+        const checkEvent = await checkEventExists(sessionWithDetails._id as string, profile?.tokenRefreshCalendar as string);
+        if (checkEvent.success) {
+          await deleteEvent(profile?.tokenRefreshCalendar as string, sessionWithDetails._id as string);
+        }
       }
       ToasterAction({
         result,
@@ -223,6 +228,8 @@ export const SessionCard = ({
       sessionWithDetails,
       profile?.tokenRefreshCalendar,
       deleteSessionWithDetails,
+      deleteEvent,
+      checkEventExists,
     ]
 
   );
@@ -246,6 +253,10 @@ export const SessionCard = ({
           ...sessionWithDetails,
           status: SESSION_STATUS.ARCHIVED,
         });
+        const checkEvent = await checkEventExists(sessionWithDetails._id as string, profile?.tokenRefreshCalendar as string);
+        if (checkEvent.success) {
+          await deleteEvent(profile?.tokenRefreshCalendar as string, sessionWithDetails._id as string);
+        }
         toast.success("Session archivée avec succès");
       } else if (result.feedback) {
         toast.error(result.feedback);
@@ -258,6 +269,9 @@ export const SessionCard = ({
     sessionStatus,
     updateSessionWithDetails,
     canceledCustomerModal,
+    profile?.tokenRefreshCalendar,
+    checkEventExists,
+    deleteEvent,
   ]);
 
 
