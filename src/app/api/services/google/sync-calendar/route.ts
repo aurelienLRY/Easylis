@@ -18,7 +18,9 @@ import {
   deleteEvent,
   updateEvent,
   refreshAccessToken,
-} from "@/services/GoogleCalendar";
+  checkToken,
+} from "@/services/GoogleCalendar/ServerSide";
+import { generateEvent } from "@/services/GoogleCalendar/ClientSide/generateEvent";
 import { createResponse } from "@/utils/ServerSide";
 
 /* Types */
@@ -54,7 +56,7 @@ const checkUserGoogleToken = async (userId: string): Promise<ICredentials | null
 
     // Vérifier si le token est encore valide
     try {
-      const events = await getEvent(user.tokenCalendar);
+      await checkToken(user.tokenCalendar);
       return {
         access_token: user.tokenCalendar,
         refresh_token: user.tokenRefreshCalendar,
@@ -85,41 +87,147 @@ const checkUserGoogleToken = async (userId: string): Promise<ICredentials | null
 
 /**
  * Génère un événement Google Calendar à partir d'une session
+ * Utilise la fonction generateEvent du dossier ClientSide
  */
 const generateGoogleEvent = (session: ISessionWithDetails) => {
-  const startDate = new Date(session.date);
-  const [startHour, startMinute] = session.startTime.split(':').map(Number);
-  startDate.setHours(startHour, startMinute, 0, 0);
-
-  const endDate = new Date(session.date);
-  const [endHour, endMinute] = session.endTime.split(':').map(Number);
-  endDate.setHours(endHour, endMinute, 0, 0);
-
-  return {
-    summary: `${session.activity.name} - ${session.spot.name}`,
-    description: `Activité: ${session.activity.name}\nLieu: ${session.spot.name}\nType: ${session.type_formule}\nPlaces réservées: ${session.placesReserved}/${session.placesMax}`,
-    start: {
-      dateTime: startDate.toISOString(),
-      timeZone: 'Europe/Paris',
-    },
-    end: {
-      dateTime: endDate.toISOString(),
-      timeZone: 'Europe/Paris',
-    },
-    location: session.spot.gpsCoordinates || session.spot.name,
-  };
+  return generateEvent(session);
 };
 
 /**
  * Vérifie si un événement existe sur Google Calendar
+ * Utilise une approche plus fiable en essayant de récupérer l'événement spécifique
  */
 const checkEventExistsOnGoogle = async (credentials: ICredentials, eventId: string): Promise<boolean> => {
   try {
-    const events = await getEvent(credentials.access_token);
-    return events.data.items?.some((event: any) => event.id === eventId) || false;
-  } catch (error) {
+    // Utiliser directement l'API Google Calendar pour récupérer l'événement spécifique
+    const { google } = await import("googleapis");
+    const oauth2Client = await refreshAccessToken(credentials.refresh_token);
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+    
+    await calendar.events.get({
+      calendarId: "primary",
+      eventId: eventId,
+    });
+    
+    return true; // Si on arrive ici, l'événement existe
+  } catch (error: any) {
+    // Si l'erreur est 404, l'événement n'existe pas
+    if (error.code === 404) {
+      return false;
+    }
     console.error("Erreur lors de la vérification de l'événement Google:", error);
     return false;
+  }
+};
+
+/**
+ * Supprime un événement orphelin (session invalide)
+ */
+const deleteOrphanEvent = async (
+  credentials: ICredentials,
+  session: ISessionWithDetails,
+  errors: string[]
+): Promise<number> => {
+  const eventResponse = await GET_EVENT_BY_SESSION_ID(session._id);
+  if (!eventResponse.success || !eventResponse.data) {
+    return 0;
+  }
+
+  const event = eventResponse.data as IEventModel;
+  let deletedCount = 0;
+
+  // Vérifier si l'événement existe sur Google et le supprimer
+  const existsOnGoogle = await checkEventExistsOnGoogle(credentials, event.eventId);
+  if (existsOnGoogle) {
+    try {
+      await deleteEvent(credentials.access_token, event.eventId);
+    } catch (error) {
+      errors.push(`Erreur suppression Google event ${event.eventId}: ${error}`);
+    }
+  }
+
+  // Supprimer l'événement de la base de données
+  try {
+    await DELETE_EVENT(event._id!);
+    deletedCount++;
+  } catch (error) {
+    errors.push(`Erreur suppression BD event ${event._id}: ${error}`);
+  }
+
+  return deletedCount;
+};
+
+/**
+ * Synchronise un événement existant
+ */
+const syncExistingEvent = async (
+  credentials: ICredentials,
+  session: ISessionWithDetails,
+  event: IEventModel,
+  errors: string[]
+): Promise<{ updated: number; created: number }> => {
+  let updated = 0;
+  let created = 0;
+
+  try {
+    // Toujours essayer de mettre à jour l'événement existant
+    console.log(`Tentative de mise à jour de l'événement ${event.eventId}`);
+    const googleEvent = generateGoogleEvent(session);
+    await updateEvent(credentials.access_token, googleEvent, event.eventId);
+    updated++;
+    console.log(`Événement ${event.eventId} mis à jour avec succès`);
+  } catch (error: any) {
+    // Si l'erreur est 404, l'événement n'existe pas sur Google, le recréer
+    if (error.code === 404) {
+      console.log(`Événement ${event.eventId} non trouvé sur Google, recréation...`);
+      try {
+        const googleEvent = generateGoogleEvent(session);
+        const googleResponse = await addEvent(credentials.access_token, googleEvent);
+
+        if (googleResponse.status === 200 && googleResponse.data.id) {
+          // Mettre à jour l'ID de l'événement en BD
+          await UPDATE_EVENT(event._id!, {
+            ...event,
+            eventId: googleResponse.data.id,
+          });
+          created++;
+          console.log(`Événement recréé avec le nouvel ID: ${googleResponse.data.id}`);
+        }
+      } catch (addError) {
+        errors.push(`Erreur recréation event session ${session._id}: ${addError}`);
+      }
+    } else {
+      console.error(`Erreur lors de la mise à jour de l'événement ${event.eventId}:`, error);
+      errors.push(`Erreur mise à jour event session ${session._id}: ${error}`);
+    }
+  }
+
+  return { updated, created };
+};
+
+/**
+ * Crée un nouvel événement
+ */
+const createNewEvent = async (
+  credentials: ICredentials,
+  session: ISessionWithDetails,
+  errors: string[]
+): Promise<number> => {
+  try {
+    const googleEvent = generateGoogleEvent(session);
+    const googleResponse = await addEvent(credentials.access_token, googleEvent);
+
+    if (googleResponse.status === 200 && googleResponse.data.id) {
+      await CREATE_EVENT({
+        eventId: googleResponse.data.id,
+        sessionId: session._id,
+      });
+      return 1;
+    }
+    return 0;
+  } catch (error) {
+    errors.push(`Erreur création event session ${session._id}: ${error}`);
+    return 0;
   }
 };
 
@@ -177,28 +285,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SyncResult>> 
     // 1. Nettoyer les événements orphelins (sessions invalides)
     for (const session of sessions) {
       if (session.status !== "Actif") {
-        const eventResponse = await GET_EVENT_BY_SESSION_ID(session._id);
-        if (eventResponse.success && eventResponse.data) {
-          const event = eventResponse.data as IEventModel;
-          
-          // Vérifier si l'événement existe sur Google et le supprimer
-          const existsOnGoogle = await checkEventExistsOnGoogle(credentials, event.eventId);
-          if (existsOnGoogle) {
-            try {
-              await deleteEvent(credentials.access_token, event.eventId);
-            } catch (error) {
-              errors.push(`Erreur suppression Google event ${event.eventId}: ${error}`);
-            }
-          }
-          
-          // Supprimer l'événement de la base de données
-          try {
-            await DELETE_EVENT(event._id!);
-            eventsDeleted++;
-          } catch (error) {
-            errors.push(`Erreur suppression BD event ${event._id}: ${error}`);
-          }
-        }
+        eventsDeleted += await deleteOrphanEvent(credentials, session, errors);
       }
     }
 
@@ -207,53 +294,17 @@ export async function POST(req: NextRequest): Promise<NextResponse<SyncResult>> 
       const eventResponse = await GET_EVENT_BY_SESSION_ID(session._id);
       
       if (eventResponse.success && eventResponse.data) {
-        // Événement existe en BD, vérifier sur Google
+        // Événement existe en BD, le synchroniser
         const event = eventResponse.data as IEventModel;
-        const existsOnGoogle = await checkEventExistsOnGoogle(credentials, event.eventId);
-        
-        if (!existsOnGoogle) {
-          // Événement n'existe pas sur Google, le recréer
-          try {
-            const googleEvent = generateGoogleEvent(session);
-            const googleResponse = await addEvent(credentials.access_token, googleEvent);
-            
-            if (googleResponse.status === 200 && googleResponse.data.id) {
-              // Mettre à jour l'ID de l'événement en BD
-              await UPDATE_EVENT(event._id!, {
-                ...event,
-                eventId: googleResponse.data.id,
-              });
-              eventsUpdated++;
-            }
-          } catch (error) {
-            errors.push(`Erreur recréation event session ${session._id}: ${error}`);
-          }
-        } else {
-          // Événement existe sur Google, vérifier s'il est à jour
-          try {
-            const googleEvent = generateGoogleEvent(session);
-            await updateEvent(credentials.access_token, googleEvent, event.eventId);
-            eventsUpdated++;
-          } catch (error) {
-            errors.push(`Erreur mise à jour event session ${session._id}: ${error}`);
-          }
-        }
+        console.log(`Synchronisation de l'événement ${event.eventId} pour la session ${session._id}`);
+        const syncResult = await syncExistingEvent(credentials, session, event, errors);
+        eventsUpdated += syncResult.updated;
+        eventsCreated += syncResult.created;
+        console.log(`Résultat: ${syncResult.updated} mis à jour, ${syncResult.created} créés`);
       } else {
         // Événement n'existe pas en BD, le créer
-        try {
-          const googleEvent = generateGoogleEvent(session);
-          const googleResponse = await addEvent(credentials.access_token, googleEvent);
-          
-          if (googleResponse.status === 200 && googleResponse.data.id) {
-            await CREATE_EVENT({
-              eventId: googleResponse.data.id,
-              sessionId: session._id,
-            });
-            eventsCreated++;
-          }
-        } catch (error) {
-          errors.push(`Erreur création event session ${session._id}: ${error}`);
-        }
+        console.log(`Création d'un nouvel événement pour la session ${session._id}`);
+        eventsCreated += await createNewEvent(credentials, session, errors);
       }
     }
 

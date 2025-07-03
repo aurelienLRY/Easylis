@@ -1,97 +1,118 @@
-# API de Synchronisation du Calendrier Google
+# Route de Synchronisation Google Calendar - Documentation
 
-## Description
+## 📋 Vue d'ensemble
 
-Cette API permet de synchroniser les événements de la base de données avec le calendrier Google Calendar. Elle assure la cohérence entre les sessions validées et les événements Google Calendar.
+Cette route synchronise les événements entre la base de données locale et Google Calendar. Elle utilise les services existants du dossier `ServerSide` et la fonction `generateEvent` du dossier `ClientSide`.
 
-## Endpoint
+## 🔧 Services utilisés
 
-```
-POST /api/services/google/sync-calendar
-```
+### Services ServerSide
+- `checkToken` : Vérification de la validité d'un token
+- `refreshAccessToken` : Rafraîchissement d'un token expiré
+- `getEvent` : Récupération des événements Google Calendar
+- `addEvent` : Ajout d'un événement sur Google Calendar
+- `updateEvent` : Mise à jour d'un événement sur Google Calendar
+- `deleteEvent` : Suppression d'un événement sur Google Calendar
 
-## Authentification
+### Services ClientSide
+- `generateEvent` : Génération d'un objet événement à partir d'une session
 
-L'utilisateur doit être connecté et avoir un token Google Calendar valide.
+## 🏗️ Architecture factorisée
 
-## Fonctionnalités
+### Fonctions utilitaires
 
-### 1. Nettoyage des Événements Orphelins
-- Identifie les sessions non validées qui ont des événements en base de données
-- Supprime les événements correspondants sur Google Calendar
-- Supprime les événements de la base de données
+#### `checkUserGoogleToken(userId: string)`
+- Vérifie si l'utilisateur a un token Google Calendar valide
+- Utilise `checkToken` pour valider le token actuel
+- Utilise `refreshAccessToken` si le token est expiré
+- Met à jour les tokens en base de données
 
-### 2. Synchronisation des Sessions Validées
-- Pour chaque session validée, vérifie si un événement existe en base de données
-- Si l'événement existe :
-  - Vérifie s'il est présent sur Google Calendar
-  - Si absent : le recrée sur Google Calendar
-  - Si présent : met à jour les informations
-- Si l'événement n'existe pas :
-  - Crée l'événement sur Google Calendar
-  - Enregistre l'événement en base de données
+#### `generateGoogleEvent(session: ISessionWithDetails)`
+- Wrapper autour de `generateEvent` du dossier ClientSide
+- Génère un objet événement formaté pour Google Calendar
+- Inclut les rappels, la localisation et les détails des participants
 
-## Réponse
+#### `checkEventExistsOnGoogle(credentials, eventId)`
+- Vérifie si un événement existe sur Google Calendar
+- Utilise `getEvent` pour récupérer la liste des événements
+- Compare les IDs pour déterminer l'existence
+
+#### `deleteOrphanEvent(credentials, session, errors)`
+- Supprime un événement orphelin (session invalide)
+- Supprime l'événement sur Google Calendar et en base de données
+- Gère les erreurs et les ajoute au tableau d'erreurs
+
+#### `syncExistingEvent(credentials, session, event, errors)`
+- Synchronise un événement existant
+- Recrée l'événement sur Google si nécessaire
+- Met à jour l'événement existant
+- Retourne le nombre d'événements mis à jour/créés
+
+#### `createNewEvent(credentials, session, errors)`
+- Crée un nouvel événement
+- Utilise `generateGoogleEvent` et `addEvent`
+- Enregistre l'événement en base de données
+- Retourne 1 si succès, 0 sinon
+
+## 🔄 Flux de synchronisation
+
+### 1. Vérification des prérequis
+- Authentification de l'utilisateur
+- Vérification des tokens Google Calendar
+- Récupération des sessions avec détails
+
+### 2. Nettoyage des événements orphelins
+- Parcours des sessions invalides (status !== "Actif")
+- Suppression des événements correspondants sur Google et en BD
+
+### 3. Synchronisation des sessions valides
+- Parcours des sessions actives
+- Pour chaque session :
+  - Si événement existe en BD → synchronisation
+  - Si événement n'existe pas → création
+
+## 📊 Retour de données
 
 ```typescript
 interface SyncResult {
   success: boolean;
   data: {
-    validatedSessions: number;    // Nombre de sessions validées
-    eventsCreated: number;        // Nombre d'événements créés
-    eventsUpdated: number;        // Nombre d'événements mis à jour
-    eventsDeleted: number;        // Nombre d'événements supprimés
-    errors: string[];             // Liste des erreurs rencontrées
+    validatedSessions: number;  // Nombre de sessions valides
+    eventsCreated: number;      // Événements créés
+    eventsUpdated: number;      // Événements mis à jour
+    eventsDeleted: number;      // Événements supprimés
+    errors: string[];           // Liste des erreurs
   };
   error: string | null;
   feedback: string[] | null;
 }
 ```
 
-## Exemple d'Utilisation
+## 🛡️ Gestion d'erreurs
 
-```javascript
-// Appel de l'API
+- **Erreurs de token** : Tentative de rafraîchissement automatique
+- **Erreurs de synchronisation** : Collecte dans un tableau d'erreurs
+- **Erreurs individuelles** : N'arrêtent pas le processus global
+- **Logs détaillés** : Pour le debugging
+
+## 🚀 Avantages de la factorisation
+
+1. **Réutilisabilité** : Utilisation des services existants
+2. **Maintenabilité** : Code modulaire et lisible
+3. **Cohérence** : Même logique de génération d'événements
+4. **Robustesse** : Gestion d'erreurs centralisée
+5. **Performance** : Fonctions optimisées et spécialisées
+6. **Testabilité** : Fonctions unitaires facilement testables
+
+## 📝 Exemple d'utilisation
+
+```typescript
+// Appel de la route
 const response = await fetch('/api/services/google/sync-calendar', {
   method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' }
 });
 
 const result = await response.json();
-
-if (result.success) {
-  console.log(`Synchronisation terminée:
-    - Sessions validées: ${result.data.validatedSessions}
-    - Événements créés: ${result.data.eventsCreated}
-    - Événements mis à jour: ${result.data.eventsUpdated}
-    - Événements supprimés: ${result.data.eventsDeleted}
-  `);
-  
-  if (result.data.errors.length > 0) {
-    console.log('Erreurs rencontrées:', result.data.errors);
-  }
-}
-```
-
-## Gestion des Erreurs
-
-L'API gère automatiquement :
-- L'expiration des tokens Google Calendar (rafraîchissement automatique)
-- Les erreurs de connexion à Google Calendar
-- Les erreurs de base de données
-- Les sessions invalides
-
-## Logs
-
-L'API génère des logs détaillés pour :
-- Les opérations de synchronisation
-- Les erreurs rencontrées
-- Les tokens expirés et rafraîchis
-
-## Sécurité
-
-- Vérification de l'authentification utilisateur
-- Validation des tokens Google Calendar
-- Gestion sécurisée des tokens d'accès 
+console.log(`Synchronisation: ${result.data.eventsCreated} créés, ${result.data.eventsUpdated} mis à jour, ${result.data.eventsDeleted} supprimés`);
+``` 

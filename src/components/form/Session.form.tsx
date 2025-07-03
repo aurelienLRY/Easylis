@@ -9,10 +9,8 @@ import { toast } from "sonner";
 /* actions & services */
 import { CREATE_SESSION, UPDATE_SESSION } from "@/libs/ServerAction";
 import { sessionSchema } from "@/libs/yup";
-import {
-  fetcherAddEvent,
-  fetcherUpdateEvent,
-} from "@/services/GoogleCalendar/ClientSide";
+import { useGoogleCalendar } from "@/hooks";
+
 
 /* stores */
 import {
@@ -201,6 +199,8 @@ export function SessionForm({
     }
   }, [watchFormule, isUpdate, data, activities, watchActivity, methods]);
 
+  const { addEvent, updateEvent, checkEventExists } = useGoogleCalendar();
+
   const onSubmit = async (newData: TSessionForm) => {
     const result = isUpdate
       ? await UPDATE_SESSION(data!._id as string, newData as ISession)
@@ -215,14 +215,11 @@ export function SessionForm({
         if (refreshToken && sessionId) {
           if (result.data.status === "Actif") {
             if (isUpdate && data.status === "Pending") {
-              console.log("add event before update pending");
-              await fetcherAddEvent(refreshToken, event, sessionId);
+              await addEvent(refreshToken, event, sessionId);
             } else if (isUpdate && data.status === "Actif") {
-              console.log("update event before update actif");
-              await fetcherUpdateEvent(refreshToken, event, sessionId);
+              await updateEvent(refreshToken, event, sessionId);
             } else {
-              console.log("add event before create");
-              await fetcherAddEvent(refreshToken, event, sessionId);
+              await addEvent(refreshToken, event, sessionId);
             }
           }
         } else {

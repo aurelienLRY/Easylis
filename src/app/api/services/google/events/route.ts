@@ -117,6 +117,20 @@ export async function POST(req: NextRequest): Promise<NextResponse<ICallback>> {
       );
     }
 
+    // Vérifier si l'événement existe déjà
+    const existingEvent = await GET_EVENT_BY_SESSION_ID(sessionId);
+    if (existingEvent.success && existingEvent.data) {
+      return NextResponse.json(
+        {
+          success: false,
+          data: null,
+          feedback: null,
+          error: "Un événement existe déjà pour cette session",
+        },
+        { status: 409 }
+      );
+    }
+
     const response = await addEvent(refreshToken, event);
 
     if (response.status === 200 && response.data.id) {

@@ -1,9 +1,10 @@
 "use client";
 /* Client Side */
-export { fetcherRefreshToken } from "@/services/GoogleCalendar/ClientSide/fetcherRefreshToken";
-export { fetcherCheckToken } from "@/services/GoogleCalendar/ClientSide/fetcherCheckToken";
-export { fetcherAddEvent } from "@/services/GoogleCalendar/ClientSide/fetcherAddEvent";
-export { fetcherUpdateEvent } from "@/services/GoogleCalendar/ClientSide/fetcherUpdateEvent";
-export { fetcherDeleteEvent } from "@/services/GoogleCalendar/ClientSide/fetcherDeleteEvent";
-export { generateEvent } from "@/services/GoogleCalendar/ClientSide/generateEvent";
-export { fetcherSyncCalendar } from "@/services/GoogleCalendar/ClientSide/fetcherSyncCalendar";
+export { fetcherRefreshToken } from "@/services/GoogleCalendar/ClientSide/fetcherRefreshToken"; // Rafraîchie le token
+export { fetcherCheckToken } from "@/services/GoogleCalendar/ClientSide/fetcherCheckToken"; // Vérifie le token
+export { fetcherAddEvent } from "@/services/GoogleCalendar/ClientSide/fetcherAddEvent"; // Ajoute un événement
+export { fetcherUpdateEvent } from "@/services/GoogleCalendar/ClientSide/fetcherUpdateEvent"; // Met à jour un événement
+export { fetcherDeleteEvent } from "@/services/GoogleCalendar/ClientSide/fetcherDeleteEvent"; // Supprime un événement
+export { fetcherCheckEventExists } from "@/services/GoogleCalendar/ClientSide/fetcherCheckEventExists"; // Vérifie si un événement existe
+export { generateEvent } from "@/services/GoogleCalendar/ClientSide/generateEvent"; // Génère un événement
+export { fetcherSyncCalendar } from "@/services/GoogleCalendar/ClientSide/fetcherSyncCalendar"; // Synchronise le calendrier
