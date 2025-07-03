@@ -6,6 +6,7 @@ import { EventCalendar } from "@/libs/database/models/EventCalendar.model";
 import { Session } from "@/libs/database/models/Session.model";
 import { Spot } from "@/libs/database/models/Spot.model";
 import { User } from "@/libs/database/models/User.model";
+import { EmailLog } from "@/libs/database/models/EmailLog.model";
 
 export {
   connectDB,
@@ -18,4 +19,5 @@ export {
   Session,
   Spot,
   User,
+  EmailLog,
 };

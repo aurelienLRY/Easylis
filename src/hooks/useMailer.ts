@@ -1,10 +1,15 @@
 import { create } from "zustand";
-import { toast } from "sonner";
-import { emailScenarios } from "@/libs/nodeMailer/TemplateV2/scenarios";
-import { EmailScenarioType } from "@/libs/nodeMailer/TemplateV2/constants";
-import { generateEmail } from "@/libs/nodeMailer/TemplateV2";
-import { nodeMailerSender } from "@/libs/nodeMailer";
-import { ITemplateData } from "@/libs/nodeMailer/TemplateV2/types";
+import { generateEmail ,
+  EmailScenarioType ,
+   ITemplateData , 
+   IEmailSendResult ,
+    EmailErrorType ,
+     EmailClientService , 
+     emailScenarios
+    } from "@/services/Mailer/clientSide";
+
+import { showEmailToast } from "@/components/feedback/EmailToast.feedback";
+
 
 interface QueuedEmail {
   scenario: EmailScenarioType;
@@ -20,7 +25,11 @@ export type MailerStore = {
   emailData: {
     to: string;
     subject: string;
+    scenario?: string;
+    customerId?: string;
+    sessionId?: string;
   } | null;
+  lastSendResult: IEmailSendResult | null;
 
   openEditor: () => void;
   closeEditor: () => void;
@@ -30,7 +39,11 @@ export type MailerStore = {
   setQueuedEmails: (emails: QueuedEmail[]) => void;
   processNextEmail: () => boolean;
   onClose: () => void;
+  getLastSendResult: () => IEmailSendResult | null;
+  clearLastSendResult: () => void;
 };
+
+
 
 export const useMailer = create<MailerStore>((set, get) => ({
   isSubmitting: false,
@@ -39,6 +52,7 @@ export const useMailer = create<MailerStore>((set, get) => ({
   currentEmailContent: "",
   queuedEmails: [],
   emailData: null,
+  lastSendResult: null,
   onClose: () => {},
 
   setOption: (option: any) => {
@@ -53,6 +67,7 @@ export const useMailer = create<MailerStore>((set, get) => ({
       initialEmailContent: "",
       currentEmailContent: "",
       emailData: null,
+      lastSendResult: null,
     }),
 
   handleEmailContent: (content) => set({ currentEmailContent: content }),
@@ -68,7 +83,11 @@ export const useMailer = create<MailerStore>((set, get) => ({
       emailData: {
         to: data.customer.email,
         subject: emailScenario.subject,
+        scenario: scenario,
+        customerId: (data.customer as any)._id,
+        sessionId: (data.session as any)._id,
       },
+      lastSendResult: null,
     });
   },
 
@@ -78,25 +97,77 @@ export const useMailer = create<MailerStore>((set, get) => ({
 
     try {
       set({ isSubmitting: true });
-      const success = await nodeMailerSender(
+      
+      const result: IEmailSendResult = await EmailClientService.sendEmail(
         emailData.to,
         emailData.subject,
-        currentEmailContent
+        currentEmailContent,
+        emailData.scenario,
+        emailData.customerId,
+        emailData.sessionId
       );
-      set({ isSubmitting: false });
-      if (!success) {
-        throw new Error("Échec de l'envoi de l'email");
-      } else {
-        toast.success("Email envoyé avec succès");
+
+      // Stocker le résultat
+      set({ 
+        isSubmitting: false,
+        lastSendResult: result
+      });
+
+      // Afficher le toast approprié
+      showEmailToast(result, () => get().sendEmail());
+
+      if (result.success) {
+        // Log détaillé en mode développement
+        if (process.env.NODE_ENV === 'development') {
+          console.log("✅ Email envoyé avec succès:", {
+            recipient: result.recipient,
+            subject: result.subject,
+            messageId: result.messageId,
+            timestamp: result.timestamp,
+            retryCount: result.retryCount
+          });
+        }
+        
         get().onClose();
         get().closeEditor();
         return true;
+      } else {
+        // Log détaillé de l'erreur
+        console.error("❌ Échec d'envoi email:", {
+          recipient: result.recipient,
+          subject: result.subject,
+          error: result.error,
+          timestamp: result.timestamp,
+          retryCount: result.retryCount
+        });
+
+        // Ne pas fermer l'éditeur en cas d'erreur pour permettre la correction
+        return false;
       }
-    } catch (error) {
-      console.error("Erreur lors de l'envoi de l'email:", error);
-      toast.error("Erreur lors de l'envoi de l'email");
-      get().onClose();
-      get().closeEditor();
+    } catch (error: any) {
+      console.error("Erreur inattendue lors de l'envoi de l'email:", error);
+      
+      const errorResult: IEmailSendResult = {
+        success: false,
+        recipient: emailData.to,
+        subject: emailData.subject,
+        timestamp: new Date(),
+        error: {
+          type: EmailErrorType.UNKNOWN_ERROR,
+          message: "Erreur inattendue lors de l'envoi",
+          details: error.message,
+          retryable: true
+        }
+      };
+
+      set({ 
+        isSubmitting: false,
+        lastSendResult: errorResult
+      });
+
+      // Afficher le toast d'erreur inattendue
+      showEmailToast(errorResult, () => get().sendEmail());
+
       return false;
     }
   },
@@ -113,5 +184,13 @@ export const useMailer = create<MailerStore>((set, get) => ({
       return true;
     }
     return false;
+  },
+
+  getLastSendResult: () => {
+    return get().lastSendResult;
+  },
+
+  clearLastSendResult: () => {
+    set({ lastSendResult: null });
   },
 }));

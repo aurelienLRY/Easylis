@@ -2,8 +2,8 @@ import { ICustomerSession, ISessionWithDetails } from "@/types";
 import {
   IEmailTemplateData,
   ITemplateData,
-} from "@/libs/nodeMailer/TemplateV2/types";
-import { formatDate } from "@/libs/nodeMailer/TemplateV2/utils";
+} from "../types";
+import { formatDate } from "../utils";
 
 export const cancelCustomerTemplate = (
   data: ITemplateData
