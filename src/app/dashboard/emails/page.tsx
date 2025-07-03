@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { GET_EMAIL_LOGS, GET_EMAIL_STATS } from "@/libs/ServerAction/emailLog.actions";
-import { ItemCard, ItemCardInner, ItemContainer } from "@/components";
+import { ItemCard, ItemCardInner, ItemContainer, Modal } from "@/components";
+import { useModal } from "@/hooks";
 import { cn } from "@/utils/cn";
 import {
     FiMail,
@@ -49,6 +50,9 @@ export default function EmailsPage() {
         page: 1,
         totalPages: 1
     });
+
+    // Modal pour afficher le contenu de l'email
+    const emailContentModal = useModal<EmailLog>();
 
     // Filtres
     const [filter, setFilter] = useState<string>("all");
@@ -282,7 +286,7 @@ export default function EmailsPage() {
                                                 {formatDate(log.sentAt)}
                                             </span>
                                         </div>
-                                        <div className="flex flex-col">
+                                        <div className="flex flex-col flex-1">
                                             <h3 className="font-medium text-sm lg:text-base"><span className="text-xs lg:text-sm">A : </span>  {log.recipient}</h3>
                                             <p className="text-xs lg:text-sm">subject: {log.subject}</p>
                                             <p className="text-xs lg:text-sm text-gray-300">
@@ -293,6 +297,15 @@ export default function EmailsPage() {
                                                     Erreur: {log.error}
                                                 </p>
                                             )}
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button 
+                                                className="p-2 border border-gray-300 rounded-md hover:bg-gray-100 transition-all duration-200" 
+                                                title="Voir le contenu"
+                                                onClick={() => emailContentModal.openModal(log)}
+                                            >
+                                                <FiEye className="text-lg" />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -328,6 +341,62 @@ export default function EmailsPage() {
                     )}
                 </ItemCardInner>
             </div>
+
+            {/* Modal pour afficher le contenu de l'email */}
+            <Modal
+                isOpen={emailContentModal.isOpen}
+                onClose={emailContentModal.closeModal}
+                title={emailContentModal.data ? `Email - ${emailContentModal.data.subject}` : "Contenu de l&apos;email"}
+            >
+                {emailContentModal.data && (
+                    <div className="w-full max-w-4xl">
+                        <div className="mb-6 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span className="font-semibold">Destinataire :</span>
+                                    <p className="text-gray-300">{emailContentModal.data.recipient}</p>
+                                </div>
+                                <div>
+                                    <span className="font-semibold">Sujet :</span>
+                                    <p className="text-gray-300">{emailContentModal.data.subject}</p>
+                                </div>
+                                <div>
+                                    <span className="font-semibold">Type :</span>
+                                    <p className="text-gray-300">{getScenarioLabel(emailContentModal.data.scenario)}</p>
+                                </div>
+                                <div>
+                                    <span className="font-semibold">Date d&apos;envoi :</span>
+                                    <p className="text-gray-300">{formatDate(emailContentModal.data.sentAt)}</p>
+                                </div>
+                                <div>
+                                    <span className="font-semibold">Statut :</span>
+                                    <div className="mt-1">{getStatusBadge(emailContentModal.data.status)}</div>
+                                </div>
+                                {emailContentModal.data.messageId && (
+                                    <div>
+                                        <span className="font-semibold">Message ID :</span>
+                                        <p className="text-gray-300 text-xs break-all">{emailContentModal.data.messageId}</p>
+                                    </div>
+                                )}
+                            </div>
+                            {emailContentModal.data.error && (
+                                <div className="p-4 bg-red-900 border border-red-700 rounded-md">
+                                    <span className="font-semibold text-red-300">Erreur :</span>
+                                    <p className="text-red-200 mt-1">{emailContentModal.data.error}</p>
+                                </div>
+                            )}
+                        </div>
+                        
+                        <div className="border-t border-gray-600 pt-4">
+                            <h3 className="text-lg font-semibold mb-4">Contenu de l&apos;email :</h3>
+                            <div 
+                                className="bg-white text-black p-6 rounded-md max-h-96 overflow-y-auto"
+                                dangerouslySetInnerHTML={{ __html: emailContentModal.data.content }}
+                            />
+                        </div>
+                    </div>
+                )}
+            </Modal>
         </ItemContainer>
     );
-} 
+}
