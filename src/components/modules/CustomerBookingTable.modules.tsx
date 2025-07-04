@@ -12,6 +12,7 @@ import {
   DeleteButton,
   GlobalPriceBadge,
   StatusBadge,
+  ValidateButton,
 } from "@/components";
 
 /* Hooks */
@@ -193,15 +194,33 @@ export const CustomerBookingTable = ({
                         />
                         {customerSession.status !== "Canceled" && (
                           <>
-                            <EditButton
-                              title="Modifier"
-                              onClick={() =>
-                                editCustomer({
-                                  data: customerSession,
-                                  session: data,
-                                })
-                              }
-                            />
+                            {customerSession.status !== "Waiting" ? (
+                              <EditButton
+                                title="Modifier"
+                                onClick={() =>
+                                  editCustomer({
+                                    data: customerSession,
+                                    session: data,
+                                  })
+                                }
+                              />
+                            ) : (
+                              <ValidateButton
+                                title="Valider"
+                                onClick={() => {
+                                  if (data.status === "Pending") {
+                                    window.alert("La session est en attente de validation, vous devez la valider avant de poursuivre");
+                                    return;
+                                  } else {
+                                    editCustomer({
+                                      data: customerSession,
+                                      session: data,
+                                    })
+                                  }
+                                }
+                                }
+                              />
+                            )}
                             <DeleteButton
                               title="Annuler"
                               onClick={() => CancelCustomer(customerSession)}

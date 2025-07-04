@@ -1,6 +1,8 @@
 "use client";
-import { generateEvent } from "@/services/GoogleCalendar/ClientSide/generateEvent";
-import { fetcherUpdateEvent } from "@/services/GoogleCalendar/ClientSide/fetcherUpdateEvent";
+
+import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
+
+
 import { useProfile, useSessionWithDetails } from "@/store";
 import { ICustomerSession } from "@/types";
 import { useState } from "react";
@@ -14,7 +16,7 @@ import { toast } from "sonner";
 import { ToasterAction } from "@/components";
 
 /* template email */
-import { EMAIL_SCENARIOS } from "@/libs/nodeMailer/TemplateV2/constants";
+import { EMAIL_SCENARIOS } from "@/services/Mailer";
 
 /* hooks */
 import { useMailer } from "@/hooks/useMailer";
@@ -24,6 +26,7 @@ import { useMailer } from "@/hooks/useMailer";
  * @returns
  */
 export const useCustomer = () => {
+  const {  updateEvent, generateEventFromSession , addEvent , checkEventExists } = useGoogleCalendar();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { profile } = useProfile();
   const mailer = useMailer();
@@ -44,8 +47,13 @@ export const useCustomer = () => {
         updateSessionWithDetails(act.data);
         const refreshToken = profile?.tokenRefreshCalendar;
         if (refreshToken) {
-          const event = generateEvent(act.data);
-          await fetcherUpdateEvent(refreshToken, event, act.data._id);
+          const event = generateEventFromSession(act.data);
+          const checkEvent = await checkEventExists(act.data._id, refreshToken);
+          if (checkEvent.success) {
+            await updateEvent(refreshToken, event, act.data._id );
+          }else{
+            await addEvent(refreshToken, event, act.data._id);
+          }
         } else {
           toast.error(
             "Votre calendrier n'est pas connecté, l'évènement n'a pas été mis à jour dans votre calendrier"
@@ -74,6 +82,47 @@ export const useCustomer = () => {
     }
   };
 
+  const validateCustomer = async (customer: ICustomerSession) => {
+    setIsSubmitting(true);
+    const act = await UPDATE_CUSTOMER_SESSION(customer._id, customer);
+    if (act.success && act.data) {
+      updateSessionWithDetails(act.data);
+      const refreshToken = profile?.tokenRefreshCalendar;
+      if (refreshToken) {
+        const event = generateEventFromSession(act.data);
+        const checkEvent = await checkEventExists(act.data._id, refreshToken);
+        if (checkEvent.success) {
+          await updateEvent(refreshToken, event, act.data._id);
+        }else{
+          await addEvent(refreshToken, event, act.data._id);
+        }
+      } else {
+        toast.error(
+          "Votre calendrier n'est pas connecté, l'évènement n'a pas été mis à jour dans votre calendrier"
+        );
+      }
+      if (mailer) {
+        const wantToSendEmail = window.confirm(
+          `Client validé avec succès ! \nVoulez-vous envoyer un email au client ?`
+        );
+        if (wantToSendEmail) {
+          mailer?.prepareEmail(EMAIL_SCENARIOS.ADD_CUSTOMER, {
+            customer: customer,
+            session: act.data,
+            profile_from: profile!,
+          });
+        }
+      }
+      ToasterAction({
+        result: act,
+        defaultMessage: "Client validé avec succès",
+      });
+      setIsSubmitting(false);
+      return act;
+    }
+    
+  };
+
   const addCustomer = async (customer: ICustomerSession) => {
     setIsSubmitting(true);
     const act = await CREATE_CUSTOMER_SESSION(customer);
@@ -81,8 +130,13 @@ export const useCustomer = () => {
       updateSessionWithDetails(act.data);
       const refreshToken = profile?.tokenRefreshCalendar;
       if (refreshToken) {
-        const event = generateEvent(act.data);
-        await fetcherUpdateEvent(refreshToken, event, act.data._id);
+        const event = generateEventFromSession(act.data);
+        const checkEvent = await checkEventExists(act.data._id, refreshToken);
+        if (checkEvent.success) {
+          await updateEvent(refreshToken, event, act.data._id);
+        }else{
+          await addEvent(refreshToken, event, act.data._id);
+        }
       } else {
         toast.error(
           "Votre calendrier n'est pas connecté, l'évènement n'a pas été mis à jour dans votre calendrier"
@@ -115,8 +169,13 @@ export const useCustomer = () => {
       updateSessionWithDetails(act.data);
       const refreshToken = profile?.tokenRefreshCalendar;
       if (refreshToken) {
-        const event = generateEvent(act.data);
-        await fetcherUpdateEvent(refreshToken, event, act.data._id);
+        const event = generateEventFromSession(act.data);
+        const checkEvent = await checkEventExists(act.data._id, refreshToken);
+        if (checkEvent.success) {
+          await updateEvent(refreshToken, event, act.data._id);
+        }else{
+          await addEvent(refreshToken, event, act.data._id);
+        }
       } else {
         toast.error(
           "Votre calendrier n'est pas connecté, l'évènement n'a pas été mis à jour dans votre calendrier"
@@ -142,5 +201,5 @@ export const useCustomer = () => {
     }
   };
 
-  return { CancelCustomer, addCustomer, updateCustomer, isSubmitting };
+  return { CancelCustomer, addCustomer, updateCustomer, isSubmitting, validateCustomer };
 };

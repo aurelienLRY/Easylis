@@ -3,7 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { Tooltip } from "antd";
 
 /* fullcalendar */
 import FullCalendar from "@fullcalendar/react";
@@ -17,11 +16,13 @@ import {
   ItemContainer,
   SecondaryButton,
   LoadingSpinner,
-  RefreshButton,
+  SyncButton,
 } from "@/components";
 
 /* stores */
 import { useProfile, useCalendar } from "@/store";
+import { useGoogleCalendar } from "@/hooks";
+import { toast } from "sonner";
 
 type Props = {
   className?: string;
@@ -83,8 +84,18 @@ const ConnectToCalendar = () => {
 
 function Calendar() {
   const { profile } = useProfile();
-  const { checkTokenValidity } = useCalendar();
+  const { syncCalendar, isSyncing } = useGoogleCalendar();
+  
   if (!profile) return null;
+
+  const handleSync = async () => {
+    const result = await syncCalendar();
+    if (result.success) {
+      toast.success(result.feedback?.[0] || "Synchronisation réussie");
+    } else {
+      toast.error(result.error || "Erreur lors de la synchronisation");
+    }
+  };
 
   // Définir les configurations du header en fonction de la taille d'écran
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
@@ -123,11 +134,15 @@ function Calendar() {
           stickyHeaderDates={true}
         />
       </div>
-      <div className=" w-full flex justify-end items-center px-2 text-slate-400">
-        <RefreshButton
-          onClick={checkTokenValidity}
-          title="Rafraîchir le calendrier"
-        />
+      <div className=" w-full flex gap-4 justify-end items-center px-6 text-slate-400">
+  
+        <SyncButton
+          className=" text-3xl"
+          onClick={handleSync}
+          isLoading={isSyncing}
+          title="Mettre à jour les événements"
+        />     
+ 
       </div>
     </div>
   );

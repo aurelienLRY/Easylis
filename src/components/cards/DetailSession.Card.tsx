@@ -72,7 +72,7 @@ const SessionInfo = memo(({ data }: { data: ISessionWithDetails }) => (
     <RemainingBookingsDisplay
       remainingBookings={+data.placesMax - +data.placesReserved}
     />
-    <PlanDisplay plan={data.type_formule} />
+    <PlanDisplay plan={data.type_formule == "half_day" ? "demi-journée" : "journée"} />
   </div>
 ));
 

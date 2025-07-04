@@ -1,1 +1,0 @@
-export {nodeMailerSender} from "./sender";

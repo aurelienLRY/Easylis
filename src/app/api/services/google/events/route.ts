@@ -20,7 +20,7 @@ import {
   DELETE_EVENT,
   GET_EVENT_BY_SESSION_ID,
 } from "@/libs/ServerAction";
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
+import { connectDBOnce } from "@/libs/database/setting.mongoose";
 
 /**
  * Gestionnaire d'erreurs centralisé
@@ -80,7 +80,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ICallback>> {
     return NextResponse.json(
       {
         success: true,
-        data: response.data.items || [],
+        data: (response as any).data?.items || [],
         feedback: null,
         error: null,
       },
@@ -117,11 +117,25 @@ export async function POST(req: NextRequest): Promise<NextResponse<ICallback>> {
       );
     }
 
+    // Vérifier si l'événement existe déjà
+    const existingEvent = await GET_EVENT_BY_SESSION_ID(sessionId);
+    if (existingEvent.success && existingEvent.data) {
+      return NextResponse.json(
+        {
+          success: false,
+          data: null,
+          feedback: null,
+          error: "Un événement existe déjà pour cette session",
+        },
+        { status: 409 }
+      );
+    }
+
     const response = await addEvent(refreshToken, event);
 
-    if (response.status === 200 && response.data.id) {
+    if ((response as any).status === 200 && (response as any).data?.id) {
       const result = await CREATE_EVENT({
-        eventId: response.data.id,
+        eventId: (response as any).data.id,
         sessionId: sessionId,
       });
 
@@ -134,7 +148,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ICallback>> {
       return NextResponse.json(
         {
           success: true,
-          data: response.data,
+          data: (response as any).data,
           feedback: null,
           error: null,
         },
@@ -180,11 +194,11 @@ export async function PUT(req: NextRequest): Promise<NextResponse<ICallback>> {
     return NextResponse.json(
       {
         success: true,
-        data: response.data,
+        data: (response as any).data,
         feedback: null,
         error: null,
       },
-      { status: response.status }
+      { status: (response as any).status }
     );
   } catch (error: any) {
     return handleError(error, "Impossible de mettre à jour l'événement");
@@ -199,7 +213,7 @@ export async function DELETE(
   req: NextRequest
 ): Promise<NextResponse<ICallback>> {
   try {
-    await connectDB();
+    await connectDBOnce();
     const { refreshToken, sessionId } = await req.json();
 
     if (
@@ -218,7 +232,7 @@ export async function DELETE(
 
     const response = await deleteEvent(refreshToken, EventDB.data.eventId);
 
-    if (response.status === 204) {
+    if ((response as any).status === 204) {
       const result = await DELETE_EVENT(EventDB.data._id as string);
       if (!result.success) {
         throw new Error(
@@ -240,7 +254,5 @@ export async function DELETE(
     throw new Error("Impossible de supprimer l'événement de Google Calendar");
   } catch (error: any) {
     return handleError(error, "Impossible de supprimer l'événement");
-  } finally {
-    await disconnectDB();
   }
 }

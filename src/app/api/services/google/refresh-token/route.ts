@@ -11,7 +11,7 @@ import { refreshAccessToken } from "@/services/GoogleCalendar/ServerSide";
 import { google } from "googleapis";
 import { UPDATE_USER } from "@/libs/ServerAction";
 import { createResponse } from "@/utils/ServerSide";
-import { connectDB, disconnectDB } from "@/libs/database/setting.mongoose";
+import { connectDBOnce } from "@/libs/database/setting.mongoose";
 /**
  * Constantes pour les messages d'erreur
  */
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<TCallback>> {
           500
         );
       }
-      await connectDB();
+      await connectDBOnce();
       await updateUserTokens(
         profile,
         oauth2Client.credentials.access_token,
@@ -184,7 +184,5 @@ export async function POST(req: NextRequest): Promise<NextResponse<TCallback>> {
       ERROR_MESSAGES.REFRESH_FAILED,
       500
     );
-  } finally {
-    await disconnectDB();
   }
 }

@@ -5,7 +5,7 @@ import * as yup from "yup";
 import xss from "xss";
 
 /* Gestion Database */
-import { connectDB, disconnectDB, User } from "@/libs/database";
+import { connectDBOnce, User } from "@/libs/database";
 /* Types */
 import { IUser, ICallbackForUser } from "@/types";
 /* Yup */
@@ -57,7 +57,7 @@ export const UPDATE_USER = async (
     const YupValidation = await validateUser(user);
     const cleanUser = await xssUser(YupValidation as IUser);
 
-    await connectDB();
+    await connectDBOnce();
     const updatedUser: IUser | null = await User.findByIdAndUpdate(
       id,
       cleanUser,
@@ -103,14 +103,12 @@ export const UPDATE_USER = async (
         feedback: null,
       };
     }
-  } finally {
-    await disconnectDB();
   }
 };
 
 export async function GET_USER_BY_ID(id: string): Promise<ICallbackForUser> {
   try {
-    await connectDB();
+    await connectDBOnce();
     const user = await User.findById(id);
     return {
       success: true,
@@ -127,8 +125,6 @@ export async function GET_USER_BY_ID(id: string): Promise<ICallbackForUser> {
       error: message,
       feedback: null,
     };
-  } finally {
-    await disconnectDB();
   }
 }
 

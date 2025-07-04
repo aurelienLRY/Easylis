@@ -12,6 +12,7 @@ import {
   EditButton,
   DeleteButton,
   ToasterAction,
+  ValidateButton,
 } from "@/components";
 import {
   calculateSessionIncome,
@@ -22,7 +23,11 @@ import {
 import { ISessionWithDetails } from "@/types";
 import { RiCalendarCloseFill } from "react-icons/ri";
 import { IoMdPersonAdd } from "react-icons/io";
-import { fetcherDeleteEvent } from "@/services/GoogleCalendar/ClientSide";
+
+
+// Hooks
+import { useGoogleCalendar } from "@/hooks";
+
 
 // Types
 type SessionStatus = {
@@ -129,7 +134,12 @@ const SessionActions = ({
             <IoMdPersonAdd className="text-2xl hover:text-slate-200 cursor-pointer transition-all" />
           </button>
         </Tooltip>
-        <EditButton title="Modifier la session" onClick={onEdit} />
+        {status.isPending && (
+          <ValidateButton title="Valider la session" onClick={onEdit} />
+        )}
+        {!status.isPending && (
+          <EditButton title="Modifier la session" onClick={onEdit} />
+        )}
         <DeleteButton
           title={
             status.isReserved
@@ -175,6 +185,7 @@ export const SessionCard = ({
   const { updateSessionWithDetails, deleteSessionWithDetails } =
     useSessionWithDetails();
   const { profile } = useProfile();
+  const { deleteEvent , checkEventExists } = useGoogleCalendar();
 
   const sessionStatus = useMemo<SessionStatus>(
     () => ({
@@ -202,10 +213,10 @@ export const SessionCard = ({
       const result = await DELETE_SESSION(sessionId);
       if (result.success) {
         deleteSessionWithDetails(sessionWithDetails);
-        await fetcherDeleteEvent(
-          profile?.tokenRefreshCalendar as string,
-          sessionWithDetails._id as string
-        );
+        const checkEvent = await checkEventExists(sessionWithDetails._id as string, profile?.tokenRefreshCalendar as string);
+        if (checkEvent.success) {
+          await deleteEvent(profile?.tokenRefreshCalendar as string, sessionWithDetails._id as string);
+        }
       }
       ToasterAction({
         result,
@@ -217,6 +228,8 @@ export const SessionCard = ({
       sessionWithDetails,
       profile?.tokenRefreshCalendar,
       deleteSessionWithDetails,
+      deleteEvent,
+      checkEventExists,
     ]
 
   );
@@ -228,7 +241,7 @@ export const SessionCard = ({
       if (!window.confirm("Voulez-vous vraiment archiver cette session ?"))
         return;
 
-      const result = await UPDATE_SESSION(sessionWithDetails._id, {
+      const result = await UPDATE_SESSION(sessionWithDetails._id!, {
         ...sessionWithDetails,
         activity: sessionWithDetails.activity._id as string,
         spot: sessionWithDetails.spot._id as string,
@@ -240,6 +253,12 @@ export const SessionCard = ({
           ...sessionWithDetails,
           status: SESSION_STATUS.ARCHIVED,
         });
+         await checkEventExists(sessionWithDetails._id as string, profile?.tokenRefreshCalendar as string).then((res) => {
+          if (res.success) {
+            deleteEvent(profile?.tokenRefreshCalendar as string, sessionWithDetails._id as string);
+          }
+        });
+       
         toast.success("Session archivée avec succès");
       } else if (result.feedback) {
         toast.error(result.feedback);
@@ -252,6 +271,9 @@ export const SessionCard = ({
     sessionStatus,
     updateSessionWithDetails,
     canceledCustomerModal,
+    profile?.tokenRefreshCalendar,
+    checkEventExists,
+    deleteEvent,
   ]);
 
 
@@ -286,7 +308,7 @@ export const SessionCard = ({
         onAdd={() => addCustomerModal(sessionWithDetails)}
         onEdit={() => updateSessionModal(sessionWithDetails)}
         onSwitch={handleSwitchAction}
-        onDelete={() => deleteSession(sessionWithDetails._id)}
+        onDelete={() => deleteSession(sessionWithDetails._id!)}
       />
     </ItemCard>
   );

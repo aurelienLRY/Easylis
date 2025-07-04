@@ -43,7 +43,7 @@ export const useCalendar = create<CalendarStore>()(
       expiryDate: 0,
       lastCheck: 0,
       isLoading: false,
-
+      
       /**
        * Initialise le store et vérifie la validité du token
        */
@@ -66,7 +66,7 @@ export const useCalendar = create<CalendarStore>()(
        * @returns Résultat de l'opération de rafraîchissement
        */
       refreshToken: async () => {
-        const { profile } = await useProfile.getState();
+        const { profile } = useProfile.getState();
         const updateProfile = useProfile.getState().updateProfile;
         if (!profile?.tokenRefreshCalendar) {
           set({ tokenIsValid: false }, false, "refreshToken");
@@ -106,7 +106,7 @@ export const useCalendar = create<CalendarStore>()(
        * @returns true si le token est valide, false sinon
        */
       checkToken: async () => {
-        const { profile } = await useProfile.getState();
+        const { profile } = useProfile.getState();
         if (!profile?.tokenCalendar) return false;
         try {
           const response = await fetcherCheckToken(profile.tokenCalendar);

@@ -1,13 +1,134 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// Utils
+import { checkIfActivityExists, checkIfSpotExists, xssBooking } from "./utils";
+// Database
+import { connectDBOnce } from "@/libs/database/setting.mongoose";
+import { Session, CustomerSession, User } from "@/libs/database";
+// Types
+import { IActivity, ISession, ISpot, ICustomerSession } from "@/types";
+// NodeMailer
+import { emailScenarios, generateEmail } from "@/services/Mailer/clientSide";
+import { GET_SERVER_SESSION_WITH_DETAILS } from "@/libs/ServerAction";
+import { nodeMailerSenderAPI } from "@/services/Mailer/serverSide";
+
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log( "services/booking : ",body);
+    const { customer: RCustomer, session: RSession } = body;
+    if (!RCustomer || !RSession) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    }
+
+    await connectDBOnce();
+    // Vérification de l'activité et du spot 
+    const activityExists : IActivity = await checkIfActivityExists(RSession.activity);
+    const spotExists : ISpot = await checkIfSpotExists(RSession.spot);
     
-    return NextResponse.json({ message: "Booking request received" }, { status: 200 });
+    if (!spotExists || !activityExists) {
+      return NextResponse.json({ error: "Spot or activity not found" }, { status: 404 });
+    }
+
+   const BookingVerified = await xssBooking(body);
+
+   // Préparation de la session à créer
+   const PreSession : Omit<ISession, "_id"> = {
+    status: "Pending",
+    date: BookingVerified.session.date ,
+    startTime: BookingVerified.session.startTime,
+    endTime: BookingVerified.session.endTime,
+    activity: BookingVerified.session.activity,
+    spot: BookingVerified.session.spot,
+    type_formule: BookingVerified.session.type_formule as "half_day" | "full_day",
+    placesMax: BookingVerified.session.placesMax,
+    placesReserved: 0,
+    duration: BookingVerified.session.duration as string  || undefined,
+   }
+ 
+   // Création de la session
+   const newSession :ISession = await Session.create(PreSession);
+
+   // Préparation du client à créer
+  const preCustomer : Omit<ICustomerSession, "_id"> = {
+  createdAt: new Date(),
+  validatedAt: null,
+  canceledAt: null,
+  sessionId: newSession._id as string,
+  date: BookingVerified.customer.date,
+  status: "Waiting",
+  typeOfReservation: BookingVerified.customer.typeOfReservation,
+  number_of_people: BookingVerified.customer.number_of_people,
+  last_name: BookingVerified.customer.last_name,
+  first_names: BookingVerified.customer.first_names,
+  email: BookingVerified.customer.email,
+  phone: BookingVerified.customer.phone,
+  people_list: BookingVerified.customer.people_list,
+  tarification: BookingVerified.customer.tarification,
+  price_applicable: BookingVerified.customer.price_applicable,
+  price_total: BookingVerified.customer.price_total,
+}
+
+   // Création du client
+  const newCustomer = await CustomerSession.create(preCustomer);
+   // Mise à jour de la session
+   await Session.findByIdAndUpdate(newSession._id, { $inc: { placesReserved: BookingVerified.customer.number_of_people } }, { new: true });
+
+   const sessionWithDetails = await GET_SERVER_SESSION_WITH_DETAILS(newSession._id as string);
+
+   const users = await User.find();
+   const user = users[1]; // Récupère le second utilisateur (index 1)
+
+   // Envoi de l'email de confirmation avec gestion d'erreur
+   try {
+     const PreEmail = generateEmail(emailScenarios.BOOKING_REQUEST, {
+       customer: preCustomer,
+       session: sessionWithDetails, 
+       profile_from: user 
+     });
+     
+     const emailSent = await nodeMailerSenderAPI(
+       preCustomer.email, 
+       emailScenarios.BOOKING_REQUEST.subject, 
+       PreEmail,
+       {},
+       "BOOKING_REQUEST",
+       newCustomer._id as string,
+       newSession._id as string
+     );
+
+     if (!emailSent) {
+       console.error("❌ Échec d'envoi de l'email de confirmation pour la réservation:", {
+         customerId: newCustomer._id,
+         sessionId: newSession._id,
+         email: preCustomer.email
+       });
+       // Ne pas faire échouer la réservation si l'email échoue
+     } else {
+       console.log("✅ Email de confirmation envoyé avec succès:", {
+         customerId: newCustomer._id,
+         sessionId: newSession._id,
+         email: preCustomer.email,
+         scenario: "BOOKING_REQUEST"
+       });
+     }
+   } catch (emailError) {
+     console.error("❌ Erreur lors de l'envoi de l'email de confirmation:", {
+       error: emailError,
+       customerId: newCustomer._id,
+       sessionId: newSession._id,
+       email: preCustomer.email
+     });
+     // Ne pas faire échouer la réservation si l'email échoue
+   }
+
+   return NextResponse.json({ 
+     message: "Booking request received",
+     sessionId: newSession._id,
+     customerId: newCustomer._id
+   }, { status: 200 });
   } catch (error) {
-    console.log(error);
+    console.error("❌ Erreur lors du traitement de la réservation:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

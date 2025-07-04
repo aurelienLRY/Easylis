@@ -1,6 +1,5 @@
 import { IEmailScenario, ITemplateData } from "./types";
 import { generateEmailTemplate } from "./base.template";
-import * as scenarios from "./scenarios";
 
 export const generateEmail = (
   scenario: IEmailScenario,
@@ -10,4 +9,4 @@ export const generateEmail = (
   return generateEmailTemplate(templateData);
 };
 
-export { scenarios };
+export { emailScenarios } from "./scenarios";

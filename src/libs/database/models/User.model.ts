@@ -16,7 +16,7 @@ const UserSchema = new Schema<IUser>(
       required: true,
       match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Email invalide"],
     },
-    phone: { type: String },
+    phone: { type: String, default: null },
     avatar: { type: String, default: "/img/default-avatar.webp" },
     password: { type: String, required: true },
     username: { type: String, required: true, default: "username ?" },
@@ -73,6 +73,20 @@ UserSchema.post("findOneAndUpdate", async function (doc) {
   }
   if (doc?.password) {
     delete doc.password;
+  }
+});
+
+UserSchema.post("find", async function (docs) {
+  for (const doc of docs) {
+    if (doc.firstName !== null) {
+      doc.firstName = await crypto.decrypt(doc.firstName);
+    }
+    if (doc.lastName !== null) {
+      doc.lastName = await crypto.decrypt(doc.lastName);
+    }
+    if (doc.phone !== null) {
+      doc.phone = await crypto.decrypt(doc.phone);
+    }
   }
 });
 
