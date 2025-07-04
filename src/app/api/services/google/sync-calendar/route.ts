@@ -6,7 +6,7 @@ import { authOptions } from "@/app/api/auth/auth";
 import { connectDBOnce } from "@/libs/database/setting.mongoose";
 import { User } from "@/libs/database";
 import {
-  GET_SESSIONS_WITH_DETAILS,
+  GET_SERVER_SESSIONS_WITH_DETAILS,
   GET_EVENT_BY_SESSION_ID,
   CREATE_EVENT,
   DELETE_EVENT,
@@ -262,19 +262,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<SyncResult>> 
       );
     }
 
-    // Récupérer toutes les sessions avec détails
-    const sessionsResponse = await GET_SESSIONS_WITH_DETAILS();
-    if (!sessionsResponse.success) {
-      return createResponse(
-        false,
-        null,
-        ["Erreur lors de la récupération des sessions"],
-        null,
-        500
-      );
-    }
-
-    const sessions = sessionsResponse.data as ISessionWithDetails[];
+    // Récupérer toutes les sessions avec détails directement (sans sérialisation)
+    const sessions = await GET_SERVER_SESSIONS_WITH_DETAILS();
     const validatedSessions = sessions.filter(s => s.status === "Actif");
     
     let eventsCreated = 0;
