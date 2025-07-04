@@ -16,7 +16,6 @@ import {
   ItemContainer,
   SecondaryButton,
   LoadingSpinner,
-  RefreshButton,
   SyncButton,
 } from "@/components";
 
