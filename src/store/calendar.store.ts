@@ -1,15 +1,12 @@
 "use client";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { toast } from "sonner";
 
 /* services */
 import {
   fetcherCheckToken,
   fetcherRefreshToken,
-  fetcherSyncCalendar,
 } from "@/services/GoogleCalendar/ClientSide";
-import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
 
 /* store */
 import { useProfile } from "@/store";
@@ -29,7 +26,6 @@ interface CalendarActions {
   refreshToken: () => Promise<boolean>;
   checkToken: () => Promise<boolean>;
   checkTokenValidity: () => Promise<void>;
-  syncCalendar: () => Promise<void>;
 }
 
 type CalendarStore = CalendarState & CalendarActions;
@@ -66,29 +62,11 @@ export const useCalendar = create<CalendarStore>()(
       },
 
       /**
-       * Synchronise le calendrier
-       */
-      syncCalendar: async () => {
-        const { profile } = await useProfile.getState();
-        if (!profile?.tokenCalendar) return;
-        set({ isLoading: true }, false, "syncCalendar");
-        const response = await fetcherSyncCalendar();
-        if (response.success && response.data) {
-          set({ isLoading: false }, false, "syncCalendar");
-          toast.success(response.feedback?.[0] || "Synchronisation réussie");
-        } else {
-          set({ isLoading: false }, false, "syncCalendar");
-          toast.error("Erreur lors de la synchronisation");
-          console.error(response.error);
-        }
-      },
-
-      /**
        * Rafraîchit le token d'accès
        * @returns Résultat de l'opération de rafraîchissement
        */
       refreshToken: async () => {
-        const { profile } = await useProfile.getState();
+        const { profile } = useProfile.getState();
         const updateProfile = useProfile.getState().updateProfile;
         if (!profile?.tokenRefreshCalendar) {
           set({ tokenIsValid: false }, false, "refreshToken");
@@ -128,7 +106,7 @@ export const useCalendar = create<CalendarStore>()(
        * @returns true si le token est valide, false sinon
        */
       checkToken: async () => {
-        const { profile } = await useProfile.getState();
+        const { profile } = useProfile.getState();
         if (!profile?.tokenCalendar) return false;
         try {
           const response = await fetcherCheckToken(profile.tokenCalendar);
