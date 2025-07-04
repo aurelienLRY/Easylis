@@ -45,6 +45,40 @@ interface SyncResult {
 }
 
 /**
+ * Fonction pour convertir une chaîne de date en objet Date correct
+ * @param dateString - La date au format string ou Date
+ * @returns Un objet Date correctement interprété
+ */
+const parseDateCorrectly = (dateString: string | Date): Date => {
+  // Si c'est déjà un objet Date, le retourner
+  if (typeof dateString === 'object' && dateString instanceof Date) {
+    return dateString;
+  }
+  
+  // Si c'est une chaîne ISO, la parser en tenant compte du fuseau horaire
+  const date = new Date(dateString as string);
+  
+  // Vérifier si la date est valide
+  if (isNaN(date.getTime())) {
+    throw new Error(`Date invalide: ${dateString}`);
+  }
+  
+  return date;
+};
+
+/**
+ * Fonction pour corriger les dates d'une session
+ * @param session - La session avec les dates potentiellement incorrectes
+ * @returns La session avec les dates corrigées
+ */
+const fixSessionDates = (session: any) => {
+  return {
+    ...session,
+    date: parseDateCorrectly(session.date),
+  };
+};
+
+/**
  * Vérifie si l'utilisateur a un token Google Calendar valide
  */
 const checkUserGoogleToken = async (userId: string): Promise<ICredentials | null> => {
