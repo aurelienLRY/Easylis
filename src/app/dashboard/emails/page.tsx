@@ -31,6 +31,12 @@ interface EmailLog {
     retryCount: number;
     customerId?: string;
     sessionId?: string;
+    user?: {
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+        username?: string;
+    };
 }
 
 interface EmailStats {
@@ -292,6 +298,11 @@ export default function EmailsPage() {
                                             <p className="text-xs lg:text-sm text-gray-300">
                                                 Type: {getScenarioLabel(log.scenario)}
                                             </p>
+                                            {log.user && (
+                                                <p className="text-xs lg:text-sm text-blue-300">
+                                                    Envoyé par: {log.user.firstName} {log.user.lastName} ({log.user.email})
+                                                </p>
+                                            )}
                                             {log.error && (
                                                 <p className="text-sm text-red-600 mt-1">
                                                     Erreur: {log.error}
@@ -368,6 +379,14 @@ export default function EmailsPage() {
                                     <span className="font-semibold">Date d&apos;envoi :</span>
                                     <p className="text-gray-300">{formatDate(emailContentModal.data.sentAt)}</p>
                                 </div>
+                                {emailContentModal.data.user && (
+                                    <div>
+                                        <span className="font-semibold">Envoyé par :</span>
+                                        <p className="text-gray-300">
+                                            {emailContentModal.data.user.firstName} {emailContentModal.data.user.lastName} ({emailContentModal.data.user.email})
+                                        </p>
+                                    </div>
+                                )}
                                 <div>
                                     <span className="font-semibold">Statut :</span>
                                     <div className="mt-1">{getStatusBadge(emailContentModal.data.status)}</div>
