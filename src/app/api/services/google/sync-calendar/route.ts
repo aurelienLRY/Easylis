@@ -298,7 +298,10 @@ export async function POST(req: NextRequest): Promise<NextResponse<SyncResult>> 
 
     // Récupérer toutes les sessions avec détails directement (sans sérialisation)
     const sessions = await GET_SERVER_SESSIONS_WITH_DETAILS();
-    const validatedSessions = sessions.filter(s => s.status === "Actif");
+    
+    // Corriger les dates de toutes les sessions pour éviter les problèmes de fuseau horaire
+    const sessionsWithFixedDates = sessions.map(fixSessionDates);
+    const validatedSessions = sessionsWithFixedDates.filter(s => s.status === "Actif");
     
     let eventsCreated = 0;
     let eventsUpdated = 0;
@@ -306,7 +309,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SyncResult>> 
     const errors: string[] = [];
 
     // 1. Nettoyer les événements orphelins (sessions invalides)
-    for (const session of sessions) {
+    for (const session of sessionsWithFixedDates) {
       if (session.status !== "Actif") {
         eventsDeleted += await deleteOrphanEvent(credentials, session, errors);
       }
