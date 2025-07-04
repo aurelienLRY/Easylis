@@ -16,12 +16,13 @@ import {
   ItemContainer,
   SecondaryButton,
   LoadingSpinner,
-  RefreshButton,
   SyncButton,
 } from "@/components";
 
 /* stores */
 import { useProfile, useCalendar } from "@/store";
+import { useGoogleCalendar } from "@/hooks";
+import { toast } from "sonner";
 
 type Props = {
   className?: string;
@@ -83,8 +84,18 @@ const ConnectToCalendar = () => {
 
 function Calendar() {
   const { profile } = useProfile();
-  const {  syncCalendar  } = useCalendar();
+  const { syncCalendar, isSyncing } = useGoogleCalendar();
+  
   if (!profile) return null;
+
+  const handleSync = async () => {
+    const result = await syncCalendar();
+    if (result.success) {
+      toast.success(result.feedback?.[0] || "Synchronisation réussie");
+    } else {
+      toast.error(result.error || "Erreur lors de la synchronisation");
+    }
+  };
 
   // Définir les configurations du header en fonction de la taille d'écran
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
@@ -127,7 +138,8 @@ function Calendar() {
   
         <SyncButton
           className=" text-3xl"
-          onClick={syncCalendar}
+          onClick={handleSync}
+          isLoading={isSyncing}
           title="Mettre à jour les événements"
         />     
  

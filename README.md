@@ -1,159 +1,525 @@
-# Easylis 
+# 🚀 Easylis - Gestion d'Activités et Réservations
+
+[![Next.js](https://img.shields.io/badge/Next.js-14.0.0-black?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-7.0-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Zustand](https://img.shields.io/badge/Zustand-4.4-764ABC?style=for-the-badge&logo=redux&logoColor=white)](https://zustand-demo.pmnd.rs/)
+[![NextAuth.js](https://img.shields.io/badge/NextAuth.js-4.24-000000?style=for-the-badge&logo=nextauth&logoColor=white)](https://next-auth.js.org/)
 
 ![Occitanie Évasion](https://github.com/user-attachments/assets/b3cd8efd-ddd6-4bd3-a2c4-060fd405b335)
 
-## Table des Matières
+> **Easylis** est une application moderne de gestion d'activités et de réservations conçue pour les entreprises de loisirs. Elle simplifie la planification, le suivi et l'optimisation des événements avec une interface intuitive et des fonctionnalités avancées.
 
-1. [À propos](#1-à-propos)
-2. [Stack Technique](#2-stack-technique)
-3. [Créateur](#3-créateur)
-4. [Architecture](#4-architecture)
-5. [Configuration](#5-configuration)
-6. [Utilisation](#6-utilisation)
+## 📋 Table des Matières
 
----
-
-## 1. À propos
-
-Easylis est une application conçue pour simplifier la gestion des activités et des réservations. Elle s'adapte aux besoins variés des entreprises de loisirs.
-
-Avec Easylis, les gestionnaires peuvent planifier, suivre et optimiser leurs événements.
-
-** Caractéristiques principales : ** 
-
-Gestion des créneaux horaires : Configurez et organisez facilement les disponibilités des activités en fonction des capacités et des ressources.
-Réservations en temps réel : Permettez aux clients de réserver directement via une interface conviviale, avec des mises à jour instantanées des disponibilités.
-Suivi des performances : Analysez les données des activités pour identifier les tendances et maximiser l’efficacité.
-Notifications automatisées : Envoyez des rappels aux clients ou des alertes aux gestionnaires en quelques clics.
----
-
-## 2. Stack Technique
-
-Cette application repose sur les technologies suivantes :
-[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+- [✨ Fonctionnalités](#-fonctionnalités)
+- [🏗️ Architecture](#️-architecture)
+- [🛠️ Stack Technique](#️-stack-technique)
+- [🚀 Installation](#-installation)
+- [⚙️ Configuration](#️-configuration)
+- [📖 Utilisation](#-utilisation)
+- [🔧 Développement](#-développement)
+- [📚 Documentation](#-documentation)
+- [🤝 Contribution](#-contribution)
+- [👨‍💻 Créateur](#-créateur)
+- [📄 Licence](#-licence)
 
 ---
 
-## 3. Créateur
+## ✨ Fonctionnalités
 
-**Nom du Créateur**  
-Contact : [leroyaurelien11@gmail.com](mailto:leroyaurelien11@gmail.com)  
-Profil GitHub : [GitHub](https://github.com/aurelienLRY/)
-Temps passé : [![wakatime](https://wakatime.com/badge/user/dfdaf0d3-5ae8-4997-92c1-563d24f5d7d4/project/5d7c61d4-7045-45c5-a7a0-20bc00395ad3.svg)](https://wakatime.com/badge/user/dfdaf0d3-5ae8-4997-92c1-563d24f5d7d4/project/5d7c61d4-7045-45c5-a7a0-20bc00395ad3)
+### 🎯 **Gestion Complète des Activités**
+- **Créneaux horaires flexibles** : Configuration et organisation des disponibilités
+- **Gestion des capacités** : Contrôle des places disponibles par activité
+- **Planification avancée** : Interface intuitive pour la création d'événements
+- **Gestion des lieux** : Coordonnées GPS et informations détaillées des spots
+
+### 📅 **Système de Réservations**
+- **Réservations en temps réel** : Interface client conviviale avec mises à jour instantanées
+- **Gestion des statuts** : Validation, annulation, en attente
+- **Notifications automatisées** : Emails de confirmation et rappels
+- **Intégration Google Calendar** : Synchronisation bidirectionnelle
+
+### 📊 **Analytics et Suivi**
+- **Tableaux de bord** : Vue d'ensemble des performances
+- **Statistiques détaillées** : Analyse des tendances et de l'efficacité
+- **Rapports personnalisés** : Export de données pour analyse
+- **Graphiques interactifs** : Visualisation des données d'activités
+
+### 🔐 **Sécurité et Authentification**
+- **Authentification NextAuth.js** : Connexion sécurisée
+- **Gestion des rôles** : Administrateurs et utilisateurs
+- **Chiffrement des données** : Protection des informations sensibles
+- **API sécurisée** : Validation et autorisation des requêtes
 
 ---
 
-## 4. Architecture
+## 🏗️ Architecture
 
-Le projet est organisé selon une architecture modulaire et maintenable, avec des dossiers spécifiques pour chaque type de fonctionnalité et composant.
+Le projet suit une architecture modulaire et maintenable avec une séparation claire des responsabilités.
 
-**Structure du dossier :**
+### 📁 Structure du Projet
 
-```plaintext
-/src
-├── /app               # API App Router de Next.js 13+
-│   ├── /(routes)      # Routes regroupées par dossier (optionnel)
-│   ├── /api           # Endpoints API pour la gestion des données
-│   ├── /dashboard     # Exemple : route principale avec sous-routes
-│   ├── layout.tsx     # Layout principal partagé par toutes les pages
-│   └── page.tsx       # Page d'accueil (racine de l'application)
+```
+Easylis/
+├── 📁 src/
+│   ├── 📁 app/                    # App Router Next.js 13+
+│   │   ├── 📁 api/               # Endpoints API
+│   │   │   ├── 📁 auth/          # Authentification
+│   │   │   ├── 📁 services/      # Services externes
+│   │   │   └── 📁 user/          # Gestion utilisateurs
+│   │   ├── 📁 dashboard/         # Interface d'administration
+│   │   ├── layout.tsx            # Layout principal
+│   │   └── page.tsx              # Page d'accueil
+│   │
+│   ├── 📁 components/            # Composants React
+│   │   ├── 📁 buttons/           # Composants de boutons
+│   │   ├── 📁 cards/             # Cartes d'affichage
+│   │   ├── 📁 form/              # Formulaires
+│   │   ├── 📁 layout/            # Composants de mise en page
+│   │   └── 📁 modules/           # Modules fonctionnels
+│   │
+│   ├── 📁 hooks/                 # Hooks personnalisés
+│   │   ├── useAuth.ts            # Authentification
+│   │   ├── useGoogleCalendar.ts  # Google Calendar
+│   │   ├── useCustomer.ts        # Gestion clients
+│   │   └── useMailer.ts          # Envoi d'emails
+│   │
+│   ├── 📁 store/                 # Gestion d'état Zustand
+│   │   ├── calendar.store.ts     # État Google Calendar
+│   │   ├── sessions.store.ts     # Sessions
+│   │   ├── activities.store.ts   # Activités
+│   │   └── profile.store.ts      # Profil utilisateur
+│   │
+│   ├── 📁 services/              # Services externes
+│   │   ├── 📁 GoogleCalendar/    # Intégration Google
+│   │   └── 📁 Mailer/            # Service d'emails
+│   │
+│   ├── 📁 libs/                  # Bibliothèques et utilitaires
+│   │   ├── 📁 database/          # Configuration MongoDB
+│   │   ├── 📁 ServerAction/      # Actions serveur
+│   │   └── 📁 utils/             # Utilitaires
+│   │
+│   └── 📁 types/                 # Types TypeScript
 │
-├── /components        # Composants réutilisables dans l'application
-│   ├── /ui            # Composants d'interface (boutons, formulaires, etc.)
-│   └── /modules       # Composants propres à des fonctionnalités précises
-│
-├── /hooks             # Hooks React personnalisés
-│
-├── /lib               # Fonctions utilitaires, helpers, et instances (ex. axios, firebase)
-│
-├── /styles            # CSS global et styles spécifiques
-│
-├── /context           # Fournisseurs de contexte pour l'état global (Context API)
-│
-├── /services          # Fonctions pour la communication avec les API
-│
-├── /store             # Gestion d'état global (ex. Redux, Zustand)
-│
-├── /utils             # Fonctions utilitaires, constantes et types
-│
-├── /types             # Types TypeScript et interfaces globales
-│
-└── /assets            # Images, polices, et autres ressources statiques
+├── 📁 public/                    # Assets statiques
+├── 📁 docs/                      # Documentation
+├── package.json                  # Dépendances
+├── tailwind.config.ts           # Configuration Tailwind
+└── next.config.mjs              # Configuration Next.js
 ```
 
-## 5. Configuration
+### 🔄 Flux de Données
 
-### Prérequis .env
+```mermaid
+graph TD
+    A[Interface Utilisateur] --> B[Hooks]
+    B --> C[Stores Zustand]
+    C --> D[Services]
+    D --> E[API Routes]
+    E --> F[Base de Données]
+    
+    G[Google Calendar] --> D
+    H[SMTP Server] --> D
+```
+
+---
+
+## 🛠️ Stack Technique
+
+### **Frontend**
+- **[Next.js 14](https://nextjs.org/)** - Framework React avec App Router
+- **[TypeScript](https://www.typescriptlang.org/)** - Typage statique
+- **[Tailwind CSS](https://tailwindcss.com/)** - Framework CSS utilitaire
+- **[Zustand](https://zustand-demo.pmnd.rs/)** - Gestion d'état global
+- **[React Hook Form](https://react-hook-form.com/)** - Gestion des formulaires
+
+### **Backend**
+- **[Next.js API Routes](https://nextjs.org/docs/api-routes/introduction)** - API REST
+- **[MongoDB](https://www.mongodb.com/)** - Base de données NoSQL
+- **[Mongoose](https://mongoosejs.com/)** - ODM pour MongoDB
+- **[NextAuth.js](https://next-auth.js.org/)** - Authentification
+
+### **Services Externes**
+- **[Google Calendar API](https://developers.google.com/calendar)** - Synchronisation calendrier
+- **[Nodemailer](https://nodemailer.com/)** - Envoi d'emails
+- **[SMTP](https://fr.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol)** - Serveur email
+
+### **Outils de Développement**
+- **[ESLint](https://eslint.org/)** - Linting JavaScript/TypeScript
+- **[Prettier](https://prettier.io/)** - Formatage de code
+
+---
+
+## 🚀 Installation
+
+### Prérequis
+- **Node.js** 18.0 ou supérieur
+- **npm** ou **yarn**
+- **MongoDB** (local ou Atlas)
+- **Compte Google Cloud** (pour Google Calendar)
+
+### Étapes d'installation
+
+1. **Cloner le repository**
+   ```bash
+   git clone https://github.com/aurelienLRY/Easylis.git
+   cd Easylis
+   ```
+
+2. **Installer les dépendances**
+   ```bash
+   npm install
+   # ou
+   yarn install
+   ```
+
+3. **Configurer l'environnement**
+   ```bash
+   cp exemple.env .env.local
+   # Éditer .env.local avec vos configurations
+   ```
+
+4. **Lancer en développement**
+   ```bash
+   npm run dev
+   # ou
+   yarn dev
+   ```
+
+5. **Ouvrir l'application**
+   ```
+   http://localhost:3000
+   ```
+
+---
+
+## ⚙️ Configuration
+
+### Variables d'Environnement
+
+Créez un fichier `.env.local` basé sur `exemple.env` :
 
 ```env
-# URL de l'application pour NextAuth
-NEXTAUTH_URL='string'
+# ========================================
+# CONFIGURATION NEXT.JS & NEXTAUTH
+# ========================================
 
-# Clé secrète pour NextAuth (générée automatiquement)
-NEXTAUTH_SECRET="string"
+# URL de l'application (obligatoire pour NextAuth)
+NEXTAUTH_URL=http://localhost:3000
 
-# URI de connexion pour MongoDB
-MONGODB_URI="mongodb+srv://<username>:<password>@...."
+# Secret pour NextAuth.js (générer avec: openssl rand -base64 32)
+NEXTAUTH_SECRET=your_nextauth_secret_here
 
-# Clé d'encryption pour les données sensibles
-ENCRYPTION_KEY="string"
+# Origines autorisées pour CORS
+ALLOWED_ORIGINS=http://localhost:3000,https://staging.occitanie-evasion.com,https://occitanie-evasion.com
 
-# Jeton d'API pour la création d'un utilisateur
-NEXT_API_TOKEN="string"
+# ========================================
+# BASE DE DONNÉES MONGODB
+# ========================================
 
-# Configuration SMTP pour l'envoi d'emails
-SMTP_HOST=""
+# URI de connexion MongoDB Atlas ou MongoDB local
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/easylis?retryWrites=true&w=majority
+
+# ========================================
+# SÉCURITÉ & CHIFFREMENT
+# ========================================
+
+# Clé de chiffrement pour les données sensibles (32 caractères)
+ENCRYPTION_KEY=your_32_character_encryption_key_here
+
+# Token API pour créer de nouveaux utilisateurs
+NEXT_API_TOKEN=your_api_token_for_user_creation
+
+# Token API pour les services externes
+NEXT_API_OUT_SERVICES=your_external_services_api_token
+
+# ========================================
+# CONFIGURATION EMAIL (SMTP)
+# ========================================
+
+# Serveur SMTP pour l'envoi d'emails
+SMTP_HOST=smtp.hostinger.com
 SMTP_PORT=465
 SMTP_SECURE=true
-SMTP_EMAIL="email"
-SMTP_PASSWORD=""
+SMTP_EMAIL=your_email@gmail.com
+SMTP_PASSWORD=your_email_password
 
-#API CALENDAR
-GOOGLE_CLIENT_ID= string
-GOOGLE_CLIENT_SECRET= string
-GOOGLE_REDIRECT_URI= string
-NEXT_PUBLIC_GOOGLE_API_KEY= string
+# ========================================
+# INTÉGRATION GOOGLE CALENDAR
+# ========================================
 
-
+# Identifiants Google OAuth 2.0
+GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_REDIRECT_URI=http://localhost:3000/api/services/google/callback
+NEXT_PUBLIC_GOOGLE_API_KEY=your_google_api_key
 ```
 
-## 6. Utilisation
+### Configuration Google Calendar
 
-### Ajout d'un Administrateur
+1. **Créer un projet Google Cloud**
+   - Aller sur [Google Cloud Console](https://console.cloud.google.com/)
+   - Créer un nouveau projet
+   - Activer l'API Google Calendar
 
-Pour ajouter un administrateur, suivez les étapes ci-dessous. Cela nécessite de configurer un jeton dans le fichier .env.local et de faire une requête POST à l'API.
+2. **Configurer OAuth 2.0**
+   - Créer des identifiants OAuth 2.0
+   - Ajouter les URLs de redirection autorisées
+   - Récupérer `GOOGLE_CLIENT_ID` et `GOOGLE_CLIENT_SECRET`
 
-1. Configurer le jeton d'API dans le fichier .env.local : Assurez-vous d'avoir un jeton valide en ajoutant la variable suivante dans votre fichier .env.local (ou en la modifiant si elle existe déjà) :
+3. **Configurer les permissions**
+   - Ajouter les scopes nécessaires
+   - Configurer l'écran de consentement
 
-```env
-NEXT_API_TOKEN="votre_token_securisé_ici"
+---
+
+## 📖 Utilisation
+
+### 🎯 Interface d'Administration
+
+L'interface d'administration est accessible via `/dashboard` et comprend :
+
+- **Tableau de bord** : Vue d'ensemble des activités et réservations
+- **Gestion des sessions** : Création, modification, suppression
+- **Gestion des clients** : Suivi des réservations et statuts
+- **Configuration** : Paramètres de l'application
+
+### 📅 Synchronisation Google Calendar
+
+```typescript
+import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
+
+const CalendarSync = () => {
+  const { syncCalendar, isSyncing } = useGoogleCalendar();
+  
+  const handleSync = async () => {
+    try {
+      await syncCalendar();
+      console.log("Synchronisation réussie");
+    } catch (error) {
+      console.error("Erreur de synchronisation:", error);
+    }
+  };
+  
+  return (
+    <button onClick={handleSync} disabled={isSyncing}>
+      {isSyncing ? "Synchronisation..." : "Synchroniser"}
+    </button>
+  );
+};
 ```
 
-2. Faire une requête API pour créer un administrateur : Utilisez le code suivant pour envoyer une requête POST à l'API afin de créer un administrateur. Assurez-vous de personnaliser le corps de la requête avec les informations de l’administrateur:
+### 📧 Envoi d'Emails
+
+```typescript
+import { useMailer } from "@/hooks/useMailer";
+
+const EmailService = () => {
+  const { sendEmail } = useMailer();
+  
+  const handleSendConfirmation = async () => {
+    await sendEmail({
+      to: "client@example.com",
+      template: "bookingRequest",
+      data: {
+        customerName: "John Doe",
+        sessionDate: "2024-01-15",
+        activityName: "Escalade"
+      }
+    });
+  };
+};
+```
+
+### 👥 Création d'un Administrateur
 
 ```javascript
-const myHeaders = new Headers();
-myHeaders.append("Content-Type", "application/json");
-myHeaders.append("Authorization", "••••••");
-
-const raw = JSON.stringify({
-  email: "exemple@exemple.com",
-  password: "alpha#",
-  username: "admin",
-  name: "admin",
-});
-
-const requestOptions = {
-  method: "POST",
-  headers: myHeaders,
-  body: raw,
-  redirect: "follow",
+// Requête API pour créer un administrateur
+const createAdmin = async () => {
+  const response = await fetch("/api/user", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": process.env.NEXT_API_TOKEN
+    },
+    body: JSON.stringify({
+      email: "admin@easylis.com",
+      password: "securePassword123",
+      username: "admin",
+      name: "Administrateur"
+    })
+  });
+  
+  const result = await response.json();
+  console.log("Administrateur créé:", result);
 };
-
-fetch("http://localhost:3000/api/user", requestOptions)
-  .then((response) => response.text())
-  .then((result) => console.log(result))
-  .catch((error) => console.error(error));
 ```
+
+---
+
+## 🔧 Développement
+
+### Scripts Disponibles
+
+```bash
+# Développement
+npm run dev          # Lancer le serveur de développement
+npm run build        # Construire pour la production
+npm run start        # Lancer en production
+npm run lint         # Vérifier le code avec ESLint
+npm run type-check   # Vérifier les types TypeScript
+
+```
+
+### Structure de Développement
+
+#### **Ajout d'un nouveau composant**
+```typescript
+// src/components/NewComponent.tsx
+import { FC } from 'react';
+
+interface NewComponentProps {
+  title: string;
+  onAction: () => void;
+}
+
+export const NewComponent: FC<NewComponentProps> = ({ title, onAction }) => {
+  return (
+    <div className="p-4 bg-white rounded-lg shadow">
+      <h2 className="text-xl font-bold">{title}</h2>
+      <button onClick={onAction}>Action</button>
+    </div>
+  );
+};
+```
+
+#### **Ajout d'un nouveau store**
+```typescript
+// src/store/newStore.ts
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
+
+interface NewStore {
+  data: any[];
+  isLoading: boolean;
+  fetchData: () => Promise<void>;
+}
+
+export const useNewStore = create<NewStore>()(
+  devtools(
+    (set) => ({
+      data: [],
+      isLoading: false,
+      fetchData: async () => {
+        set({ isLoading: true });
+        // Logique de récupération
+        set({ isLoading: false });
+      }
+    }),
+    { name: 'NewStore' }
+  )
+);
+```
+
+#### **Ajout d'une nouvelle API route**
+```typescript
+// src/app/api/new-endpoint/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/api/auth/auth';
+
+export async function GET(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { success: false, error: "Non autorisé" },
+        { status: 401 }
+      );
+    }
+
+    // Logique métier
+    return NextResponse.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}
+```
+
+---
+
+## 📚 Documentation
+
+### Documentation par Module
+
+- **[API Documentation](./src/app/api/README.md)** - Routes API et endpoints
+- **[Hooks Documentation](./src/hooks/README.md)** - Hooks personnalisés
+- **[Store Documentation](./src/store/README.md)** - Gestion d'état Zustand
+- **[Services Documentation](./src/services/README.md)** - Services externes
+
+
+---
+
+## 🤝 Contribution
+
+Nous accueillons les contributions ! Voici comment participer :
+
+### 1. **Fork et Clone**
+```bash
+git clone https://github.com/votre-username/Easylis.git
+cd Easylis
+```
+
+### 2. **Créer une branche**
+```bash
+git checkout -b feature/nouvelle-fonctionnalite
+```
+
+### 3. **Développer**
+- Suivre les conventions de code
+- Ajouter des tests si nécessaire
+- Documenter les changements
+
+
+### Conventions de Code
+
+- **Commits** : [Conventional Commits](https://www.conventionalcommits.org/)
+- **Nommage** : camelCase pour les variables, PascalCase pour les composants
+- **Typescript** : Typage strict obligatoire
+- **Tests** : Tests unitaires pour les fonctions critiques
+
+---
+
+## 👨‍💻 Créateur
+
+**Aurélien Leroy**  
+📧 Contact : [leroyaurelien11@gmail.com](mailto:leroyaurelien11@gmail.com)  
+🐙 GitHub : [@aurelienLRY](https://github.com/aurelienLRY/)  
+⏱️ Temps de développement : [![wakatime](https://wakatime.com/badge/user/dfdaf0d3-5ae8-4997-92c1-563d24f5d7d4/project/5d7c61d4-7045-45c5-a7a0-20bc00395ad3.svg)](https://wakatime.com/badge/user/dfdaf0d3-5ae8-4997-92c1-563d24f5d7d4/project/5d7c61d4-7045-45c5-a7a0-20bc00395ad3)
+
+
+---
+
+## 📄 Licence
+
+Ce projet est sous licence MIT. 
+
+---
+
+<div align="center">
+
+**Easylis** - Simplifiez la gestion de vos activités ! 🚀
+
+[![GitHub stars](https://img.shields.io/github/stars/aurelienLRY/Easylis?style=social)](https://github.com/aurelienLRY/Easylis)
+[![GitHub forks](https://img.shields.io/github/forks/aurelienLRY/Easylis?style=social)](https://github.com/aurelienLRY/Easylis)
+[![GitHub issues](https://img.shields.io/github/issues/aurelienLRY/Easylis)](https://github.com/aurelienLRY/Easylis/issues)
+
+</div>

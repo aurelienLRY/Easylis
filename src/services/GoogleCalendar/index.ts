@@ -17,6 +17,5 @@ export {
   fetcherDeleteEvent,
   fetcherRefreshToken,
   fetcherUpdateEvent,
-  fetcherSyncCalendar,
   generateEvent,
 } from "@/services/GoogleCalendar/ClientSide";

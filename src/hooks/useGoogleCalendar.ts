@@ -6,12 +6,13 @@ import {
   fetcherUpdateEvent,
   fetcherDeleteEvent,
   fetcherCheckEventExists,
-  fetcherCheckToken,
-  fetcherRefreshToken,
-  fetcherSyncCalendar,
   generateEvent,
 } from "@/services/GoogleCalendar/ClientSide";
+import { syncCalendar as syncCalendarClient } from "@/services/GoogleCalendar/ClientSide/syncCalendar";
 import { ICalendarEvent, ISessionWithDetails, ICallback, IUser } from "@/types";
+import { useSessionWithDetails } from "@/store";
+import { useProfile } from "@/store";
+import { useCalendar } from "@/store";
 
 interface IEventExistsResponse {
   existsInDB: boolean;
@@ -33,8 +34,6 @@ interface IUseGoogleCalendarReturn {
   updateEvent: (refreshToken: string, event: ICalendarEvent, sessionId: string) => Promise<ICallback>;
   deleteEvent: (refreshToken: string, sessionId: string) => Promise<ICallback>;
   checkEventExists: (sessionId: string, refreshToken?: string) => Promise<ICallback & { data: IEventExistsResponse }>;
-  checkToken: (token: string) => Promise<ICallback & { data: { valid: boolean; tokenInfo: any } }>;
-  refreshToken: (profile: IUser) => Promise<ICallback & { data: { credentials: any; profile: IUser | null } }>;
   syncCalendar: () => Promise<ICallback>;
   generateEventFromSession: (session: ISessionWithDetails) => ICalendarEvent;
 
@@ -54,7 +53,17 @@ export const useGoogleCalendar = (): IUseGoogleCalendarReturn => {
   const [isChecking, setIsChecking] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Fonction pour ajouter un événement
+  // Utiliser les stores pour récupérer les données
+  const { SessionWithDetails } = useSessionWithDetails();
+  const { profile } = useProfile();
+
+ /**
+  * Ajouter un événement
+  * @param refreshToken - Le token de rafraîchissement
+  * @param event - L'événement à ajouter
+  * @param sessionId - L'ID de la session
+  * @returns Le résultat de l'ajout de l'événement
+  */
   const addEvent = useCallback(async (
     refreshToken: string,
     event: ICalendarEvent,
@@ -69,7 +78,13 @@ export const useGoogleCalendar = (): IUseGoogleCalendarReturn => {
     }
   }, []);
 
-  // Fonction pour mettre à jour un événement
+  /**
+   * Mettre à jour un événement
+   * @param refreshToken - Le token de rafraîchissement
+   * @param event - L'événement à mettre à jour
+   * @param sessionId - L'ID de la session
+   * @returns Le résultat de la mise à jour de l'événement
+   */
   const updateEvent = useCallback(async (
     refreshToken: string,
     event: ICalendarEvent,
@@ -84,7 +99,12 @@ export const useGoogleCalendar = (): IUseGoogleCalendarReturn => {
     }
   }, []);
 
-  // Fonction pour supprimer un événement
+  /**
+   * Supprimer un événement
+   * @param refreshToken - Le token de rafraîchissement
+   * @param sessionId - L'ID de la session
+   * @returns Le résultat de la suppression de l'événement
+   */
   const deleteEvent = useCallback(async (
     refreshToken: string,
     sessionId: string
@@ -98,7 +118,12 @@ export const useGoogleCalendar = (): IUseGoogleCalendarReturn => {
     }
   }, []);
 
-  // Fonction pour vérifier si un événement existe
+  /**
+   * Vérifier si un événement existe
+   * @param sessionId - L'ID de la session
+   * @param refreshToken - Le token de rafraîchissement
+   * @returns Le résultat de la vérification de l'événement
+   */
   const checkEventExists = useCallback(async (
     sessionId: string,
     refreshToken?: string
@@ -112,49 +137,47 @@ export const useGoogleCalendar = (): IUseGoogleCalendarReturn => {
     }
   }, []);
 
-  // Fonction pour vérifier un token
-  const checkToken = useCallback(async (
-    token: string
-  ): Promise<ICallback & { data: { valid: boolean; tokenInfo: any } }> => {
-    setIsLoading(true);
-    try {
-      const result = await fetcherCheckToken(token);
-      return result;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Fonction pour rafraîchir un token
-  const refreshToken = useCallback(async (
-    profile: IUser
-  ): Promise<ICallback & { data: { credentials: any; profile: IUser | null } }> => {
-    setIsLoading(true);
-    try {
-      const result = await fetcherRefreshToken(profile);
-      return result;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Fonction pour synchroniser le calendrier
+  /**
+   * Synchroniser le calendrier
+   * @returns Le résultat de la synchronisation
+   */
   const syncCalendar = useCallback(async (): Promise<ICallback> => {
     setIsSyncing(true);
     try {
-      const result = await fetcherSyncCalendar();
+      // Vérifier que le profil et le token sont disponibles
+      if (!profile || !profile.tokenRefreshCalendar) {
+        return {
+          success: false,
+          data: null,
+          error: "Token manquant",
+          feedback: ["Veuillez d'abord connecter votre calendrier Google"],
+        };
+      }
+
+      // Utiliser la nouvelle fonction de synchronisation côté client
+      const result = await syncCalendarClient(SessionWithDetails, profile.tokenRefreshCalendar);
       return result;
     } finally {
       setIsSyncing(false);
     }
-  }, []);
+  }, [SessionWithDetails, profile]);
 
-  // Fonction pour générer un événement à partir d'une session
+  /**
+   * Générer un événement à partir d'une session
+   * @param session - La session à partir de laquelle générer l'événement
+   * @returns L'événement généré
+   */
   const generateEventFromSession = useCallback((session: ISessionWithDetails): ICalendarEvent => {
     return generateEvent(session);
   }, []);
 
-  // Fonction utilitaire pour gérer un événement complet
+  /**
+   * Gérer un événement complet
+   * @param refreshToken - Le token de rafraîchissement
+   * @param session - La session à partir de laquelle générer l'événement
+   * @param action - L'action à effectuer (add, update, delete)
+   * @returns Le résultat de l'action
+   */
   const handleEvent = useCallback(async (
     refreshToken: string,
     session: ISessionWithDetails,
@@ -196,8 +219,6 @@ export const useGoogleCalendar = (): IUseGoogleCalendarReturn => {
     updateEvent,
     deleteEvent,
     checkEventExists,
-    checkToken,
-    refreshToken,
     syncCalendar,
     generateEventFromSession,
 
