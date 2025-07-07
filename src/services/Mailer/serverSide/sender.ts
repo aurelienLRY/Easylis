@@ -2,7 +2,7 @@
 import nodemailer from "nodemailer";
 import { IEmailSendResult, IMailerConfig, EmailErrorType } from "../clientSide/types";
 import { analyzeEmailError } from "../clientSide/errorHandler";
-import { CREATE_EMAIL_LOG } from "@/libs/ServerAction/emailLog.actions";
+import { CREATE_EMAIL_LOG, CREATE_EMAIL_LOG_SERVER } from "@/libs/ServerAction/emailLog.actions";
 
 /**
  * Configuration par défaut du mailer
@@ -53,6 +53,10 @@ const isValidEmail = (email: string): boolean => {
  * @param subject - Le sujet de l'email
  * @param html - Le contenu de l'email
  * @param config - Configuration optionnelle du mailer
+ * @param scenario - Type de scénario d'email
+ * @param customerId - ID du client (optionnel)
+ * @param sessionId - ID de la session (optionnel)
+ * @param userId - ID de l'utilisateur (optionnel, pour les appels serveur)
  * @returns EmailSendResult avec les détails de l'envoi
  */
 export const nodeMailerSender = async (
@@ -62,7 +66,8 @@ export const nodeMailerSender = async (
   config: Partial<IMailerConfig> = {},
   scenario: string = "CUSTOM",
   customerId?: string,
-  sessionId?: string
+  sessionId?: string,
+  userId?: string
 ): Promise<IEmailSendResult> => {
   const finalConfig = { ...defaultConfig, ...config };
   const timestamp = new Date();
@@ -141,17 +146,34 @@ export const nodeMailerSender = async (
 
       // Log de l'email envoyé
       try {
-        await CREATE_EMAIL_LOG(
-          {
-            recipient: email,
-            subject,
-            content: html,
-            scenario,
-            customerId,
-            sessionId,
-          },
-          result
-        );
+        if (userId) {
+          // Appel serveur avec userId fourni
+          await CREATE_EMAIL_LOG_SERVER(
+            {
+              recipient: email,
+              subject,
+              content: html,
+              scenario,
+              customerId,
+              sessionId,
+            },
+            result,
+            userId
+          );
+        } else {
+          // Appel avec session utilisateur (frontend)
+          await CREATE_EMAIL_LOG(
+            {
+              recipient: email,
+              subject,
+              content: html,
+              scenario,
+              customerId,
+              sessionId,
+            },
+            result
+          );
+        }
       } catch (logError) {
         console.error("Erreur lors du logging de l'email:", logError);
         // Ne pas faire échouer l'envoi si le logging échoue
@@ -185,17 +207,34 @@ export const nodeMailerSender = async (
 
         // Log de l'échec d'envoi
         try {
-          await CREATE_EMAIL_LOG(
-            {
-              recipient: email,
-              subject,
-              content: html,
-              scenario,
-              customerId,
-              sessionId,
-            },
-            result
-          );
+          if (userId) {
+            // Appel serveur avec userId fourni
+            await CREATE_EMAIL_LOG_SERVER(
+              {
+                recipient: email,
+                subject,
+                content: html,
+                scenario,
+                customerId,
+                sessionId,
+              },
+              result,
+              userId
+            );
+          } else {
+            // Appel avec session utilisateur (frontend)
+            await CREATE_EMAIL_LOG(
+              {
+                recipient: email,
+                subject,
+                content: html,
+                scenario,
+                customerId,
+                sessionId,
+              },
+              result
+            );
+          }
         } catch (logError) {
           console.error("Erreur lors du logging de l'échec d'email:", logError);
         }

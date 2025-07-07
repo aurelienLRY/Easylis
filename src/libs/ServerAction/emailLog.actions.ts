@@ -2,6 +2,7 @@
 
 import { connectDBOnce } from "@/libs/database/setting.mongoose";
 import { EmailLog, IEmailLog } from "@/libs/database/models/EmailLog.model";
+import { User } from "@/libs/database/models/User.model";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/auth";
 
@@ -55,7 +56,52 @@ export const CREATE_EMAIL_LOG = async (
 };
 
 /**
- * Récupère les logs d'emails pour un utilisateur
+ * Crée un nouveau log d'email pour les appels serveur (sans session utilisateur)
+ */
+export const CREATE_EMAIL_LOG_SERVER = async (
+  emailData: {
+    recipient: string;
+    subject: string;
+    content: string;
+    scenario: string;
+    customerId?: string;
+    sessionId?: string;
+  },
+  result: {
+    success: boolean;
+    messageId?: string;
+    error?: any;
+  },
+  userId: string
+): Promise<IEmailLog> => {
+  try {
+    await connectDBOnce();
+
+    const emailLog = new EmailLog({
+      recipient: emailData.recipient,
+      subject: emailData.subject,
+      content: emailData.content,
+      status: result.success ? 'sent' : 'failed',
+      messageId: result.messageId,
+      error: result.error?.message || result.error,
+      sentAt: new Date(),
+      userId: userId,
+      scenario: emailData.scenario,
+      retryCount: 0,
+      customerId: emailData.customerId,
+      sessionId: emailData.sessionId,
+    });
+
+    await emailLog.save();
+    return emailLog;
+  } catch (error) {
+    console.error("Erreur lors de la création du log d'email (serveur):", error);
+    throw error;
+  }
+};
+
+/**
+ * Récupère tous les logs d'emails (tous utilisateurs)
  */
 export const GET_EMAIL_LOGS = async (
   filters: {
@@ -83,8 +129,8 @@ export const GET_EMAIL_LOGS = async (
 
     const { status, scenario, recipient, startDate, endDate, limit = 20, page = 1 } = filters;
     
-    // Construction de la requête
-    const query: any = { userId: session.user.id };
+    // Construction de la requête (sans filtre userId pour afficher tous les emails)
+    const query: any = {};
     
     if (status) query.status = status;
     if (scenario) query.scenario = scenario;
@@ -98,12 +144,50 @@ export const GET_EMAIL_LOGS = async (
     // Calcul de la pagination
     const skip = (page - 1) * limit;
     
-    // Récupération des logs
-    const logs = await EmailLog.find(query)
-      .sort({ sentAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    // Récupération des logs avec informations utilisateur
+    const logs = await EmailLog.aggregate([
+      { $match: query },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          recipient: 1,
+          subject: 1,
+          content: 1,
+          status: 1,
+          messageId: 1,
+          error: 1,
+          sentAt: 1,
+          userId: 1,
+          scenario: 1,
+          retryCount: 1,
+          customerId: 1,
+          sessionId: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          "user.firstName": 1,
+          "user.lastName": 1,
+          "user.email": 1,
+          "user.username": 1
+        }
+      },
+      { $sort: { sentAt: -1 } },
+      { $skip: skip },
+      { $limit: limit }
+    ]);
 
     // Comptage total
     const total = await EmailLog.countDocuments(query);
@@ -160,7 +244,7 @@ export const UPDATE_EMAIL_LOG_STATUS = async (
 };
 
 /**
- * Récupère les statistiques des emails
+ * Récupère les statistiques globales de tous les emails
  */
 export const GET_EMAIL_STATS = async (): Promise<{
   totalSent: number;
@@ -177,24 +261,23 @@ export const GET_EMAIL_STATS = async (): Promise<{
       throw new Error("Utilisateur non authentifié");
     }
 
-    // Statistiques globales
+    // Statistiques globales (tous les emails, tous utilisateurs)
     const [totalSent, totalFailed, totalPending] = await Promise.all([
-      EmailLog.countDocuments({ userId: session.user.id, status: 'sent' }),
-      EmailLog.countDocuments({ userId: session.user.id, status: 'failed' }),
-      EmailLog.countDocuments({ userId: session.user.id, status: 'pending' }),
+      EmailLog.countDocuments({ status: 'sent' }),
+      EmailLog.countDocuments({ status: 'failed' }),
+      EmailLog.countDocuments({ status: 'pending' }),
     ]);
 
     const total = totalSent + totalFailed + totalPending;
     const successRate = total > 0 ? (totalSent / total) * 100 : 0;
 
-    // Activité récente (7 derniers jours)
+    // Activité récente (7 derniers jours) - tous les emails
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     const recentActivity = await EmailLog.aggregate([
       {
         $match: {
-          userId: session.user.id,
           sentAt: { $gte: sevenDaysAgo }
         }
       },

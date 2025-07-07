@@ -76,15 +76,20 @@ export async function POST(req: NextRequest) {
 
    const sessionWithDetails = await GET_SERVER_SESSION_WITH_DETAILS(newSession._id as string);
 
+   // Récupération du deuxième utilisateur pour les emails serveur
    const users = await User.find();
-   const user = users[1]; // Récupère le second utilisateur (index 1)
+   const serverUser = users[1]; // Récupère le second utilisateur (index 1)
+   
+   if (!serverUser) {
+     console.error("❌ Aucun utilisateur serveur trouvé pour l'envoi d'email");
+   }
 
    // Envoi de l'email de confirmation avec gestion d'erreur
    try {
      const PreEmail = generateEmail(emailScenarios.BOOKING_REQUEST, {
        customer: preCustomer,
        session: sessionWithDetails, 
-       profile_from: user 
+       profile_from: serverUser 
      });
      
      const emailSent = await nodeMailerSenderAPI(
@@ -94,7 +99,8 @@ export async function POST(req: NextRequest) {
        {},
        "BOOKING_REQUEST",
        newCustomer._id as string,
-       newSession._id as string
+       newSession._id as string,
+       serverUser?._id as string // Passage de l'ID du deuxième utilisateur
      );
 
      if (!emailSent) {
