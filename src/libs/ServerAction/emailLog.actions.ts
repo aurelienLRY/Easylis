@@ -56,6 +56,51 @@ export const CREATE_EMAIL_LOG = async (
 };
 
 /**
+ * Crée un nouveau log d'email pour les appels serveur (sans session utilisateur)
+ */
+export const CREATE_EMAIL_LOG_SERVER = async (
+  emailData: {
+    recipient: string;
+    subject: string;
+    content: string;
+    scenario: string;
+    customerId?: string;
+    sessionId?: string;
+  },
+  result: {
+    success: boolean;
+    messageId?: string;
+    error?: any;
+  },
+  userId: string
+): Promise<IEmailLog> => {
+  try {
+    await connectDBOnce();
+
+    const emailLog = new EmailLog({
+      recipient: emailData.recipient,
+      subject: emailData.subject,
+      content: emailData.content,
+      status: result.success ? 'sent' : 'failed',
+      messageId: result.messageId,
+      error: result.error?.message || result.error,
+      sentAt: new Date(),
+      userId: userId,
+      scenario: emailData.scenario,
+      retryCount: 0,
+      customerId: emailData.customerId,
+      sessionId: emailData.sessionId,
+    });
+
+    await emailLog.save();
+    return emailLog;
+  } catch (error) {
+    console.error("Erreur lors de la création du log d'email (serveur):", error);
+    throw error;
+  }
+};
+
+/**
  * Récupère tous les logs d'emails (tous utilisateurs)
  */
 export const GET_EMAIL_LOGS = async (
