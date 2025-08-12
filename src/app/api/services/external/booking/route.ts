@@ -7,6 +7,8 @@ import { connectDBOnce } from "@/libs/database/setting.mongoose";
 import { Session, CustomerSession, User } from "@/libs/database";
 // Types
 import { IActivity, ISession, ISpot, ICustomerSession } from "@/types";
+import { IBooking, IReservationSession } from "./type";
+
 // NodeMailer
 import { emailScenarios, generateEmail } from "@/services/Mailer/clientSide";
 import { GET_SERVER_SESSION_WITH_DETAILS } from "@/libs/ServerAction";
@@ -135,6 +137,147 @@ export async function POST(req: NextRequest) {
    }, { status: 200 });
   } catch (error) {
     console.error("❌ Erreur lors du traitement de la réservation:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+/**
+ * Ajouter un client à une Session existante
+ * @param req 
+ * @returns 
+ */
+ export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { customer: RCustomer, id_session: RIdSession } = body;
+    if (!RCustomer || !RIdSession) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    }
+
+    await connectDBOnce();
+
+    // Vérification que la session existe
+    const existingSession : ISession | null = await Session.findById(RIdSession);
+    if (!existingSession) {
+      return NextResponse.json({ error: "Session not found" }, { status: 404 });
+    }
+
+    // Vérification que la session n'est pas annulée ou terminée
+    if (existingSession.status === "Archived") {
+      return NextResponse.json({ error: "Session is not available for booking" }, { status: 400 });
+    }
+
+    // Vérification qu'il y a encore des places disponibles
+    const availablePlaces = existingSession.placesMax - existingSession.placesReserved;
+    if (availablePlaces < RCustomer.number_of_people) {
+      return NextResponse.json({ 
+        error: "Not enough places available", 
+        availablePlaces,
+        requestedPlaces: RCustomer.number_of_people
+      }, { status: 400 });
+    }
+     const data :IBooking = {
+      customer: RCustomer,
+      session: existingSession as IReservationSession
+     }
+
+    // Validation et nettoyage des données du client
+    const BookingVerified = await xssBooking(data);
+
+    // Préparation du client à créer
+    const preCustomer: Omit<ICustomerSession, "_id"> = {
+      createdAt: new Date(),
+      validatedAt: null,
+      canceledAt: null,
+      sessionId: RIdSession,
+      date: BookingVerified.customer.date,
+      status: "Waiting",
+      typeOfReservation: BookingVerified.customer.typeOfReservation,
+      number_of_people: BookingVerified.customer.number_of_people,
+      last_name: BookingVerified.customer.last_name,
+      first_names: BookingVerified.customer.first_names,
+      email: BookingVerified.customer.email,
+      phone: BookingVerified.customer.phone,
+      people_list: BookingVerified.customer.people_list,
+      tarification: BookingVerified.customer.tarification,
+      price_applicable: BookingVerified.customer.price_applicable,
+      price_total: BookingVerified.customer.price_total,
+    };
+
+    // Création du client
+    const newCustomer = await CustomerSession.create(preCustomer);
+
+    // Mise à jour du nombre de places réservées dans la session
+    await Session.findByIdAndUpdate(
+      RIdSession, 
+      { $inc: { placesReserved: BookingVerified.customer.number_of_people } }, 
+      { new: true }
+    );
+
+    // Récupération de la session mise à jour avec tous les détails
+    const sessionWithDetails = await GET_SERVER_SESSION_WITH_DETAILS(RIdSession);
+
+    // Récupération du deuxième utilisateur pour les emails serveur
+    const users = await User.find();
+    const serverUser = users[1]; // Récupère le second utilisateur (index 1)
+    
+    if (!serverUser) {
+      console.error("❌ Aucun utilisateur serveur trouvé pour l'envoi d'email");
+    }
+
+    // Envoi de l'email de confirmation avec gestion d'erreur
+    try {
+      const PreEmail = generateEmail(emailScenarios.BOOKING_REQUEST, {
+        customer: preCustomer,
+        session: sessionWithDetails, 
+        profile_from: serverUser 
+      });
+      
+      const emailSent = await nodeMailerSenderAPI(
+        preCustomer.email, 
+        emailScenarios.BOOKING_REQUEST.subject, 
+        PreEmail,
+        {},
+        "BOOKING_REQUEST",
+        newCustomer._id as string,
+        RIdSession,
+        serverUser?._id as string
+      );
+
+      if (!emailSent) {
+        console.error("❌ Échec d'envoi de l'email de confirmation pour l'ajout de client:", {
+          customerId: newCustomer._id,
+          sessionId: RIdSession,
+          email: preCustomer.email
+        });
+        // Ne pas faire échouer l'ajout si l'email échoue
+      } else {
+        console.log("✅ Email de confirmation envoyé avec succès pour l'ajout de client:", {
+          customerId: newCustomer._id,
+          sessionId: RIdSession,
+          email: preCustomer.email,
+          scenario: "BOOKING_REQUEST"
+        });
+      }
+    } catch (emailError) {
+      console.error("❌ Erreur lors de l'envoi de l'email de confirmation pour l'ajout de client:", {
+        error: emailError,
+        customerId: newCustomer._id,
+        sessionId: RIdSession,
+        email: preCustomer.email
+      });
+      // Ne pas faire échouer l'ajout si l'email échoue
+    }
+
+    return NextResponse.json({ 
+      message: "Customer added to session successfully",
+      sessionId: RIdSession,
+      customerId: newCustomer._id,
+      availablePlaces: availablePlaces - RCustomer.number_of_people
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error("❌ Erreur lors de l'ajout du client à la session:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
