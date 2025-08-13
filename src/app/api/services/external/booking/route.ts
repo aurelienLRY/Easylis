@@ -148,16 +148,18 @@ export async function POST(req: NextRequest) {
  */
  export async function PATCH(req: NextRequest) {
   try {
+    console.log("🔄 Ajout d'un client à une session existante");
     const body = await req.json();
-    const { customer: RCustomer, id_session: RIdSession } = body;
-    if (!RCustomer || !RIdSession) {
+    console.log("🔄 Body:", body);
+    const { customer, sessionId } = body;
+    if (!customer || !sessionId) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 
     await connectDBOnce();
 
     // Vérification que la session existe
-    const existingSession : ISession | null = await Session.findById(RIdSession);
+    const existingSession : ISession | null = await Session.findById(sessionId);
     if (!existingSession) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
@@ -167,17 +169,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Session is not available for booking" }, { status: 400 });
     }
 
-    // Vérification qu'il y a encore des places disponibles
-    const availablePlaces = existingSession.placesMax - existingSession.placesReserved;
-    if (availablePlaces < RCustomer.number_of_people) {
-      return NextResponse.json({ 
-        error: "Not enough places available", 
-        availablePlaces,
-        requestedPlaces: RCustomer.number_of_people
-      }, { status: 400 });
-    }
+
      const data :IBooking = {
-      customer: RCustomer,
+      customer: customer,
       session: existingSession as IReservationSession
      }
 
@@ -189,7 +183,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date(),
       validatedAt: null,
       canceledAt: null,
-      sessionId: RIdSession,
+      sessionId: sessionId,
       date: BookingVerified.customer.date,
       status: "Waiting",
       typeOfReservation: BookingVerified.customer.typeOfReservation,
@@ -209,13 +203,13 @@ export async function POST(req: NextRequest) {
 
     // Mise à jour du nombre de places réservées dans la session
     await Session.findByIdAndUpdate(
-      RIdSession, 
+      sessionId, 
       { $inc: { placesReserved: BookingVerified.customer.number_of_people } }, 
       { new: true }
     );
 
     // Récupération de la session mise à jour avec tous les détails
-    const sessionWithDetails = await GET_SERVER_SESSION_WITH_DETAILS(RIdSession);
+    const sessionWithDetails = await GET_SERVER_SESSION_WITH_DETAILS(sessionId);
 
     // Récupération du deuxième utilisateur pour les emails serveur
     const users = await User.find();
@@ -240,21 +234,21 @@ export async function POST(req: NextRequest) {
         {},
         "BOOKING_REQUEST",
         newCustomer._id as string,
-        RIdSession,
+        sessionId,
         serverUser?._id as string
       );
 
       if (!emailSent) {
         console.error("❌ Échec d'envoi de l'email de confirmation pour l'ajout de client:", {
           customerId: newCustomer._id,
-          sessionId: RIdSession,
+          sessionId: sessionId,
           email: preCustomer.email
         });
         // Ne pas faire échouer l'ajout si l'email échoue
       } else {
         console.log("✅ Email de confirmation envoyé avec succès pour l'ajout de client:", {
           customerId: newCustomer._id,
-          sessionId: RIdSession,
+          sessionId: sessionId,
           email: preCustomer.email,
           scenario: "BOOKING_REQUEST"
         });
@@ -263,7 +257,7 @@ export async function POST(req: NextRequest) {
       console.error("❌ Erreur lors de l'envoi de l'email de confirmation pour l'ajout de client:", {
         error: emailError,
         customerId: newCustomer._id,
-        sessionId: RIdSession,
+        sessionId: sessionId,
         email: preCustomer.email
       });
       // Ne pas faire échouer l'ajout si l'email échoue
@@ -271,9 +265,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ 
       message: "Customer added to session successfully",
-      sessionId: RIdSession,
+      sessionId: sessionId,
       customerId: newCustomer._id,
-      availablePlaces: availablePlaces - RCustomer.number_of_people
+      availablePlaces: existingSession.placesMax - existingSession.placesReserved
     }, { status: 200 });
 
   } catch (error) {
