@@ -11,7 +11,7 @@ export interface IParticipant {
   export interface ICustomer {
     date: Date; // Date à laquelle le client fait la demande de réservation
     status: "Waiting"; // Statut de la demande de réservation fixé à Waiting
-    typeOfReservation: "by_website"; // Type de réservation fixé à by_website
+    typeOfReservation: "ByWeb"; // Type de réservation fixé à by_website
     number_of_people: number; // Nombre de personnes de la réservation
     last_name: string; // Nom du client
     first_names: string; // Prénom du client
