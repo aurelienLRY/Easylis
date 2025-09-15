@@ -9,6 +9,7 @@ import { nodeMailerSender } from "./sender";
  * @param scenario - Type de scénario d'email
  * @param customerId - ID du client (optionnel)
  * @param sessionId - ID de la session (optionnel)
+ * @param userId - ID de l'utilisateur (optionnel, pour les appels serveur)
  * @returns true si l'email a été envoyé avec succès, false sinon
  */
 export const nodeMailerSenderAPI = async (
@@ -18,10 +19,11 @@ export const nodeMailerSenderAPI = async (
   config: any = {},
   scenario: string = "CUSTOM",
   customerId?: string,
-  sessionId?: string
+  sessionId?: string,
+  userId?: string
 ): Promise<boolean> => {
   try {
-    const result = await nodeMailerSender(email, subject, html, config, scenario, customerId, sessionId);
+    const result = await nodeMailerSender(email, subject, html, config, scenario, customerId, sessionId, userId);
     return result.success;
   } catch (error) {
     console.log("Erreur lors de l'envoi de l'email", error);

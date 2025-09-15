@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 export { default } from "next-auth/middleware";
 
-// Récupération des domaines autorisés depuis les variables d'environnement
+// Configuration des domaines autorisés
 const getAllowedOrigins = () => {
   const origins = process.env.ALLOWED_ORIGINS;
   if (!origins) {
-    // Valeurs par défaut si la variable n'est pas définie
     return [
       'http://localhost:3000',
       'https://localhost:3000',
@@ -14,85 +13,119 @@ const getAllowedOrigins = () => {
     ];
   }
   
-  // Séparation par virgule et nettoyage des espaces
   return origins.split(',').map(origin => origin.trim());
+};
+
+// Configuration des méthodes autorisées par type de route
+const getRouteConfig = (pathname: string) => {
+  if (pathname.startsWith("/api/services/external")) {
+    return {
+      methods: ['GET', 'POST', 'PATCH', 'OPTIONS'],
+      requiresAuth: true,
+      corsEnabled: true
+    };
+  }
+  
+  if (pathname.startsWith("/api/public")) {
+    return {
+      methods: ['GET', 'POST', 'OPTIONS'],
+      requiresAuth: false,
+      corsEnabled: true
+    };
+  }
+  
+  return {
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    requiresAuth: false,
+    corsEnabled: false
+  };
+};
+
+// Fonction pour créer une réponse CORS
+const createCorsResponse = (origin: string | null, allowedOrigins: string[], status: number = 200) => {
+  const response = new NextResponse(null, { status });
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    response.headers.set('Access-Control-Allow-Origin', origin);
+  }
+  
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  response.headers.set('Access-Control-Max-Age', '86400');
+  
+  return response;
+};
+
+// Fonction pour créer une réponse d'erreur CORS
+const createCorsErrorResponse = (origin: string | null, allowedOrigins: string[], error: string, status: number) => {
+  const response = NextResponse.json({ error }, { status });
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    response.headers.set('Access-Control-Allow-Origin', origin);
+  }
+  
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  return response;
 };
 
 export function middleware(request: NextRequest) {
   const origin = request.headers.get('origin');
   const allowedOrigins = getAllowedOrigins();
+  const routeConfig = getRouteConfig(request.nextUrl.pathname);
   
-  // Gestion CORS pour les routes API externes
-  if (request.nextUrl.pathname.startsWith("/api/services/external")) {
-    // Gestion des requêtes OPTIONS (preflight)
-    if (request.method === 'OPTIONS') {
-      const response = new NextResponse(null, { status: 200 });
+  // Gestion des requêtes OPTIONS (preflight) pour toutes les routes CORS
+  if (request.method === 'OPTIONS' && routeConfig.corsEnabled) {
+    return createCorsResponse(origin, allowedOrigins);
+  }
+  
+  // Gestion des routes API externes
+  if (routeConfig.corsEnabled) {
+    // Vérification de l'authentification si requise
+    if (routeConfig.requiresAuth) {
+      const token = request.headers.get("Authorization")?.replace("Bearer ", "");
       
-      // Ajout des en-têtes CORS
-      if (origin && allowedOrigins.includes(origin)) {
-        response.headers.set('Access-Control-Allow-Origin', origin);
+      if (!token) {
+        return createCorsErrorResponse(
+          origin, 
+          allowedOrigins, 
+          "Token d'autorisation requis", 
+          401
+        );
       }
-      response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-      response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-      response.headers.set('Access-Control-Max-Age', '86400');
       
-      return response;
+      if (token !== process.env.NEXT_API_OUT_SERVICES) {
+        return createCorsErrorResponse(
+          origin, 
+          allowedOrigins, 
+          "Token d'autorisation invalide", 
+          401
+        );
+      }
     }
-
-    // Vérification du token d'authentification
-    const token = request.headers.get("Authorization")?.replace("Bearer ", "");
     
-    if (!token) {
-      const errorResponse = NextResponse.json(
-        { error: "Token d'autorisation requis" },
-        { status: 401 }
-      );
-      
-      // Ajout des en-têtes CORS même pour les erreurs
-      if (origin && allowedOrigins.includes(origin)) {
-        errorResponse.headers.set('Access-Control-Allow-Origin', origin);
-      }
-      errorResponse.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-      errorResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-      
-      return errorResponse;
-    }
-
-    if (token !== process.env.NEXT_API_OUT_SERVICES) {
-      const errorResponse = NextResponse.json(
-        { error: "Token d'autorisation invalide" },
-        { status: 401 }
-      );
-      
-      // Ajout des en-têtes CORS même pour les erreurs
-      if (origin && allowedOrigins.includes(origin)) {
-        errorResponse.headers.set('Access-Control-Allow-Origin', origin);
-      }
-      errorResponse.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-      errorResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-      
-      return errorResponse;
-    }
-
     // Si tout est OK, on continue et on ajoute les en-têtes CORS
     const response = NextResponse.next();
     
     if (origin && allowedOrigins.includes(origin)) {
       response.headers.set('Access-Control-Allow-Origin', origin);
     }
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    response.headers.set('Access-Control-Allow-Methods', routeConfig.methods.join(', '));
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     
     return response;
   }
-
+  
   return NextResponse.next();
 }
 
-// Mettre à jour la configuration pour inclure les routes API
+// Configuration des routes à traiter
 export const config = {
   matcher: [
     "/dashboard/:path*", // Protéger toutes les pages sous /dashboard
-    "/api/services/external/:path*", // Protéger toutes les routes API sous /api/outServices
+    "/api/services/external/:path*", // Routes API externes (GET, POST, PATCH)
+    "/api/public/:path*", // Routes API publiques (GET, POST)
+    "/api/:path*", // Toutes les autres routes API
   ],
 };
