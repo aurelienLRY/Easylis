@@ -101,6 +101,7 @@ export const CREATE_EMAIL_LOG_SERVER = async (
 };
 
 /**
+
  * Récupère tous les logs d'emails (tous utilisateurs)
  */
 export const GET_EMAIL_LOGS = async (
