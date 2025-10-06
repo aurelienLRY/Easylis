@@ -14,7 +14,7 @@ export const bookingRequestTemplate = (
       <p>Bonjour ${customer.first_names},</p>
       <p>Occitanie Évasion vous remercie pour votre demande de réservation pour l'activité "${
         session.activity.name
-      }" le ${formatDate(session.date)} pour ${
+      }" le ${new Date(session.date).toLocaleDateString('fr-FR', {timeZone: 'Europe/Paris'})} pour ${
       customer.number_of_people
     } personne(s).</p>
 
