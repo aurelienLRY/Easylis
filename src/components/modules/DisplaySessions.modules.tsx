@@ -87,7 +87,8 @@ const useFilteredSessions = (
   sessions: ISessionWithDetails[],
   filter: string,
   status: string,
-  search: string
+  search: string,
+  hidePastSessions: boolean
 ): ISessionWithDetails[] => {
   return useMemo(() => {
     const now = new Date();
@@ -112,6 +113,10 @@ const useFilteredSessions = (
         return false;
       }
 
+      if (hidePastSessions && sessionDate < now) {
+        return false;
+      }
+
       switch (filter) {
         case "thisWeek":
           return sessionDate >= startOfWeek && sessionDate <= endOfWeek;
@@ -130,7 +135,7 @@ const useFilteredSessions = (
     return search
       ? (SearchInObject(filteredSessions, search) as ISessionWithDetails[])
       : filteredSessions;
-  }, [sessions, filter, status, search]);
+  }, [sessions, filter, status, search, hidePastSessions]);
 };
 
 /**
@@ -279,6 +284,7 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
   const [filter, setFilter] = useState<string>("all");
   const [status, setStatus] = useState<string>("Actif");
   const [search, setSearch] = useState<string>("");
+  const [hidePastSessions, setHidePastSessions] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [slideDirection, setSlideDirection] = useState<number>(0);
 
@@ -302,7 +308,8 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
     sessionsWithDetails,
     filter,
     status,
-    search
+    search,
+    hidePastSessions
   );
   const totalPages = Math.ceil(filteredSessions.length / ITEMS_PER_PAGE);
 
@@ -387,6 +394,17 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
                   onClick={() => setFilter("thisWeek")}
                 >
                   This week
+                </button>
+                <button
+                  className={cn(
+                    "px-2 rounded-md",
+                    hidePastSessions
+                      ?"bg-gray-200 text-gray-500" : "bg-blue-500 text-white"
+                      
+                  )}
+                  onClick={() => setHidePastSessions((prev) => !prev)}
+                >
+                  Sessions passées
                 </button>
               </div>
             </div>
