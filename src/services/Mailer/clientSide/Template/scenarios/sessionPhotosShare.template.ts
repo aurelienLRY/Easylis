@@ -13,7 +13,7 @@ export const sessionPhotosShareTemplate = (
   return {
     title: `Vos photos — ${session.activity.name}`,
     content: `
-      <p>Bonjour ${customer.first_names},</p>
+      <p>Bonjour,</p>
       <p>Les photos de votre sortie <strong>${session.activity.name}</strong> sont disponibles.</p>
       <p style="font-weight: bold;">Rappel de votre sortie :</p>
       <ul>
