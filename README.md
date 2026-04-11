@@ -18,6 +18,7 @@
 - [🛠️ Stack Technique](#️-stack-technique)
 - [🚀 Installation](#-installation)
 - [⚙️ Configuration](#️-configuration)
+- [📸 Photos de session](#-photos-de-session)
 - [📖 Utilisation](#-utilisation)
 - [🔧 Développement](#-développement)
 - [📚 Documentation](#-documentation)
@@ -53,6 +54,13 @@
 - **Chiffrement des données** : Protection des informations sensibles
 - **API sécurisée** : Validation et autorisation des requêtes
 
+### 📸 **Photos de session**
+- **Galerie par session** : depuis la carte session, modal pour ajouter ou gérer les photos
+- **Stockage externe** : fichiers sur un serveur/API dédié (`PHOTO_STORAGE_API_URL`), métadonnées en MongoDB (`SessionPhoto`)
+- **Renommage normalisé** : slug entreprise / activité / date / numéro avant envoi au stockage
+- **Rétention 3 mois** : expiration puis suppression côté stockage et marquage en base
+- **Lien marchand** : envoi d’email aux clients (template identique aux autres mails Occitanie Évasion) avec URL signée vers le site marchand
+
 ---
 
 ## 🏗️ Architecture
@@ -67,6 +75,7 @@ Easylis/
 │   ├── 📁 app/                    # App Router Next.js 13+
 │   │   ├── 📁 api/               # Endpoints API
 │   │   │   ├── 📁 auth/          # Authentification
+│   │   │   ├── 📁 session-photos/# Photos sessions (CRUD + partage email)
 │   │   │   ├── 📁 services/      # Services externes
 │   │   │   └── 📁 user/          # Gestion utilisateurs
 │   │   ├── 📁 dashboard/         # Interface d'administration
@@ -78,7 +87,8 @@ Easylis/
 │   │   ├── 📁 cards/             # Cartes d'affichage
 │   │   ├── 📁 form/              # Formulaires
 │   │   ├── 📁 layout/            # Composants de mise en page
-│   │   └── 📁 modules/           # Modules fonctionnels
+│   │   ├── 📁 input/             # Inputs (ex. upload fichier)
+│   │   └── 📁 modules/           # Modules fonctionnels (ex. SessionPhotos)
 │   │
 │   ├── 📁 hooks/                 # Hooks personnalisés
 │   │   ├── useAuth.ts            # Authentification
@@ -97,13 +107,14 @@ Easylis/
 │   │   └── 📁 Mailer/            # Service d'emails
 │   │
 │   ├── 📁 libs/                  # Bibliothèques et utilitaires
-│   │   ├── 📁 database/          # Configuration MongoDB
+│   │   ├── 📁 database/          # Configuration MongoDB (+ modèle SessionPhoto)
 │   │   ├── 📁 ServerAction/      # Actions serveur
 │   │   └── 📁 utils/             # Utilitaires
 │   │
 │   └── 📁 types/                 # Types TypeScript
 │
 ├── 📁 public/                    # Assets statiques
+├── 📁 APIEXTERNE/                # API Express optionnelle (stockage fichiers photos)
 ├── 📁 docs/                      # Documentation
 ├── package.json                  # Dépendances
 ├── tailwind.config.ts           # Configuration Tailwind
@@ -255,6 +266,19 @@ GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 GOOGLE_REDIRECT_URI=http://localhost:3000/api/services/google/callback
 NEXT_PUBLIC_GOOGLE_API_KEY=your_google_api_key
+
+# ========================================
+# PHOTOS DE SESSION (stockage + liens clients)
+# ========================================
+
+# URL de base de l'API de stockage des fichiers (serveur externe)
+PHOTO_STORAGE_API_URL=https://votre-api-photos.example.com
+
+# URL du site marchand (page galerie à implémenter côté marchand)
+MERCHANT_PHOTO_BASE_URL=https://votre-site-marchand.example.com
+
+# Secret HMAC pour signer les tokens dans les liens uniques (idéalement dédié, fort)
+PHOTO_SHARE_LINK_SECRET=your_photo_share_link_secret
 ```
 
 ### Configuration Google Calendar
@@ -275,6 +299,55 @@ NEXT_PUBLIC_GOOGLE_API_KEY=your_google_api_key
 
 ---
 
+## 📸 Photos de session
+
+Fonctionnalité **admin** : attacher des photos à une session, les stocker sur un **serveur externe**, tracer les fichiers en **MongoDB**, et **notifier les clients** par email avec un lien unique vers le site marchand.
+
+### Parcours utilisateur (dashboard)
+
+1. Sur une **carte session** (`SessionCard`), bouton **galerie** (icône photos).
+2. **Modal** (`SessionPhotosModal`) avec deux modes :
+   - **Ajouter** : zone de dépôt / sélection (`FileUpload`), compression côté navigateur (**max ~3 Mo** par image), envoi séquentiel pour limiter la taille des requêtes.
+   - **Gérer** : grille de vignettes, suppression via icône poubelle.
+3. **Envoyer le lien photos aux clients** (`SecondaryButton`) : visible et actif **uniquement** s’il existe **au moins un client** non annulé (`status !== "Canceled"`) **et** au moins **une photo** en base.
+
+### Données (MongoDB)
+
+- Modèle **`SessionPhoto`** (`src/libs/database/models/SessionPhoto.model.ts`) : `sessionId`, noms, URL publique, taille, dates `uploadedAt` / `expiresAt` (+ `deletedAt` après purge).
+- Rétention **3 mois** à partir de l’upload : nettoyage côté API Easylis + suppression distante lorsque `expiresAt` est dépassé.
+
+### API Easylis (App Router)
+
+| Route | Rôle |
+|--------|------|
+| `GET /api/session-photos?sessionId=` | Liste des photos actives de la session |
+| `POST /api/session-photos` | Upload (multipart : `sessionId`, `files`) — proxy vers le stockage externe |
+| `DELETE /api/session-photos` | Suppression (JSON : `photoId`) |
+| `POST /api/session-photos/share` | Envoi des emails « lien photos » à tous les clients éligibles de la session |
+
+Authentification : **session NextAuth** requise sur ces routes.
+
+### Stockage externe
+
+- Variable **`PHOTO_STORAGE_API_URL`** : base URL du service qui reçoit les fichiers.
+- Dossier **`APIEXTERNE/`** à la racine du repo : **exemple** d’API Express (upload, liste, suppression, purge TTL). Déployable séparément ; voir `APIEXTERNE/README.md`.
+- **ModSecurity** : sur certains hébergeurs, les uploads `multipart` peuvent être bloqués ; une exception sur la route d’upload peut être nécessaire.
+
+### Fichiers et emails
+
+- Renommage des fichiers envoyés au stockage : slug **entreprise – activité – date – numéro** (voir logique dans `src/app/api/session-photos/route.ts`).
+- Email clients : scénario **`SESSION_PHOTOS_SHARE`** dans `src/services/Mailer/…` — même **gabarit HTML** que les autres mails (`generateEmail` + `base.template.ts`).
+- Logs **`EmailLog`** : valeur de scénario `SESSION_PHOTOS_SHARE` autorisée dans le modèle.
+- Lien généré pour le marchand :  
+  `{MERCHANT_PHOTO_BASE_URL}/photos/{slug-activite}-{idSession}?token={token_signé}`  
+  Le site marchand devra **vérifier le token** (secret `PHOTO_SHARE_LINK_SECRET`) et afficher la galerie (hors périmètre Easylis admin si non encore codé).
+
+### Next.js
+
+- `next.config.mjs` : `experimental.middlewareClientMaxBodySize` relevé pour les uploads volumineux (voir doc Next.js si besoin d’ajustement).
+
+---
+
 ## 📖 Utilisation
 
 ### 🎯 Interface d'Administration
@@ -283,6 +356,7 @@ L'interface d'administration est accessible via `/dashboard` et comprend :
 
 - **Tableau de bord** : Vue d'ensemble des activités et réservations
 - **Gestion des sessions** : Création, modification, suppression
+- **Photos de session** : galerie, envoi de liens aux clients (voir [Photos de session](#-photos-de-session))
 - **Gestion des clients** : Suivi des réservations et statuts
 - **Configuration** : Paramètres de l'application
 
@@ -369,8 +443,14 @@ npm run dev          # Lancer le serveur de développement
 npm run build        # Construire pour la production
 npm run start        # Lancer en production
 npm run lint         # Vérifier le code avec ESLint
-npm run type-check   # Vérifier les types TypeScript
+npm run ts-check     # Vérifier les types TypeScript
 
+# Versionnement (package.json)
+npm run version:show   # Afficher la version courante
+npm run version:patch  # Incrément patch sans commit Git
+npm run version:minor  # Idem minor
+npm run version:major  # Idem major
+npm run release:patch  # Bump + commit + tag Git (working tree propre requis)
 ```
 
 ### Structure de Développement
@@ -460,6 +540,7 @@ export async function GET(req: NextRequest) {
 
 ### Documentation par Module
 
+- **[README principal](./README.md)** — section **Photos de session** pour le stockage, les variables d’environnement et le flux complet
 - **[API Documentation](./src/app/api/README.md)** - Routes API et endpoints
 - **[Hooks Documentation](./src/hooks/README.md)** - Hooks personnalisés
 - **[Store Documentation](./src/store/README.md)** - Gestion d'état Zustand

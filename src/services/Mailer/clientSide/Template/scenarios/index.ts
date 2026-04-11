@@ -4,6 +4,7 @@ import { updateCustomerTemplate } from "./updateCustomer.template";
 import { cancelCustomerTemplate } from "./cancelCustomer.template";
 import { updateSessionTemplate } from "./updateSession.template";
 import { bookingRequestTemplate } from "./bookingRequest.template";
+import { sessionPhotosShareTemplate } from "./sessionPhotosShare.template";
 import { IEmailScenario } from "../types";
 
 /**
@@ -35,6 +36,11 @@ export const emailScenarios: Record<string, IEmailScenario> = {
     subject: "🎉​​ Demande de réservation reçue 🎉​​",
     template: bookingRequestTemplate,
   },
+  [EMAIL_SCENARIOS.SESSION_PHOTOS_SHARE]: {
+    scenario: EMAIL_SCENARIOS.SESSION_PHOTOS_SHARE,
+    subject: "📸 Vos photos de votre sortie 📸",
+    template: sessionPhotosShareTemplate,
+  },
 } as const;
 
 /**
@@ -46,6 +52,7 @@ export {
   cancelCustomerTemplate,
   updateSessionTemplate,
   bookingRequestTemplate,
+  sessionPhotosShareTemplate,
 };
 
 /**

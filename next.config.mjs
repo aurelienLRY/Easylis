@@ -3,6 +3,9 @@ import withPWA from "@ducanh2912/next-pwa";
 
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    middlewareClientMaxBodySize: "30mb",
+  },
   images: {
     remotePatterns: [
       {

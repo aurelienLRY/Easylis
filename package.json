@@ -1,13 +1,20 @@
 {
   "name": "Easylis",
-  "version": "0.9.3",
+  "version": "0.10.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "ts-check": "tsc --noEmit"
+    "ts-check": "tsc --noEmit",
+    "version:show": "node -p \"require('./package.json').version\"",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version",
+    "release:patch": "npm version patch",
+    "release:minor": "npm version minor",
+    "release:major": "npm version major"
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",
