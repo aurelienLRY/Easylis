@@ -323,6 +323,7 @@ export const SessionPhotosModal = ({ data, isOpen, onClose }: Props) => {
                     src={photo.fileUrl}
                     alt={photo.fileName}
                     fill
+                    unoptimized
                     sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover"
                   />
