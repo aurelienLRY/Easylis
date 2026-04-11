@@ -17,6 +17,7 @@ import {
   CanceledCustomerSession,
   SessionDetailCard,
   ItemContainer,
+  SessionPhotosModal,
 } from "@/components";
 
 /* Utils & types */
@@ -161,6 +162,7 @@ const DesktopView = ({
     updateSessionModal: ReturnType<typeof useModal<ISessionWithDetails>>;
     customerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
     canceledCustomerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    photoModal: ReturnType<typeof useModal<ISessionWithDetails>>;
   };
 }) => (
   <div className="flex items-center justify-center gap-4 md:min-h-[540px] relative overflow-hidden">
@@ -193,6 +195,7 @@ const DesktopView = ({
             updateSessionModal={modals.updateSessionModal.openModal}
             addCustomerModal={modals.customerModal.openModal}
             canceledCustomerModal={modals.canceledCustomerModal.openModal}
+            photoModal={modals.photoModal.openModal}
           />
         ))}
       </motion.div>
@@ -229,6 +232,7 @@ const MobileView = ({
     updateSessionModal: ReturnType<typeof useModal<ISessionWithDetails>>;
     customerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
     canceledCustomerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    photoModal: ReturnType<typeof useModal<ISessionWithDetails>>;
   };
 }) => {
   // Créer des groupes de 3 sessions
@@ -259,6 +263,7 @@ const MobileView = ({
                 updateSessionModal={modals.updateSessionModal.openModal}
                 addCustomerModal={modals.customerModal.openModal}
                 canceledCustomerModal={modals.canceledCustomerModal.openModal}
+                photoModal={modals.photoModal.openModal}
               />
             ))}
           </div>
@@ -295,12 +300,14 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
   const updateSessionModal = useModal<ISessionWithDetails>();
   const customerModal = useModal<ISessionWithDetails>();
   const canceledCustomerModal = useModal<ISessionWithDetails>();
+  const photoModal = useModal<ISessionWithDetails>();
 
   const modals = {
     detailsModal,
     updateSessionModal,
     customerModal,
     canceledCustomerModal,
+    photoModal,
   };
 
   // Utilisation du hook personnalisé pour le filtrage
@@ -556,6 +563,14 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
           data={canceledCustomerModal.data}
           isOpen={canceledCustomerModal.isOpen}
           onClose={canceledCustomerModal.closeModal}
+        />
+      )}
+
+      {photoModal.data && (
+        <SessionPhotosModal
+          data={photoModal.data}
+          isOpen={photoModal.isOpen}
+          onClose={photoModal.closeModal}
         />
       )}
     </ItemContainer>

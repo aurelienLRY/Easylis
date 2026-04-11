@@ -57,7 +57,15 @@ const EmailLogSchema = new Schema<IEmailLog>(
     scenario: {
       type: String,
       required: true,
-      enum: ['BOOKING_REQUEST', 'ADD_CUSTOMER', 'UPDATE_CUSTOMER', 'CANCEL_CUSTOMER', 'UPDATE_SESSION', 'CUSTOM'],
+      enum: [
+        'BOOKING_REQUEST',
+        'ADD_CUSTOMER',
+        'UPDATE_CUSTOMER',
+        'CANCEL_CUSTOMER',
+        'UPDATE_SESSION',
+        'SESSION_PHOTOS_SHARE',
+        'CUSTOM',
+      ],
     },
     retryCount: {
       type: Number,

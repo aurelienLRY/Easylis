@@ -16,6 +16,10 @@ api/
 │   └── route.ts
 ├── uploadFiles/              # Gestion des fichiers
 │   └── route.ts
+├── session-photos/           # Photos liées aux sessions (CRUD + partage)
+│   ├── route.ts
+│   └── share/
+│       └── route.ts
 ├── services/                 # Services externes et intégrations
 │   ├── google/               # Intégration Google Calendar
 │   │   ├── route.ts
@@ -91,6 +95,26 @@ DELETE /api/user - Supprimer un utilisateur
 ```
 POST /api/uploadFiles - Upload d'un fichier
 ```
+
+### 📁 `session-photos/` - Photos de session (admin)
+
+**Fonction :** Métadonnées en MongoDB, fichiers sur l’API externe (`PHOTO_STORAGE_API_URL`), partage par email.
+
+#### Fichiers
+
+- **`route.ts`** — `GET` (liste), `POST` (upload multipart), `DELETE` (par `photoId`)
+- **`share/route.ts`** — `POST` : envoi des emails « lien photos » aux clients de la session (template `SESSION_PHOTOS_SHARE`)
+
+#### Endpoints
+
+```
+GET    /api/session-photos?sessionId=<id>
+POST   /api/session-photos
+DELETE /api/session-photos
+POST   /api/session-photos/share
+```
+
+Toutes ces routes nécessitent une **session NextAuth** valide. Documentation détaillée : section **Photos de session** du [README racine](../../../README.md).
 
 ### 🔧 `services/` - Services externes et intégrations
 

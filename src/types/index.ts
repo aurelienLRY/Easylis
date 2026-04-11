@@ -27,6 +27,7 @@ export type {
   ICallbackForEvent,
 } from "@/types/callback.action.type";
 export type { IEmailTemplate } from "@/types/emailTemplate.type";
+export type { ISessionPhoto } from "@/types/sessionPhoto.type";
 export type {
   ICalendarTokenInfo,
   ICalendarEvent,

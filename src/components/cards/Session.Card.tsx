@@ -23,6 +23,7 @@ import {
 import { ISessionWithDetails } from "@/types";
 import { RiCalendarCloseFill } from "react-icons/ri";
 import { IoMdPersonAdd } from "react-icons/io";
+import { MdPhotoLibrary } from "react-icons/md";
 
 
 // Hooks
@@ -102,6 +103,7 @@ const SessionActions = ({
   onEdit,
   onSwitch,
   onDelete,
+  onPhotos,
 }: {
   session: ISessionWithDetails;
   status: SessionStatus;
@@ -110,6 +112,7 @@ const SessionActions = ({
   onEdit: () => void;
   onSwitch: () => void;
   onDelete: () => void;
+  onPhotos: () => void;
 }) => (
   <div className="flex justify-end items-center gap-4 pb-2 w-full text-slate-400">
     {status.isReserved && (
@@ -126,6 +129,12 @@ const SessionActions = ({
         )}
       </DetailButton>
     )}
+
+<Tooltip title="Gérer les photos">
+          <button onClick={onPhotos}>
+            <MdPhotoLibrary className="text-2xl hover:text-slate-200 cursor-pointer transition-all" />
+          </button>
+        </Tooltip>
 
     {!status.isArchived && (
       <>
@@ -148,6 +157,7 @@ const SessionActions = ({
           }
           onClick={onSwitch}
         />
+  
       </>
     )}
 
@@ -167,6 +177,7 @@ type Props = {
   updateSessionModal: (session: ISessionWithDetails) => void;
   addCustomerModal: (session: ISessionWithDetails) => void;
   canceledCustomerModal: (session: ISessionWithDetails) => void;
+  photoModal: (session: ISessionWithDetails) => void;
 };
 
 /**
@@ -180,6 +191,7 @@ export const SessionCard = ({
   updateSessionModal,
   addCustomerModal,
   canceledCustomerModal,
+  photoModal,
 }: Props) => {
   const [calculateRevenue, setCalculateRevenue] = useState(0);
   const { updateSessionWithDetails, deleteSessionWithDetails } =
@@ -309,6 +321,7 @@ export const SessionCard = ({
         onEdit={() => updateSessionModal(sessionWithDetails)}
         onSwitch={handleSwitchAction}
         onDelete={() => deleteSession(sessionWithDetails._id!)}
+        onPhotos={() => photoModal(sessionWithDetails)}
       />
     </ItemCard>
   );

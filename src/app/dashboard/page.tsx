@@ -12,6 +12,7 @@ import {
   MonthlyStats,
   FavorisSpots,
   FavorisActivities,
+  SessionPhotosModal,
 } from "@/components";
 
 /* Utils */
@@ -40,6 +41,7 @@ const Dashboard = () => {
   const updateSessionModal = useModal<ISessionWithDetails>();
   const customerModal = useModal<ISessionWithDetails>();
   const canceledCustomerModal = useModal<ISessionWithDetails>();
+  const photoModal = useModal<ISessionWithDetails>();
 
   return (
     <section className="w-full md:p-4 flex flex-col gap-12 items-center">
@@ -51,6 +53,7 @@ const Dashboard = () => {
           updateSessionModal,
           customerModal,
           canceledCustomerModal,
+          photoModal,
         }}
       />
 
@@ -84,6 +87,13 @@ const Dashboard = () => {
           data={canceledCustomerModal.data}
           isOpen={canceledCustomerModal.isOpen}
           onClose={canceledCustomerModal.closeModal}
+        />
+      )}
+      {photoModal.data && (
+        <SessionPhotosModal
+          data={photoModal.data}
+          isOpen={photoModal.isOpen}
+          onClose={photoModal.closeModal}
         />
       )}
       {/* Statistics Section */}
@@ -127,6 +137,7 @@ interface UpcomingSessionsProps {
     updateSessionModal: any;
     customerModal: any;
     canceledCustomerModal: any;
+    photoModal: any;
   };
 }
 
@@ -195,6 +206,7 @@ interface SessionsListProps {
     updateSessionModal: any;
     customerModal: any;
     canceledCustomerModal: any;
+    photoModal: any;
   };
 }
 
@@ -210,6 +222,7 @@ const SessionsList = ({ sessions, modals }: SessionsListProps) => (
           updateSessionModal={modals.updateSessionModal.openModal}
           addCustomerModal={modals.customerModal.openModal}
           canceledCustomerModal={modals.canceledCustomerModal.openModal}
+          photoModal={modals.photoModal.openModal}
         />
       ))}
     </div>
