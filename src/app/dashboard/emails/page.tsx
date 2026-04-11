@@ -131,6 +131,7 @@ export default function EmailsPage() {
             'UPDATE_CUSTOMER': 'Modification client',
             'CANCEL_CUSTOMER': 'Annulation client',
             'UPDATE_SESSION': 'Modification session',
+            'SESSION_PHOTOS_SHARE': 'Lien photos session',
             'CUSTOM': 'Personnalisé'
         };
         return labels[scenario] || scenario;
@@ -252,6 +253,7 @@ export default function EmailsPage() {
                                 <option value="UPDATE_CUSTOMER">Modification client</option>
                                 <option value="CANCEL_CUSTOMER">Annulation client</option>
                                 <option value="UPDATE_SESSION">Modification session</option>
+                                <option value="SESSION_PHOTOS_SHARE">Lien photos session</option>
                                 <option value="CUSTOM">Personnalisé</option>
                             </select>
                         </div>

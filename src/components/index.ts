@@ -93,6 +93,7 @@ export {
 export { CustomerBookingTable } from "@/components/modules/CustomerBookingTable.modules";
 export { AllSessionsCard } from "@/components/modules/DisplaySessions.modules";
 export { EmailTemplateEditor } from "@/components/modules/MailerEditor.modules";
+export { SessionPhotosModal } from "@/components/modules/SessionPhotos.modules";
 
 
 /* Graphics */

@@ -17,6 +17,7 @@ import {
   CanceledCustomerSession,
   SessionDetailCard,
   ItemContainer,
+  SessionPhotosModal,
 } from "@/components";
 
 /* Utils & types */
@@ -87,7 +88,8 @@ const useFilteredSessions = (
   sessions: ISessionWithDetails[],
   filter: string,
   status: string,
-  search: string
+  search: string,
+  hidePastSessions: boolean
 ): ISessionWithDetails[] => {
   return useMemo(() => {
     const now = new Date();
@@ -112,6 +114,10 @@ const useFilteredSessions = (
         return false;
       }
 
+      if (hidePastSessions && sessionDate < now) {
+        return false;
+      }
+
       switch (filter) {
         case "thisWeek":
           return sessionDate >= startOfWeek && sessionDate <= endOfWeek;
@@ -130,7 +136,7 @@ const useFilteredSessions = (
     return search
       ? (SearchInObject(filteredSessions, search) as ISessionWithDetails[])
       : filteredSessions;
-  }, [sessions, filter, status, search]);
+  }, [sessions, filter, status, search, hidePastSessions]);
 };
 
 /**
@@ -156,6 +162,7 @@ const DesktopView = ({
     updateSessionModal: ReturnType<typeof useModal<ISessionWithDetails>>;
     customerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
     canceledCustomerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    photoModal: ReturnType<typeof useModal<ISessionWithDetails>>;
   };
 }) => (
   <div className="flex items-center justify-center gap-4 md:min-h-[540px] relative overflow-hidden">
@@ -188,6 +195,7 @@ const DesktopView = ({
             updateSessionModal={modals.updateSessionModal.openModal}
             addCustomerModal={modals.customerModal.openModal}
             canceledCustomerModal={modals.canceledCustomerModal.openModal}
+            photoModal={modals.photoModal.openModal}
           />
         ))}
       </motion.div>
@@ -224,6 +232,7 @@ const MobileView = ({
     updateSessionModal: ReturnType<typeof useModal<ISessionWithDetails>>;
     customerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
     canceledCustomerModal: ReturnType<typeof useModal<ISessionWithDetails>>;
+    photoModal: ReturnType<typeof useModal<ISessionWithDetails>>;
   };
 }) => {
   // Créer des groupes de 3 sessions
@@ -254,6 +263,7 @@ const MobileView = ({
                 updateSessionModal={modals.updateSessionModal.openModal}
                 addCustomerModal={modals.customerModal.openModal}
                 canceledCustomerModal={modals.canceledCustomerModal.openModal}
+                photoModal={modals.photoModal.openModal}
               />
             ))}
           </div>
@@ -279,6 +289,7 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
   const [filter, setFilter] = useState<string>("all");
   const [status, setStatus] = useState<string>("Actif");
   const [search, setSearch] = useState<string>("");
+  const [hidePastSessions, setHidePastSessions] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [slideDirection, setSlideDirection] = useState<number>(0);
 
@@ -289,12 +300,14 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
   const updateSessionModal = useModal<ISessionWithDetails>();
   const customerModal = useModal<ISessionWithDetails>();
   const canceledCustomerModal = useModal<ISessionWithDetails>();
+  const photoModal = useModal<ISessionWithDetails>();
 
   const modals = {
     detailsModal,
     updateSessionModal,
     customerModal,
     canceledCustomerModal,
+    photoModal,
   };
 
   // Utilisation du hook personnalisé pour le filtrage
@@ -302,7 +315,8 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
     sessionsWithDetails,
     filter,
     status,
-    search
+    search,
+    hidePastSessions
   );
   const totalPages = Math.ceil(filteredSessions.length / ITEMS_PER_PAGE);
 
@@ -387,6 +401,17 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
                   onClick={() => setFilter("thisWeek")}
                 >
                   This week
+                </button>
+                <button
+                  className={cn(
+                    "px-2 rounded-md",
+                    hidePastSessions
+                      ?"bg-gray-200 text-gray-500" : "bg-blue-500 text-white"
+                      
+                  )}
+                  onClick={() => setHidePastSessions((prev) => !prev)}
+                >
+                  Sessions passées
                 </button>
               </div>
             </div>
@@ -538,6 +563,14 @@ export function AllSessionsCard({ sessionsWithDetails }: AllSessionsCardProps) {
           data={canceledCustomerModal.data}
           isOpen={canceledCustomerModal.isOpen}
           onClose={canceledCustomerModal.closeModal}
+        />
+      )}
+
+      {photoModal.data && (
+        <SessionPhotosModal
+          data={photoModal.data}
+          isOpen={photoModal.isOpen}
+          onClose={photoModal.closeModal}
         />
       )}
     </ItemContainer>
