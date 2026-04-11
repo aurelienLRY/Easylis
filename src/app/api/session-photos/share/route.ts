@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
       const shareUrl = `${MERCHANT_PHOTO_BASE_URL.replace(
         /\/$/,
         ""
-      )}/photos/${sessionSlug}?token=${encodeURIComponent(token)}`;
+      )}/${sessionSlug}?token=${encodeURIComponent(token)}`;
 
       const { _id: _customerId, ...customerForTemplate } = customer;
 
