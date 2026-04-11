@@ -327,6 +327,19 @@ Fonctionnalité **admin** : attacher des photos à une session, les stocker sur 
 
 Authentification : **session NextAuth** requise sur ces routes.
 
+### API marchand (lecture des photos)
+
+Pour que le **backend** du site marchand récupère la liste des fichiers sans session NextAuth :
+
+- **Route** : `GET /api/services/external/session-photos?sessionId=<id>&token=<token>`
+- **En-tête** : `Authorization: Bearer <NEXT_API_OUT_SERVICES>` (même clé que les autres routes sous `/api/services/external/*`, vérifiée dans `src/middleware.ts`).
+- **Query** : `token` = valeur du lien email (même secret que `createPhotoShareToken` / `verifyPhotoShareToken` dans `src/libs/utils/photoShareToken.utils.ts`).
+- **Contrôles** : signature + expiration du token, cohérence `sessionId` / payload, réservation client **non annulée** pour ce couple `(customerId, sessionId)`.
+
+Réponse JSON typique : `{ "success": true, "data": [ { "_id", "fileUrl", "fileName", "uploadedAt" } ], "meta": { "sessionId", "count" } }`.
+
+**Important** : n’exposez pas `NEXT_API_OUT_SERVICES` dans le navigateur ; appelez Easylis depuis une **route API ou server action** du site marchand, avec le `token` lu depuis l’URL côté serveur.
+
 ### Stockage externe
 
 - Variable **`PHOTO_STORAGE_API_URL`** : base URL du service qui reçoit les fichiers.
@@ -340,7 +353,7 @@ Authentification : **session NextAuth** requise sur ces routes.
 - Logs **`EmailLog`** : valeur de scénario `SESSION_PHOTOS_SHARE` autorisée dans le modèle.
 - Lien généré pour le marchand :  
   `{MERCHANT_PHOTO_BASE_URL}/photos/{slug-activite}-{idSession}?token={token_signé}`  
-  Le site marchand devra **vérifier le token** (secret `PHOTO_SHARE_LINK_SECRET`) et afficher la galerie (hors périmètre Easylis admin si non encore codé).
+  Côté marchand : extraire `sessionId` (suffixe du slug après le dernier tiret, ou paramètre dédié selon votre routing) et le `token`, puis appeler **`GET /api/services/external/session-photos`** avec la clé API (voir section **API marchand** ci-dessus).
 
 ### Next.js
 

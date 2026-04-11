@@ -1,4 +1,3 @@
-import { createHmac } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/auth";
@@ -14,10 +13,9 @@ import {
 } from "@/services/Mailer/clientSide";
 import { nodeMailerSender } from "@/services/Mailer/serverSide";
 import { ICustomerSession, ISession, ISessionWithDetails, IUser } from "@/types";
+import { createPhotoShareToken } from "@/libs/utils/photoShareToken.utils";
 
 const MERCHANT_PHOTO_BASE_URL = process.env.MERCHANT_PHOTO_BASE_URL;
-const PHOTO_SHARE_LINK_SECRET =
-  process.env.PHOTO_SHARE_LINK_SECRET || process.env.NEXTAUTH_SECRET || "";
 
 const normalizeSlug = (value: string): string =>
   value
@@ -26,23 +24,6 @@ const normalizeSlug = (value: string): string =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
-
-const toBase64Url = (value: string): string =>
-  Buffer.from(value).toString("base64url");
-
-const signPayload = (payload: string): string =>
-  createHmac("sha256", PHOTO_SHARE_LINK_SECRET).update(payload).digest("hex");
-
-const createShareToken = (sessionId: string, customerId: string): string => {
-  const payload = JSON.stringify({
-    sessionId,
-    customerId,
-    exp: Date.now() + 90 * 24 * 60 * 60 * 1000,
-  });
-  const payloadBase64 = toBase64Url(payload);
-  const signature = signPayload(payloadBase64);
-  return `${payloadBase64}.${signature}`;
-};
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,18 +38,6 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-    if (!PHOTO_SHARE_LINK_SECRET) {
-      return NextResponse.json(
-        {
-          success: false,
-          data: null,
-          feedback: null,
-          error: "PHOTO_SHARE_LINK_SECRET manquante",
-        },
-        { status: 500 }
-      );
-    }
-
     const session = await getServerSession(authOptions);
     if (!session?.user?._id) {
       return NextResponse.json(
@@ -155,7 +124,7 @@ export async function POST(request: NextRequest) {
     >;
 
     for (const customer of customers) {
-      const token = createShareToken(sessionId, customer._id);
+      const token = createPhotoShareToken(sessionId, customer._id);
       const shareUrl = `${MERCHANT_PHOTO_BASE_URL.replace(
         /\/$/,
         ""

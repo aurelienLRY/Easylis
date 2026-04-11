@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
         spots : "/api/services/external/spots",
         sessions : "/api/services/external/sessions",
         booking : "/api/services/external/booking",
+        sessionPhotos : "GET /api/services/external/session-photos?sessionId=&token= (Bearer NEXT_API_OUT_SERVICES)",
         }, { status: 200 });
     } catch (error) {
         console.log(error);

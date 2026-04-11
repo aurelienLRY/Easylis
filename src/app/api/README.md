@@ -34,6 +34,9 @@ api/
 │       ├── activities/
 │       ├── spots/
 │       ├── sessions/
+│       ├── session-photos/
+│       │   └── route.ts
+│       ├── README.md           # Guide marchand (session-photos, headers, query)
 │       └── booking/
 └── README.md                 # Documentation des API
 ```
@@ -175,6 +178,7 @@ POST /api/services/email/send - Envoyer un email
 - **`spots/route.ts`** - API des lieux
 - **`sessions/route.ts`** - API des sessions
 - **`booking/route.ts`** - API des réservations
+- **`session-photos/route.ts`** - Galerie photos pour le site marchand (token email + clé API)
 
 ##### Endpoints :
 ```
@@ -183,7 +187,12 @@ GET /api/services/external/activities - Liste des activités
 GET /api/services/external/spots - Liste des lieux
 GET /api/services/external/sessions - Liste des sessions
 GET /api/services/external/booking - Réservations
+GET /api/services/external/session-photos?sessionId=&token= - Photos d'une session (marchand)
 ```
+
+**Authentification `services/external`** : en-tête `Authorization: Bearer <NEXT_API_OUT_SERVICES>` (voir `src/middleware.ts`). La route **session-photos** exige en plus le **`token`** du lien email (signature `PHOTO_SHARE_LINK_SECRET`).
+
+**Guide détaillé pour le site marchand** (méthode, en-têtes, query, exemples cURL / Node, codes d’erreur) : [`services/external/README.md`](./services/external/README.md).
 
 ## 🔗 Architecture
 
