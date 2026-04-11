@@ -16,6 +16,10 @@ api/
 │   └── route.ts
 ├── uploadFiles/              # Gestion des fichiers
 │   └── route.ts
+├── session-photos/           # Photos liées aux sessions (CRUD + partage)
+│   ├── route.ts
+│   └── share/
+│       └── route.ts
 ├── services/                 # Services externes et intégrations
 │   ├── google/               # Intégration Google Calendar
 │   │   ├── route.ts
@@ -30,6 +34,9 @@ api/
 │       ├── activities/
 │       ├── spots/
 │       ├── sessions/
+│       ├── session-photos/
+│       │   └── route.ts
+│       ├── README.md           # Guide marchand (session-photos, headers, query)
 │       └── booking/
 └── README.md                 # Documentation des API
 ```
@@ -92,6 +99,26 @@ DELETE /api/user - Supprimer un utilisateur
 POST /api/uploadFiles - Upload d'un fichier
 ```
 
+### 📁 `session-photos/` - Photos de session (admin)
+
+**Fonction :** Métadonnées en MongoDB, fichiers sur l’API externe (`PHOTO_STORAGE_API_URL`), partage par email.
+
+#### Fichiers
+
+- **`route.ts`** — `GET` (liste), `POST` (upload multipart), `DELETE` (par `photoId`)
+- **`share/route.ts`** — `POST` : envoi des emails « lien photos » aux clients de la session (template `SESSION_PHOTOS_SHARE`)
+
+#### Endpoints
+
+```
+GET    /api/session-photos?sessionId=<id>
+POST   /api/session-photos
+DELETE /api/session-photos
+POST   /api/session-photos/share
+```
+
+Toutes ces routes nécessitent une **session NextAuth** valide. Documentation détaillée : section **Photos de session** du [README racine](../../../README.md).
+
 ### 🔧 `services/` - Services externes et intégrations
 
 #### 📅 `services/google/` - Intégration Google Calendar
@@ -151,6 +178,7 @@ POST /api/services/email/send - Envoyer un email
 - **`spots/route.ts`** - API des lieux
 - **`sessions/route.ts`** - API des sessions
 - **`booking/route.ts`** - API des réservations
+- **`session-photos/route.ts`** - Galerie photos pour le site marchand (token email + clé API)
 
 ##### Endpoints :
 ```
@@ -159,7 +187,12 @@ GET /api/services/external/activities - Liste des activités
 GET /api/services/external/spots - Liste des lieux
 GET /api/services/external/sessions - Liste des sessions
 GET /api/services/external/booking - Réservations
+GET /api/services/external/session-photos?sessionId=&token= - Photos d'une session (marchand)
 ```
+
+**Authentification `services/external`** : en-tête `Authorization: Bearer <NEXT_API_OUT_SERVICES>` (voir `src/middleware.ts`). La route **session-photos** exige en plus le **`token`** du lien email (signature `PHOTO_SHARE_LINK_SECRET`).
+
+**Guide détaillé pour le site marchand** (méthode, en-têtes, query, exemples cURL / Node, codes d’erreur) : [`services/external/README.md`](./services/external/README.md).
 
 ## 🔗 Architecture
 

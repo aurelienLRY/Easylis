@@ -246,6 +246,7 @@ const BookingPage = () => {
     { year: number; month: number }[]
   >([]);
   const [periodFilter, setPeriodFilter] = useState<string>("all");
+  const [hidePastSessions, setHidePastSessions] = useState<boolean>(true);
   const [slideDirection, setSlideDirection] = useState<number>(0);
 
   type TEditData = {
@@ -291,6 +292,8 @@ const BookingPage = () => {
         const sessionMonth = sessionDate.getMonth();
         const sessionYear = sessionDate.getFullYear();
 
+        if (hidePastSessions && sessionDate < now) return false;
+
         if (periodFilter === "all") return true;
         if (periodFilter === "thisMonth") {
           return (
@@ -311,7 +314,7 @@ const BookingPage = () => {
         return true;
       });
     },
-    [periodFilter]
+    [periodFilter, hidePastSessions]
   );
 
   useEffect(() => {
@@ -396,6 +399,12 @@ const BookingPage = () => {
                 {quarter.label}
               </button>
             ))}
+            <button
+              className={getButtonClassName(!hidePastSessions)}
+              onClick={() => setHidePastSessions((prev) => !prev)}
+            >
+              Réservations passées
+            </button>
           </div>
         </div>
 

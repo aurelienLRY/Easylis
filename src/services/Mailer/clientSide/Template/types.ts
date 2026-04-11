@@ -13,6 +13,8 @@ export interface ITemplateData {
   customer: Omit<ICustomerSession, "_id">;
   session: Omit<ISessionWithDetails, "_id">;
   profile_from: IUser;
+  /** Lien unique marchand (partage photos session) */
+  photoShareUrl?: string;
   changes?: {
     oldDate?: Date;
     oldStartTime?: string;
