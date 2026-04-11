@@ -12,7 +12,7 @@ import Image from "next/image";
 export const Header = () => {
   const { status } = useSession();
   return (
-    <header className="flex justify-between items-center p-3  lg:px-10 md:fixed top-0 w-full z-40 bg-slate-900 dark:bg-sky-950 text-white bg-opacity-60 backdrop-blur-md">
+    <header className="flex justify-between items-center p-3  lg:px-10 md:fixed top-0 w-full z-40 bg-slate-900 dark:bg-sky-950 text-white bg-opacity-60 backdrop-blur-md mb-96">
       <div className="flex items-center gap-2">
         <Image
           src="/img/Easylis.png"
