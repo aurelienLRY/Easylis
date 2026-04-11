@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { Modal } from "@/components/layout/Modal.layout";
 import { ISessionWithDetails, ISessionPhoto } from "@/types";
@@ -317,11 +318,16 @@ export const SessionPhotosModal = ({ data, isOpen, onClose }: Props) => {
                 key={photo._id}
                 className="relative bg-slate-900 rounded overflow-hidden border border-slate-700"
               >
-                <img
-                  src={photo.fileUrl}
-                  alt={photo.fileName}
-                  className="w-full h-48 object-cover"
-                />
+                <div className="relative aspect-video w-full min-h-[12rem]">
+                  <Image
+                    src={photo.fileUrl}
+                    alt={photo.fileName}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                </div>
                 <button
                   onClick={() => deletePhoto(photo._id)}
                   disabled={isLoading}

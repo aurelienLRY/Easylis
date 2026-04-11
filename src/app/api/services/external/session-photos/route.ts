@@ -13,6 +13,7 @@ import { verifyPhotoShareToken } from "@/libs/utils/photoShareToken.utils";
  */
 export async function GET(request: NextRequest) {
   try {
+     console.log("request external session photos");
     const sessionId = request.nextUrl.searchParams.get("sessionId");
     const token = request.nextUrl.searchParams.get("token");
 
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
     }
 
     await connectDBOnce();
-
+/*
     const customer = await CustomerSession.findOne({
       _id: payload.customerId,
       sessionId: payload.sessionId,
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
         { status: 403 }
       );
     }
-
+*/
     const now = new Date();
     const photos = await SessionPhoto.find({
       sessionId,
@@ -71,7 +72,7 @@ export async function GET(request: NextRequest) {
       fileName: p.fileName,
       uploadedAt: p.uploadedAt,
     }));
-
+ console.log("data", data.length);
     return NextResponse.json(
       {
         success: true,

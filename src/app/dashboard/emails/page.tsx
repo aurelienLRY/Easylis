@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { GET_EMAIL_LOGS, GET_EMAIL_STATS } from "@/libs/ServerAction/emailLog.actions";
 import { ItemCard, ItemCardInner, ItemContainer, Modal } from "@/components";
 import { useModal } from "@/hooks";
@@ -66,7 +66,16 @@ export default function EmailsPage() {
     const [scenario, setScenario] = useState<string>("all");
     const [search, setSearch] = useState<string>("");
 
-    const loadLogs = async () => {
+    const loadStats = useCallback(async () => {
+        try {
+            const result = await GET_EMAIL_STATS();
+            setStats(result);
+        } catch (error) {
+            console.error("Erreur lors du chargement des stats:", error);
+        }
+    }, []);
+
+    const loadLogs = useCallback(async () => {
         try {
             setLoading(true);
 
@@ -91,21 +100,12 @@ export default function EmailsPage() {
         } finally {
             setLoading(false);
         }
-    };
-
-    const loadStats = async () => {
-        try {
-            const result = await GET_EMAIL_STATS();
-            setStats(result);
-        } catch (error) {
-            console.error("Erreur lors du chargement des stats:", error);
-        }
-    };
+    }, [status, scenario, search, pagination.page]);
 
     useEffect(() => {
-        loadLogs();
-        loadStats();
-    }, [filter, status, scenario, search]);
+        void loadLogs();
+        void loadStats();
+    }, [loadLogs, loadStats]);
 
     const handlePageChange = (newPage: number) => {
         setPagination(prev => ({ ...prev, page: newPage }));
