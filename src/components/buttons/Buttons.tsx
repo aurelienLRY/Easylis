@@ -35,10 +35,13 @@ export const IconButton = ({
         onClick={onClick}
         className="bg-orange-500 hover:bg-orange-600 transition-all duration-300 text-white px-4 py-2 rounded-md text-sm flex flex-col gap-2 items-center justify-center min-w-20 min-h-20 group hover:rotate-12 "
       >
-        {React.cloneElement(icon, {
-          className:
-            "text-4xl group-hover:scale-125  group-hover:-rotate-12 transition-all duration-300",
-        })}
+        {React.cloneElement(
+          icon as React.ReactElement<{ className?: string }>,
+          {
+            className:
+              "text-4xl group-hover:scale-125  group-hover:-rotate-12 transition-all duration-300",
+          }
+        )}
       </button>
     </Tooltip>
   );

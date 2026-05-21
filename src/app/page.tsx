@@ -1,5 +1,6 @@
 "use client";
 /* librairies */
+import { useEffect } from "react";
 import Image from "next/image";
 /*components*/
 import { LoginForm } from "@/components";
@@ -11,9 +12,11 @@ export default function HomePage() {
   const session = useSession();
   const router = useRouter();
 
-  if (session.status === "authenticated") {
-    router.push("/dashboard");
-  }
+  useEffect(() => {
+    if (session.status === "authenticated") {
+      router.replace("/dashboard");
+    }
+  }, [session.status, router]);
 
   return (
     <div className="w-full h-[79vh] relative">

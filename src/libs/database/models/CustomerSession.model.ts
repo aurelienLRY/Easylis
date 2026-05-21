@@ -36,7 +36,7 @@ const CustomerSessionSchema = new mongoose.Schema<ICustomerSession>({
   tarification: { type: String, required: true },
 });
 
-CustomerSessionSchema.pre("save", async function (next) {
+CustomerSessionSchema.pre("save", async function () {
   if (this.isModified("last_name") || this.isModified("first_names")) {
     this.last_name = capitalizeFirstLetter(this.last_name);
     this.first_names = capitalizeFirstLetter(this.first_names);
@@ -50,10 +50,9 @@ CustomerSessionSchema.pre("save", async function (next) {
   if (this.isModified("phone")) {
     this.phone = await crypto.encrypt(this.phone);
   }
-  next();
 });
 
-CustomerSessionSchema.pre("findOneAndUpdate", async function (next) {
+CustomerSessionSchema.pre("findOneAndUpdate", async function () {
   const update: any = this.getUpdate();
   if (update.last_name) {
     update.last_name = await crypto.encrypt(update.last_name);
@@ -67,7 +66,6 @@ CustomerSessionSchema.pre("findOneAndUpdate", async function (next) {
   if (update.phone) {
     update.phone = await crypto.encrypt(update.phone);
   }
-  next();
 });
 
 CustomerSessionSchema.post("find", async function (docs: ICustomerSession[]) {

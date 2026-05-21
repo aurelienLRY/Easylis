@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
    // Création du client
   const newCustomer = await CustomerSession.create(preCustomer);
    // Mise à jour de la session
-   await Session.findByIdAndUpdate(newSession._id, { $inc: { placesReserved: BookingVerified.customer.number_of_people } }, { new: true });
+   await Session.findByIdAndUpdate(newSession._id, { $inc: { placesReserved: BookingVerified.customer.number_of_people } }, { returnDocument: "after" });
 
    const sessionWithDetails = await GET_SERVER_SESSION_WITH_DETAILS(newSession._id as string);
 
@@ -205,7 +205,7 @@ export async function POST(req: NextRequest) {
     await Session.findByIdAndUpdate(
       sessionId, 
       { $inc: { placesReserved: BookingVerified.customer.number_of_people } }, 
-      { new: true }
+      { returnDocument: "after" }
     );
 
     // Récupération de la session mise à jour avec tous les détails

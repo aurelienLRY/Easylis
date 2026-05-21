@@ -170,7 +170,7 @@ export const UPDATE_ACTIVITY = async (
       id,
       cleanActivity,
       {
-        new: true,
+        returnDocument: "after",
       }
     );
     return {

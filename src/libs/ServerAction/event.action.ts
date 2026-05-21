@@ -77,7 +77,7 @@ export const UPDATE_EVENT = async (
       eventId,
       eventModel,
       {
-        new: true,
+        returnDocument: "after",
       }
     );
     return {

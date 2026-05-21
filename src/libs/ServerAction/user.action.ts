@@ -62,7 +62,7 @@ export const UPDATE_USER = async (
       id,
       cleanUser,
       {
-        new: true,
+        returnDocument: "after",
       }
     );
 

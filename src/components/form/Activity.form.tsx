@@ -2,7 +2,7 @@
 
 /* libraries */
 import React, { useEffect, useState, useCallback, memo } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { InferType } from "yup";
 import { Spin } from "antd";
@@ -270,7 +270,7 @@ export function ActivityForm({ data, isOpen, onClose }: ActivityFormProps) {
   const { updateActivities } = useActivities();
 
   const methods = useForm<TActivityForm>({
-    resolver: yupResolver(activitySchema),
+    resolver: yupResolver(activitySchema) as Resolver<TActivityForm>,
     defaultValues: {
       ...data,
       description: data?.description ?? "",

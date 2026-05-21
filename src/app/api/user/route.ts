@@ -118,7 +118,7 @@ export const PUT = async (req: Request): Promise<NextResponse> => {
         password: hashedPassword,
         updatedAt: new Date(),
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!user) {

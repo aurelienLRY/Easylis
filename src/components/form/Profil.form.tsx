@@ -2,7 +2,7 @@
 
 /* LIBRAIRIES */
 import { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Resolver } from "react-hook-form";
 import { InferType } from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { userSchema } from "@/libs/yup";
@@ -25,7 +25,9 @@ export const ProfilForm = () => {
   const [isDisabled, setIsDisabled] = useState(true);
 
   const methods = useForm<InferType<typeof userSchema>>({
-    resolver: yupResolver(userSchema),
+    resolver: yupResolver(userSchema) as Resolver<
+      InferType<typeof userSchema>
+    >,
     defaultValues: {
       ...profile,
       username: profile?.username || "",

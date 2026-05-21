@@ -27,7 +27,7 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-UserSchema.pre("save", async function (next) {
+UserSchema.pre("save", async function () {
   try {
     if (this.firstName) {
       this.firstName = capitalizeFirstLetter(this.firstName);
@@ -43,10 +43,9 @@ UserSchema.pre("save", async function (next) {
   } catch (error) {
     console.error("Error encrypting user data:", error);
   }
-  next();
 });
 
-UserSchema.pre("findOneAndUpdate", async function (next) {
+UserSchema.pre("findOneAndUpdate", async function () {
   const update: any = this.getUpdate();
   if (update.firstName) {
     update.firstName = await crypto.encrypt(update.firstName);
@@ -57,8 +56,6 @@ UserSchema.pre("findOneAndUpdate", async function (next) {
   if (update.phone) {
     update.phone = await crypto.encrypt(update.phone);
   }
-
-  next();
 });
 
 UserSchema.post("findOneAndUpdate", async function (doc) {

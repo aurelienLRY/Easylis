@@ -230,7 +230,7 @@ export const UPDATE_EMAIL_LOG_STATUS = async (
     const emailLog = await EmailLog.findOneAndUpdate(
       { _id: logId, userId: session.user.id },
       updateData,
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!emailLog) {
