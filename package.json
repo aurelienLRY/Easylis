@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build --webpack",
+    "build": "node --max-old-space-size=4096 ./node_modules/next/dist/bin/next build --webpack",
     "start": "next start",
     "lint": "next lint",
     "ts-check": "tsc --noEmit",
@@ -89,5 +89,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "overrides": {
+    "serialize-javascript": "7.0.5"
   }
 }

@@ -5,6 +5,7 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     proxyClientMaxBodySize: "30mb",
+    webpackMemoryOptimizations: true,
   },
   turbopack: {},
   images: {
