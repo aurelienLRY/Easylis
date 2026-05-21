@@ -52,7 +52,7 @@ const CHART_CONFIG: ChartConfig[] = [
 // Composant pour le graphique
 const Chart = ({ data }: { data: MonthData[] }) => (
   <div className="w-full h-[400px]">
-    <ResponsiveContainer className="w-full h-full min-h-[300px] md:min-h-[400px]">
+    <ResponsiveContainer className="w-full h-full min-h-[300px] md:min-h-[400px]" minWidth={0}>
       <AreaChart
         data={data}
         margin={{
@@ -65,14 +65,15 @@ const Chart = ({ data }: { data: MonthData[] }) => (
         <XAxis dataKey="name" />
         <YAxis />
         <Tooltip
-          formatter={(value: number, name: string) => {
+          formatter={(value, name) => {
+            const num = typeof value === "number" ? value : Number(value ?? 0);
             if (name === "Chiffre d'affaires") {
               return new Intl.NumberFormat("fr-FR", {
                 style: "currency",
                 currency: "EUR",
-              }).format(value);
+              }).format(num);
             }
-            return value;
+            return num;
           }}
           labelFormatter={(label) => `Période : ${label}`}
         />

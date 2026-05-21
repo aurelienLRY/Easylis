@@ -62,10 +62,14 @@ export const HeaderBtn = () => {
   };
 
   useEffect(() => {
-    if (profile?.avatar) {
-      checkAvatarExists(`/${profile?.avatar}`).then((url) => setAvatarUrl(url));
-    }
-  }, [profile]);
+    if (!profile?.avatar) return;
+    const path = profile.avatar.startsWith("/")
+      ? profile.avatar
+      : `/${profile.avatar}`;
+    checkAvatarExists(path)
+      .then((url) => setAvatarUrl(url))
+      .catch(() => setAvatarUrl("/img/default-avatar.webp"));
+  }, [profile?.avatar]);
 
   return (
     <Suspense fallback={<SkeletonAvatar />}>

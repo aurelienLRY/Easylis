@@ -117,7 +117,7 @@ export const UPDATE_EMAIL_TEMPLATE = async (
     const email = (await EmailTemplate.findByIdAndUpdate(
       emailTemplate._id,
       emailTemplate,
-      { new: true }
+      { returnDocument: "after" }
     )) as IEmailTemplate;
     if (!email || email === null) {
       throw new Error("Template email non trouvé");

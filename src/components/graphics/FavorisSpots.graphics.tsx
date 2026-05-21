@@ -1,6 +1,6 @@
 "use client";
 /* libs */
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Sector } from "recharts";
 /* components */
 import { ItemContainer } from "@/components";
@@ -87,9 +87,23 @@ const renderActiveShape = (props: any) => {
   );
 };
 
+const renderPieShape = (props: Parameters<typeof renderActiveShape>[0] & { isActive: boolean }) =>
+  props.isActive ? (
+    renderActiveShape(props)
+  ) : (
+    <Sector
+      cx={props.cx}
+      cy={props.cy}
+      innerRadius={props.innerRadius}
+      outerRadius={props.outerRadius}
+      startAngle={props.startAngle}
+      endAngle={props.endAngle}
+      fill={props.fill}
+    />
+  );
+
 const FavorisSpots = () => {
   const { SessionWithDetails } = useSessionWithDetails();
-  const [activeIndex, setActiveIndex] = useState(0);
 
   // Calcul des données pour le graphique
   const data = useMemo(() => {
@@ -122,31 +136,22 @@ const FavorisSpots = () => {
     }));
   }, [SessionWithDetails]);
 
-  const onPieEnter = useCallback(
-    (_: any, index: number) => {
-      setActiveIndex(index);
-    },
-    [setActiveIndex]
-  );
-
   // Calcul du total des sessions
   const totalSessions = data.reduce((sum, item) => sum + item.value, 0);
 
   return (
     <ItemContainer title="Lieux les plus fréquentés">
       <div className="w-full min-h-[330px] h-fit max-h-[600px] relative flex flex-col  items-center">
-        <ResponsiveContainer className="w-full h-full " minHeight={300}>
+        <ResponsiveContainer className="w-full h-full" minHeight={300} minWidth={0}>
           <PieChart>
             <Pie
-              activeIndex={activeIndex}
-              activeShape={renderActiveShape}
+              shape={renderPieShape}
               data={data}
               cx="50%"
               cy="50%"
               innerRadius={105}
               outerRadius={125}
               dataKey="value"
-              onMouseEnter={onPieEnter}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />

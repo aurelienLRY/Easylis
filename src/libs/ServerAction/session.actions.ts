@@ -252,7 +252,7 @@ export const UPDATE_SESSION = async (
     const updatedSession = await Session.findByIdAndUpdate(
       sessionId,
       updateData,
-      { new: true }
+      { returnDocument: "after" }
     );
     if (!updatedSession) {
       throw new Error("Session non trouvée");

@@ -86,7 +86,7 @@ export async function CREATE_CUSTOMER_SESSION(
     const UpdateSession = (await Session.findByIdAndUpdate(
       xssCustomer.sessionId,
       { $inc: { placesReserved: xssCustomer.number_of_people } },
-      { new: true }
+      { returnDocument: "after" }
     )) as ISession;
     if (!UpdateSession) {
       throw new Error("Erreur lors de la mise à jour de la session ");
@@ -237,7 +237,7 @@ export const UPDATE_CUSTOMER_SESSION = async (
     const updatedCustomer = await CustomerSession.findByIdAndUpdate(
       customerId,
       xssData as ICustomerSession,
-      { new: true }
+      { returnDocument: "after" }
     );
     if (!updatedCustomer) {
       throw new Error("Customer not found");
@@ -253,7 +253,7 @@ export const UPDATE_CUSTOMER_SESSION = async (
         {
           placesReserved: newPlacesReserved,
         },
-        { new: true }
+        { returnDocument: "after" }
       );
       if (!updatedSession) {
         throw new Error("Session not found");
@@ -321,7 +321,7 @@ export const CANCEL_CUSTOMER_SESSION = async (
       const result = await CustomerSession.findByIdAndUpdate(
         customerSessionId,
         { status: "Canceled", canceledAt: new Date() },
-        { new: true }
+        { returnDocument: "after" }
       );
       if (!result) {
         throw new Error("Erreur lors de l'annulation de la réservation");
@@ -341,7 +341,7 @@ export const CANCEL_CUSTOMER_SESSION = async (
           placesReserved:
             session.placesReserved - customerSession.number_of_people,
         },
-        { new: true }
+        { returnDocument: "after" }
       )) as ISession;
 
       if (!updatedSession) {

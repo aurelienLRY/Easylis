@@ -54,7 +54,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className=" dark">
+    <html lang="fr" className="dark">
       <body className={`${inter.className} dark:bg-gray-900 dark:text-white flex flex-col`}>
         <ConfigProvider
           theme={{

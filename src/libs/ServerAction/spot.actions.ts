@@ -186,7 +186,7 @@ export async function UPDATE_SPOT(
     await connectDBOnce();
 
     const updatedSpot = await Spot.findByIdAndUpdate(id, cleanSpot, {
-      new: true,
+      returnDocument: "after",
     });
     return {
       success: true,
