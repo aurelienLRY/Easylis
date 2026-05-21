@@ -1,6 +1,6 @@
 {
   "name": "Easylis",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
@@ -83,7 +83,7 @@
     "@types/react-dom": "^19",
     "eslint": "^10",
     "eslint-config-next": "^16.2.6",
-    "postcss": "^8",
+    "postcss": "8.5.15",
     "tailwindcss": "^3.4.19",
     "typescript": "^6"
   },
@@ -91,6 +91,7 @@
     "node": ">=18.0.0"
   },
   "overrides": {
-    "serialize-javascript": "7.0.5"
+    "serialize-javascript": "7.0.5",
+    "postcss": "$postcss"
   }
 }
